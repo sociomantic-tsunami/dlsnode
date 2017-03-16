@@ -149,6 +149,14 @@ public static struct Job
 
     /***************************************************************************
 
+        User-provided method to call when the job has been completed.
+
+    ***************************************************************************/
+
+    public void delegate(ssize_t)  finish_callback_dg;
+
+    /***************************************************************************
+
         Job queue where this jobs is currently resident. Used for recycling.
 
     ***************************************************************************/
@@ -166,6 +174,11 @@ public static struct Job
         if (this.finalize_results)
         {
             this.finalize_results(this);
+        }
+
+        if (this.finish_callback_dg)
+        {
+            this.finish_callback_dg(*this.ret_val);
         }
     }
 
@@ -350,6 +363,7 @@ public static class JobQueue
         free_job.is_taken = false;
         free_job.is_slot_free = false;
         free_job.owner_queue = this;
+        free_job.finish_callback_dg = null;
 
         return free_job;
     }
