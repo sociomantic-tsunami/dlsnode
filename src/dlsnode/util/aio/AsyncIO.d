@@ -107,6 +107,7 @@ class AsyncIO
 
         this.scheduler = new AioScheduler(this.exception);
         this.jobs = new JobQueue(this.exception, this.scheduler);
+        this.nonblocking = new typeof(this.nonblocking);
 
         // create worker threads
         this.threads.length = number_of_threads;
@@ -203,6 +204,69 @@ class AsyncIO
             copy(dest, job.recv_buffer[0..*job.ret_val]);
         }
     }
+
+    /***************************************************************************
+
+        Set of non-blocking methods. The user is responsible to suspend the fiber,
+        and AsyncIO will not resume it. Instead, the callback will be called
+        where the user can do whatever is required.
+
+    ***************************************************************************/
+
+    public final class Nonblocking
+    {
+        /**************************************************************************
+
+            Issues a pread request, filling the buffer as much as possible,
+            expecting the user to suspend the caller manually.
+
+            This will read buf.length number of bytes from fd to buf, starting
+            from offset.
+
+            Params:
+                buf = buffer to fill
+                ret_val = return value to fill
+                fd = file descriptor to read from
+                offset = offset in the file to read from
+                finish_callback_dg = method to call when the request has finished,
+                    passing the return value of the pread call
+
+            Returns:
+                number of the bytes read
+
+            Throws:
+                ErrnoException with appropriate errno set in case of failure
+
+        **************************************************************************/
+
+        public void pread (void[] buf, ssize_t* ret_val,
+                int* errno_val,
+                int fd, size_t offset,
+                void delegate(ssize_t) finish_callback_dg)
+        {
+            auto job = this.outer.jobs.reserveJobSlot(&lock_mutex,
+                    &unlock_mutex);
+
+            job.recv_buffer.length = buf.length;
+            enableStomping(job.recv_buffer);
+
+            job.fd = fd;
+            job.offset = offset;
+            job.cmd = Job.Command.Read;
+            job.ret_val = ret_val;
+            job.errno_val = errno_val;
+            job.user_buffer = buf;
+            job.finalize_results = &finalizeRead;
+            job.finish_callback_dg = finish_callback_dg;
+
+            // Let the threads waiting on the semaphore know that they
+            // can start doing single read
+            post_semaphore(&this.outer.jobs.jobs_available);
+        }
+    }
+
+    /// Ditto
+    public Nonblocking nonblocking;
 
     /**************************************************************************
 
