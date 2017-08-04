@@ -1,0 +1,2 @@
+# Crontab for running daily compression of the DLS's data
+25 6 * * * dlsnode /srv/dlsnode/etc/compress_data.sh
