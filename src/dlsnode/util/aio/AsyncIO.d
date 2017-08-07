@@ -27,12 +27,15 @@
 
 module dlsnode.util.aio.AsyncIO;
 
+import ocean.transition;
+
 import core.stdc.errno;
 import core.sys.posix.semaphore;
 import core.sys.posix.pthread;
 import core.sys.posix.unistd;
 import core.stdc.stdint;
 import core.stdc.stdio;
+import ocean.core.array.Mutation: copy;
 import ocean.sys.ErrnoException;
 import ocean.io.select.EpollSelectDispatcher;
 
@@ -152,14 +155,16 @@ class AsyncIO
         auto job = this.jobs.reserveJobSlot(&lock_mutex,
                 &unlock_mutex);
 
-        job.buf_ptr = buf.ptr;
-        job.buf_len = buf.length;
+        job.recv_buffer.length = buf.length;
+        enableStomping(job.recv_buffer);
         job.fd = fd;
         job.suspendable_request_handler = suspendable_request_handler;
         job.offset = offset;
         job.cmd = Job.Command.Read;
         job.ret_val = &ret_val;
         job.errno_val = &errno_val;
+        job.user_buffer = buf;
+        job.finalize_results = &finalizeRead;
 
         // Let the threads waiting on the semaphore know that they
         // can start doing single read
@@ -178,6 +183,25 @@ class AsyncIO
 
         assert(ret_val >= 0);
         return cast(size_t)ret_val;
+    }
+
+    /***************************************************************************
+
+        Finalizes the read request - copies the contents of receive buffer
+        to user provided buffer.
+
+        Params:
+            job = job to finalize.
+
+    ***************************************************************************/
+
+    private static void finalizeRead (Job* job)
+    {
+        if (*job.ret_val >= 0)
+        {
+            auto dest = (job.user_buffer.ptr)[0..*job.ret_val];
+            copy(dest, job.recv_buffer[0..*job.ret_val]);
+        }
     }
 
     /**************************************************************************
@@ -211,6 +235,7 @@ class AsyncIO
         job.cmd = Job.Command.Fsync;
         job.ret_val = &ret_val;
         job.errno_val = &errno_val;
+        job.finalize_results = null;
 
         // Let the threads waiting on the semaphore that they
         // can perform fsync
@@ -259,6 +284,7 @@ class AsyncIO
         job.cmd = Job.Command.Close;
         job.ret_val = &ret_val;
         job.errno_val = &errno_val;
+        job.finalize_results = null;
 
         post_semaphore(&this.jobs.jobs_available);
 
