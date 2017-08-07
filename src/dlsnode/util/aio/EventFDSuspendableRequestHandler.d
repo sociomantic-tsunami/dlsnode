@@ -55,7 +55,7 @@ class EventFDSuspendableRequestHandler: SuspendableRequestHandler
 
     ***************************************************************************/
 
-    public override void wake ()
+    protected override void wake_ ()
     {
         this.event.trigger;
     }
@@ -67,7 +67,7 @@ class EventFDSuspendableRequestHandler: SuspendableRequestHandler
 
     ***************************************************************************/
 
-    public override void wait ()
+    protected override void wait_ ()
     {
         this.event.wait;
     }

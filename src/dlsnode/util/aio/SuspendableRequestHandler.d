@@ -23,14 +23,38 @@ abstract class SuspendableRequestHandler
 
     ***************************************************************************/
 
-    abstract public void wake ();
+    protected abstract void wake_ ();
 
     /***************************************************************************
 
-        Cedes the control from the suspendable request, waiting for the aio operation
-        to be done.
+        Cedes the control from the suspendable request, waiting for the aio
+        operation to be done. Implementation is defined by the concrete classes.
 
     ***************************************************************************/
 
-    abstract public void wait ();
+    protected abstract void wait_();
+
+    /***************************************************************************
+
+        Cedes the control from the suspendable request, waiting for the aio
+        operation to be done. Called by AsyncIO framework internally.
+
+    ***************************************************************************/
+
+    public final void wait ()
+    {
+        this.wait_();
+    }
+
+    /***************************************************************************
+
+        Yields the control to the suspendable request, indicating that the aio
+        operation has been done. Called by the AsyncIO framework internally.
+
+    ***************************************************************************/
+
+    public final void wake ()
+    {
+        this.wake_();
+    }
 }
