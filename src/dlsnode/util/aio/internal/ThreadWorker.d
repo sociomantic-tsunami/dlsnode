@@ -177,14 +177,14 @@ private static ssize_t do_pread (Job* job)
 {
     // Now, do the reading!
     size_t count = 0;
-    while (count < job.buf_len)
+    while (count < job.recv_buffer.length)
     {
         ssize_t read;
 
         while (true)
         {
-            read = .pread(job.fd, job.buf_ptr + count,
-                        job.buf_len - count, job.offset + count);
+            read = .pread(job.fd, job.recv_buffer.ptr + count,
+                        job.recv_buffer.length - count, job.offset + count);
 
             if (read >= 0 || .errno != EINTR)
             {

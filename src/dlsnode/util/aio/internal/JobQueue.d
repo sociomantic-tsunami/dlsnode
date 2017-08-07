@@ -32,6 +32,8 @@ import dlsnode.util.aio.internal.AioScheduler;
 
 public static struct Job
 {
+    import dlsnode.util.aio.internal.MutexOps;
+
     /******************************************************************
 
         Command to be executed for the current request.
@@ -52,22 +54,6 @@ public static struct Job
     ******************************************************************/
 
     public Command cmd;
-
-    /******************************************************************
-
-        Pointer to the buffer to fill
-
-    *****************************************************************/
-
-    public void* buf_ptr;
-
-    /****************************************************************
-
-        Length of the buffer
-
-    ****************************************************************/
-
-    public size_t buf_len;
 
     /****************************************************************
 
@@ -129,6 +115,70 @@ public static struct Job
     ****************************************************************/
 
     private bool is_slot_free;
+
+    /****************************************************************
+
+        Buffer to be filled by the worker thread. When the job is
+        finalised, the contents are copied into user_buffer.
+
+    ****************************************************************/
+
+    public void[] recv_buffer;
+
+    /***************************************************************
+
+        User buffer to copy the results to. NOTE: the reason to have
+        recv_buffer and user_buffer separate is because it might happen
+        that user discards the job and the buffer, while thread is
+        writing into it, in which case the contents of recv_buffer
+        are discarded.
+
+    ****************************************************************/
+
+    public void[] user_buffer;
+
+    /***************************************************************************
+
+        Prepares the results, called upon the completion of the request,
+        if the jobs has not been cancelled while waiting for the completion.
+
+    ***************************************************************************/
+
+    public void function(Job* job) finalize_results;
+
+    /***************************************************************************
+
+        Job queue where this jobs is currently resident. Used for recycling.
+
+    ***************************************************************************/
+
+    private JobQueue owner_queue;
+
+    /***************************************************************************
+
+        Performs any actions at the end of the AIO operation.
+
+    ***************************************************************************/
+
+    public void finished ()
+    {
+        if (this.finalize_results)
+        {
+            this.finalize_results(this);
+        }
+    }
+
+    /***************************************************************************
+
+        Recycles the job and marks it free to use by the AIO for the next
+        operation.
+
+    ***************************************************************************/
+
+    public void recycle ()
+    {
+        this.owner_queue.recycleJob(this, &lock_mutex, &unlock_mutex);
+    }
 }
 
 /**************************************************************************
