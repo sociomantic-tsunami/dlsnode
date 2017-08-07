@@ -43,7 +43,8 @@ class AioScheduler: ISelectEvent
     import core.sys.posix.pthread;
     import dlsnode.util.aio.SuspendableRequestHandler;
     import dlsnode.util.aio.internal.MutexOps;
-    import dlsnode.util.aio.internal.Queue;
+    import swarm.neo.util.TreeQueue;
+    import dlsnode.util.aio.internal.JobQueue: Job;
 
     /***************************************************************************
 
@@ -59,7 +60,7 @@ class AioScheduler: ISelectEvent
 
     ***************************************************************************/
 
-    private Queue* ready_queue;
+    private TreeQueue!(SuspendableRequestHandler)* ready_queue;
 
     /***************************************************************************
 
@@ -67,7 +68,7 @@ class AioScheduler: ISelectEvent
 
     ***************************************************************************/
 
-    private Queue* waking_queue;
+    private TreeQueue!(SuspendableRequestHandler)* waking_queue;
 
 
     /***************************************************************************
@@ -84,8 +85,8 @@ class AioScheduler: ISelectEvent
         exception.enforceRetCode!(pthread_mutex_init).call(
                 &this.queue_mutex, null);
 
-        this.ready_queue = new Queue;
-        this.waking_queue = new Queue;
+        this.ready_queue = new TreeQueue!(SuspendableRequestHandler);
+        this.waking_queue = new TreeQueue!(SuspendableRequestHandler);
     }
 
     /***************************************************************************
@@ -107,7 +108,7 @@ class AioScheduler: ISelectEvent
             unlock_mutex(&this.queue_mutex);
         }
 
-        this.ready_queue.insert(req);
+        this.ready_queue.push(req);
         this.trigger();
     }
 

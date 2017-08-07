@@ -13,10 +13,8 @@
 
 module dlsnode.util.aio.SuspendableRequestHandler;
 
-import dlsnode.util.aio.internal.Queue;
-
 /// Ditto
-abstract class SuspendableRequestHandler: Queue.Element
+abstract class SuspendableRequestHandler
 {
     /***************************************************************************
 
