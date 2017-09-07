@@ -56,6 +56,14 @@ class AioScheduler: ISelectEvent
 
     /***************************************************************************
 
+        See ready_queue's documentation.
+
+    ***************************************************************************/
+
+    private TreeQueue!(SuspendableRequestHandler)[2] queues;
+
+    /***************************************************************************
+
         Queue of requests being ready. NOTE: this is just a pointer to a queue
         of requests that are finished processing and they will be woken up
         in the next AioScheduler cycle. On every AioScheduler cycle, pointers
@@ -93,8 +101,8 @@ class AioScheduler: ISelectEvent
         exception.enforceRetCode!(pthread_mutex_init).call(
                 &this.queue_mutex, null);
 
-        this.ready_queue = new TreeQueue!(SuspendableRequestHandler);
-        this.waking_queue = new TreeQueue!(SuspendableRequestHandler);
+        this.ready_queue = &this.queues[0];
+        this.waking_queue = &this.queues[1];
     }
 
     /***************************************************************************
