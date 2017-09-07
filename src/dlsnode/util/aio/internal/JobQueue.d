@@ -32,6 +32,7 @@ import dlsnode.util.aio.internal.AioScheduler;
 
 public static struct Job
 {
+    import ocean.core.array.Mutation: copy;
     import dlsnode.util.aio.internal.MutexOps;
 
     /******************************************************************
@@ -348,6 +349,7 @@ public static class JobQueue
 
         free_job.is_taken = false;
         free_job.is_slot_free = false;
+        free_job.owner_queue = this;
 
         return free_job;
     }
@@ -367,7 +369,7 @@ public static class JobQueue
     public void markJobReady(MutexOp) ( Job* job,
             MutexOp lock_mutex, MutexOp unlock_mutex )
     {
-        this.scheduler.requestReady(job.suspendable_request_handler,
+        this.scheduler.requestReady(job,
                 lock_mutex, unlock_mutex);
     }
 

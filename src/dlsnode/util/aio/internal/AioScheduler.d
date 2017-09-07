@@ -60,7 +60,7 @@ class AioScheduler: ISelectEvent
 
     ***************************************************************************/
 
-    private TreeQueue!(SuspendableRequestHandler)[2] queues;
+    private TreeQueue!(Job*)[2] queues;
 
     /***************************************************************************
 
@@ -75,7 +75,7 @@ class AioScheduler: ISelectEvent
 
     ***************************************************************************/
 
-    private TreeQueue!(SuspendableRequestHandler)* ready_queue;
+    private TreeQueue!(Job*)* ready_queue;
 
     /***************************************************************************
 
@@ -84,8 +84,15 @@ class AioScheduler: ISelectEvent
 
     ***************************************************************************/
 
-    private TreeQueue!(SuspendableRequestHandler)* waking_queue;
+    private TreeQueue!(Job*)* waking_queue;
 
+    /***************************************************************************
+
+        Queue of the request whose results should be discarded.
+
+    ***************************************************************************/
+
+    private TreeQueue!(Job*) discarded_queue;
 
     /***************************************************************************
 
@@ -110,12 +117,14 @@ class AioScheduler: ISelectEvent
         Mark the request ready to be woken up by scheduler
 
         Params:
-            req = SuspendableRequestHandler to wake the suspended request with
+            job = job that has completed, that needs to be finalized and whose
+                suspended request should be resumed
             lock_mutex = function or delegate to lock the mutex
             unlock_mutex = function or delegate to unlock the mutex
 
     ***************************************************************************/
-    public void requestReady (MutexOp)(SuspendableRequestHandler req,
+
+    public void requestReady (MutexOp)(Job* req,
             MutexOp lock_mutex, MutexOp unlock_mutex)
     {
         lock_mutex(&this.queue_mutex);
@@ -124,8 +133,49 @@ class AioScheduler: ISelectEvent
             unlock_mutex(&this.queue_mutex);
         }
 
-        this.ready_queue.push(req);
-        this.trigger();
+        // Check if the results of this request was marked as not needed
+        if (!this.discarded_queue.remove(req))
+        {
+            this.ready_queue.push(req);
+            this.trigger();
+        }
+        else
+        {
+            req.recycle();
+        }
+    }
+
+    /***************************************************************************
+
+        Discards the results of the given AIO operation.
+
+        Params:
+            req = SuspendableRequestHandler instance that was waiting for results
+
+    ***************************************************************************/
+
+    public void discardResults (Job* req)
+    {
+        lock_mutex(&this.queue_mutex);
+        scope (exit)
+        {
+            unlock_mutex(&this.queue_mutex);
+        }
+
+        // Since we're guarded by lock above, two scenarios might happen:
+        // 1) The given ThreadWorker already submitted the results for this
+        //    operation, which we will simply remove from the ready queue.
+        // 2) No worker thread was assigned for this request, or the operation
+        //    was not yet completed. In this case tell the AioScheduler to discard
+        //    these results as soon as they arrive
+        if (!this.ready_queue.remove(req))
+        {
+            this.discarded_queue.push(req);
+        }
+        else
+        {
+            req.recycle();
+        }
     }
 
 
@@ -142,11 +192,14 @@ class AioScheduler: ISelectEvent
     {
         this.switchQueues();
 
-        foreach (item; *this.waking_queue)
+        foreach (job; *this.waking_queue)
         {
-            auto req = cast(SuspendableRequestHandler)item;
+            auto req = job.suspendable_request_handler;
             assert (req);
+
+            job.finished();
             req.wake();
+            job.recycle();
         }
 
         assert(this.waking_queue.is_empty());

@@ -171,7 +171,7 @@ class AsyncIO
         post_semaphore(&this.jobs.jobs_available);
 
         // Block the fiber
-        suspendable_request_handler.wait();
+        suspendable_request_handler.wait(job, &this.scheduler.discardResults);
 
         // At this point, fiber is resumed,
         // check the return value and throw if needed
@@ -242,7 +242,7 @@ class AsyncIO
         post_semaphore(&this.jobs.jobs_available);
 
         // Block the fiber
-        suspendable_request_handler.wait();
+        suspendable_request_handler.wait(job, &this.scheduler.discardResults);
 
         // At this point, fiber is resumed,
         // check the return value and throw if needed
@@ -289,7 +289,7 @@ class AsyncIO
         post_semaphore(&this.jobs.jobs_available);
 
         // Block the fiber
-        suspendable_request_handler.wait();
+        suspendable_request_handler.wait(job, &this.scheduler.discardResults);
 
         // At this point, fiber is resumed,
         // check the return value and throw if needed
