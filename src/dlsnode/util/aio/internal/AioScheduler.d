@@ -56,7 +56,14 @@ class AioScheduler: ISelectEvent
 
     /***************************************************************************
 
-        Queue of requests being ready
+        Queue of requests being ready. NOTE: this is just a pointer to a queue
+        of requests that are finished processing and they will be woken up
+        in the next AioScheduler cycle. On every AioScheduler cycle, pointers
+        to `ready_queue` and `waking_queue` are swapped. During a single cycle,
+        only the worker threads are accessing ready_queue (inserting references
+        to the jobs that are finish) and only the main thread access the
+        waking_queue (popping the requests from it and resuming the fibers
+        waiting for the IO to complete).
 
     ***************************************************************************/
 
@@ -64,7 +71,8 @@ class AioScheduler: ISelectEvent
 
     /***************************************************************************
 
-        Queue of requests that are in process of waking up.
+        Queue of requests that are in process of waking up. For more details,
+        see comment for ready_queue, above.
 
     ***************************************************************************/
 
