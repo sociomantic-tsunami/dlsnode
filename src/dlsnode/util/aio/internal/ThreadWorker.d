@@ -99,12 +99,8 @@ extern (C) static void* thread_entry_point (void* job_queue_ptr)
             *job.ret_val = ret_value;
         }
 
-        // Signal that you have done the job and check for
-        // the cancelation
-        if (signalJobDone(jobs, job) == false)
-        {
-            break;
-        }
+        // Signal that you have done the job
+        signalJobDone(jobs, job);
     }
 
     return cast(void*)0;
@@ -286,18 +282,10 @@ private void thread_unlock_mutex (pthread_mutex_t* mutex)
         jobs = queue containing jobs to be run
         job = pointer to job containing executed request
 
-    Returns:
-        true if the execution may continue, false if the thread should
-        stop taking more requests
-
 **********************************************************************/
 
-private bool signalJobDone (JobQueue jobs, Job* job)
+private void signalJobDone (JobQueue jobs, Job* job)
 {
     jobs.markJobReady(job,
             &thread_lock_mutex, &thread_unlock_mutex);
-
-    // Recycle job and check if this was the last one
-    return jobs.recycleJob(job, &thread_lock_mutex,
-            &thread_unlock_mutex);
 }
