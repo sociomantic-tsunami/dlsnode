@@ -23,7 +23,7 @@ import Protocol = dlsproto.node.request.Redistribute;
 
 import ocean.transition;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 
 /******************************************************************************
 
@@ -61,8 +61,8 @@ scope class RedistributeRequest: Protocol.Redistribute
     import ocean.core.Buffer;
     import ocean.core.TypeConvert : downcast;
 
-    import ocean.text.convert.Format;
-    import ocean.io.FilePath_tango;
+    import ocean.text.convert.Formatter;
+    import ocean.io.FilePath;
     import ocean.io.device.File;
     import ocean.math.random.Random;
 
@@ -282,7 +282,7 @@ scope class RedistributeRequest: Protocol.Redistribute
         // Rename the file to .tmp, making it inaccessible to the storage engine
         scope original_path = new FilePath(bucket_path);
         tmp_file_path.length = 0;
-        Format.format(tmp_file_path, "{}.tmp", bucket_path);
+        sformat(tmp_file_path, "{}.tmp", bucket_path);
         original_path.rename(tmp_file_path);
 
         this.input_buffer.reset();

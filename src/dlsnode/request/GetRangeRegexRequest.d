@@ -21,7 +21,7 @@ module dlsnode.request.GetRangeRegexRequest;
 import Protocol = dlsproto.node.request.GetRangeRegex;
 import ocean.text.regex.PCRE;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 import ocean.transition;
 
 /*******************************************************************************

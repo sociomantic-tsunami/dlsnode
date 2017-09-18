@@ -24,7 +24,11 @@ import ocean.transition;
 
 import ocean.io.select.client.SelectEvent;
 import ocean.util.app.DaemonApp;
-import ocean.util.log.Log;
+
+// FIXME: this import is static in order to resolve conflict with
+// deprecated Log imported via imports in DlsNodeServer. Should be made
+// non-static with ocean v4.x.x
+static import ocean.util.log.Logger;
 
 import ocean.text.util.StringC;
 import ocean.sys.ErrnoException;
@@ -45,11 +49,11 @@ import ocean.transition;
 
 *******************************************************************************/
 
-private Logger logger;
+private ocean.util.log.Logger.Logger logger;
 
 static this ( )
 {
-    logger = Log.lookup("dlsnode.main");
+    .logger = ocean.util.log.Logger.Log.lookup("dlsnode.main");
 }
 
 
@@ -139,7 +143,7 @@ public class DlsNodeServer : DaemonApp
     import dlsproto.client.legacy.DlsConst;
     import swarm.util.node.log.Stats;
 
-    import ocean.core.Exception_tango : IOException, OutOfMemoryException;
+    import ocean.core.ExceptionDefinitions : IOException, OutOfMemoryException;
     import ocean.sys.ErrnoException;
 
     import core.sys.posix.signal;
@@ -356,7 +360,7 @@ public class DlsNodeServer : DaemonApp
     override protected void onStatsTimer ( )
     {
         this.dls_stats.log();
-        this.stats_ext.stats_log.add(Log.stats());
+        this.stats_ext.stats_log.add(ocean.util.log.Logger.Log.stats());
         this.stats_ext.stats_log.add(getNumFilesStats());
         this.stats_ext.stats_log.flush();
     }

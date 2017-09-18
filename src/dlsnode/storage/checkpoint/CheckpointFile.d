@@ -28,7 +28,7 @@
 
 module dlsnode.storage.checkpoint.CheckpointFile;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 import ocean.transition;
 
 /******************************************************************************
@@ -48,7 +48,7 @@ class CheckpointFile
     import core.sys.posix.stdio: fdopen, fclose;
     import core.stdc.stdio: FILE, EOF, fscanf, fprintf, feof, rewind, clearerr, fflush;
     import core.stdc.stdlib: free;
-    import ocean.io.FilePath_tango;
+    import ocean.io.FilePath;
 
     import ocean.sys.SignalMask;
     import core.sys.posix.signal: SIGABRT, SIGSEGV, SIGILL, SIGBUS;

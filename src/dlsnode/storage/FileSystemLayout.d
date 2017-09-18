@@ -86,19 +86,19 @@ import ocean.core.Enforce;
 
 import ocean.io.serialize.SimpleStreamSerializer;
 
-import ocean.text.convert.Format;
+import ocean.text.convert.Formatter;
 
 import ocean.io.model.IConduit: IOStream, InputStream, OutputStream;
 
 import ocean.io.device.File;
 
-import ocean.io.FilePath_tango;
+import ocean.io.FilePath;
 
-import ocean.core.Exception_tango: IOException;
+import ocean.core.ExceptionDefinitions: IOException;
 
 import Integer = ocean.text.convert.Integer : toUlong;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 
 import ocean.stdc.posix.sys.stat;
 
@@ -533,7 +533,7 @@ public class FileSystemLayout
                 auto bucket_name = Hash.intToHex(found_bucket, bucket_name_buf);
 
                 path.length = 0;
-                Format.format(path, "{}/{}/{}", base_dir, slot_name,
+                sformat(path, "{}/{}/{}", base_dir, slot_name,
                     bucket_name);
 
                 found_bucket_slot = (slot << SplitBits.bucket_bits) +
