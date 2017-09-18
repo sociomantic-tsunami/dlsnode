@@ -24,7 +24,7 @@ import dlsnode.storage.StorageEngine;
 
 import swarm.node.storage.model.IStorageChannels;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 
 import ocean.io.select.client.FiberSelectEvent;
 
@@ -68,7 +68,7 @@ public class StorageChannels : IStorageChannelsTemplate!(StorageEngine)
 
     import ocean.sys.Environment;
 
-    debug import ocean.io.Stdout_tango : Stderr;
+    debug import ocean.io.Stdout : Stderr;
 
 
     /***************************************************************************

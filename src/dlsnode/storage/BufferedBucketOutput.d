@@ -39,12 +39,12 @@ import ocean.io.stream.Buffered;
 
 import ocean.io.device.File;
 
-import ocean.io.FilePath_tango;
+import ocean.io.FilePath;
 
 import dlsnode.util.aio.SuspendableRequestHandler;
 import dlsnode.util.aio.AsyncIO;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 
 /******************************************************************************
 

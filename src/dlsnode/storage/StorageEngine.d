@@ -24,7 +24,7 @@ import dlsnode.storage.iterator.model.IStorageEngineStepIterator;
 
 import swarm.node.storage.model.IStorageEngine;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 
 import dlsnode.util.aio.SuspendableRequestHandler;
 import dlsnode.util.aio.AsyncIO;

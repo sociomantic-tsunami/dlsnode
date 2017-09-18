@@ -20,7 +20,7 @@ module dlsnode.request.PutBatchRequest;
 
 import Protocol = dlsproto.node.request.PutBatch;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 import ocean.transition;
 
 /*******************************************************************************

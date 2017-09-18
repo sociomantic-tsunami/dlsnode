@@ -21,7 +21,7 @@ import dlsnode.util.aio.SuspendableRequestHandler;
 import ocean.core.Test;
 import ocean.transition;
 
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 import ocean.transition;
 
 version (UnitTest)

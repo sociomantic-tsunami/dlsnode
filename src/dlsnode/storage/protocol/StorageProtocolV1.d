@@ -17,7 +17,7 @@ import ocean.transition;
 
 import dlsnode.storage.protocol.model.IStorageProtocol;
 import ocean.io.device.File;
-import ocean.util.log.Log;
+import ocean.util.log.Logger;
 
 /*******************************************************************************
 

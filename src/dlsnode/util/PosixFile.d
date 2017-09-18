@@ -28,7 +28,7 @@ class PosixFile
 
     import ocean.io.FilePath;
 
-    import ocean.util.log.Log;
+    import ocean.util.log.Logger;
 
     /***************************************************************************
 
