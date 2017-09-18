@@ -533,6 +533,7 @@ public class FileSystemLayout
                 auto bucket_name = Hash.intToHex(found_bucket, bucket_name_buf);
 
                 path.length = 0;
+                enableStomping(path);
                 sformat(path, "{}/{}/{}", base_dir, slot_name,
                     bucket_name);
 
