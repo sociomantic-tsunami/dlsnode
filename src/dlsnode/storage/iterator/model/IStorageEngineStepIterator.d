@@ -24,7 +24,7 @@
 *******************************************************************************/
 
 module dlsnode.storage.iterator.model.IStorageEngineStepIterator;
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 
 import ocean.transition;
 
@@ -37,11 +37,11 @@ interface IStorageEngineStepIterator
         with the methods below.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler instance to block the caller on.
+            waiting_context = ContextAwaitingJob instance to block the caller on.
 
     ***************************************************************************/
 
-    public void getAll ( SuspendableRequestHandler suspendable_request_handler );
+    public void getAll ( ContextAwaitingJob waiting_context );
 
 
     /***************************************************************************
@@ -52,7 +52,7 @@ interface IStorageEngineStepIterator
         the methods below.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler instance to block the caller on.
+            waiting_context = ContextAwaitingJob instance to block the caller on.
             min = string containing the hexadecimal key of the first
                 record to iterate
             max = string containing the hexadecimal key of the last
@@ -60,7 +60,7 @@ interface IStorageEngineStepIterator
 
     ***************************************************************************/
 
-    public void getRange ( SuspendableRequestHandler suspendable_request_handler, cstring min, cstring max );
+    public void getRange ( ContextAwaitingJob waiting_context, cstring min, cstring max );
 
 
     /***************************************************************************
@@ -81,14 +81,14 @@ interface IStorageEngineStepIterator
         to.
 
         Params:
-            event = SuspendableRequestHandler to block the fiber on until read is completed
+            event = ContextAwaitingJob to block the fiber on until read is completed
 
         Returns:
             current value
 
     ***************************************************************************/
 
-    public cstring value ( SuspendableRequestHandler suspendable_request_handler );
+    public cstring value ( ContextAwaitingJob waiting_context );
 
 
     /***************************************************************************
@@ -97,11 +97,11 @@ interface IStorageEngineStepIterator
         the storage engine, if this.started is false.
 
         Params:
-            event = SuspendableRequestHandler to block the fiber on until read is completed
+            event = ContextAwaitingJob to block the fiber on until read is completed
 
     ***************************************************************************/
 
-    public void next ( SuspendableRequestHandler suspendable_request_handler );
+    public void next ( ContextAwaitingJob waiting_context );
 
 
     /***************************************************************************

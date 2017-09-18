@@ -19,7 +19,7 @@ public import dlsnode.storage.Record;
 public import dlsnode.storage.BucketFile;
 public import ocean.io.stream.Buffered;
 
-public import dlsnode.util.aio.SuspendableRequestHandler;
+public import dlsnode.util.aio.ContextAwaitingJob;
 
 interface IStorageProtocol
 {
@@ -28,7 +28,7 @@ interface IStorageProtocol
         Reads next record header from the file, if any.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = record header to fill
@@ -39,7 +39,7 @@ interface IStorageProtocol
     **************************************************************************/
 
     public bool nextRecord (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, ref RecordHeader header );
 
 
@@ -48,7 +48,7 @@ interface IStorageProtocol
         Reads the next record value from the file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = current record's header
@@ -57,7 +57,7 @@ interface IStorageProtocol
     **************************************************************************/
 
     public void readRecordValue (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, RecordHeader header, ref mstring value);
 
 
@@ -66,7 +66,7 @@ interface IStorageProtocol
         Skips the next record value in the file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = current record's header
@@ -74,7 +74,7 @@ interface IStorageProtocol
     **************************************************************************/
 
     public void skipRecordValue (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, ref RecordHeader header );
 
 

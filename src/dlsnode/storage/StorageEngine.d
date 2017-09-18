@@ -26,7 +26,7 @@ import swarm.node.storage.model.IStorageEngine;
 
 import ocean.util.log.Logger;
 
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 import dlsnode.util.aio.AsyncIO;
 
 import ocean.transition;
@@ -165,7 +165,7 @@ public class StorageEngine : IStorageEngine
         ***********************************************************************/
 
         public void put ( hash_t key, cstring value, ref ubyte[] record_buffer,
-                SuspendableRequestHandler suspendable_request_handler )
+                ContextAwaitingJob waiting_context )
         {
             // Calculate file hash.
             SlotBucket sb;
@@ -206,7 +206,7 @@ public class StorageEngine : IStorageEngine
                 file.setDir(this.outer.id, this.outer.channel_dir);
             }
 
-            file.put(key, value, record_buffer, suspendable_request_handler);
+            file.put(key, value, record_buffer, waiting_context);
         }
 
 
@@ -330,7 +330,7 @@ public class StorageEngine : IStorageEngine
             value = record value
             record_buffer = buffer used internally for rendering entire record
                             passing it to BufferedOutput.
-            suspendable_request_handler = suspendable_request_handler to block
+            waiting_context = waiting_context to block
                 and wait on for IO to happen
 
         Returns:
@@ -339,10 +339,10 @@ public class StorageEngine : IStorageEngine
     ***********************************************************************/
 
     typeof(this) put ( cstring key, cstring value, ref ubyte[] record_buffer,
-            SuspendableRequestHandler suspendable_request_handler )
+            ContextAwaitingJob waiting_context )
     {
         this.writers.put(Hash.straightToHash(key), value, record_buffer,
-                suspendable_request_handler);
+                waiting_context);
 
         return this;
     }
@@ -354,15 +354,15 @@ public class StorageEngine : IStorageEngine
 
         Params:
             iterator = iterator to initialise
-            suspendable_request_handler = SuspendableRequestHandler instance to
+            waiting_context = ContextAwaitingJob instance to
                 block the caller on.
 
     ***********************************************************************/
 
     public typeof(this) getAll ( IStorageEngineStepIterator iterator,
-            SuspendableRequestHandler suspendable_request_handler )
+            ContextAwaitingJob waiting_context )
     {
-        (cast(IStorageEngineStepIterator)iterator).getAll(suspendable_request_handler);
+        (cast(IStorageEngineStepIterator)iterator).getAll(waiting_context);
 
         return this;
     }
@@ -377,15 +377,15 @@ public class StorageEngine : IStorageEngine
             iterator = iterator to initialise
             min = minimum hash to iterate over
             max = maximum hash to iterate over
-            suspendable_request_handler = SuspendableRequestHandler instance to
+            waiting_context = ContextAwaitingJob instance to
                 block the caller on.
 
     ***********************************************************************/
 
     public typeof(this) getRange ( IStorageEngineStepIterator iterator,
-            cstring min, cstring max, SuspendableRequestHandler suspendable_request_handler )
+            cstring min, cstring max, ContextAwaitingJob waiting_context )
     {
-        (cast(IStorageEngineStepIterator)iterator).getRange(suspendable_request_handler, min, max);
+        (cast(IStorageEngineStepIterator)iterator).getRange(waiting_context, min, max);
 
         return this;
     }

@@ -41,7 +41,7 @@ import ocean.io.device.File;
 
 import ocean.io.FilePath;
 
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 import dlsnode.util.aio.AsyncIO;
 
 import ocean.util.log.Logger;
@@ -192,7 +192,7 @@ public class BufferedBucketOutput
 
         Indicator if the checkpoint needs to be made (if the file flushed).
         This can't be done directly in the flushNotify method, as
-        BufferedOutput is not calling the delegate with the SuspendableRequestHandler
+        BufferedOutput is not calling the delegate with the ContextAwaitingJob
         from the currently running fiber.
 
     **************************************************************************/
@@ -240,7 +240,7 @@ public class BufferedBucketOutput
             value = record value
             record_buffer = buffer used internally for rendering entire record
                             passing it to BufferedOutput.
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the current fiber on while doing blocking IO
         Returns:
             this instance
@@ -248,9 +248,9 @@ public class BufferedBucketOutput
      **************************************************************************/
 
     public This put ( hash_t key, cstring value, ref ubyte[] record_buffer,
-            SuspendableRequestHandler suspendable_request_handler )
+            ContextAwaitingJob waiting_context )
     {
-        this.openFile(key, suspendable_request_handler);
+        this.openFile(key, waiting_context);
 
         if (this.need_checkpoint)
         {
@@ -337,13 +337,13 @@ public class BufferedBucketOutput
 
         Params:
             key = record key
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the current fiber on while doing blocking IO
 
      **************************************************************************/
 
     private void openFile ( hash_t key,
-            SuspendableRequestHandler suspendable_request_handler )
+            ContextAwaitingJob waiting_context )
     {
         SlotBucket sb;
 
@@ -371,7 +371,7 @@ public class BufferedBucketOutput
             // the buffer header, so don't use any buffering
             Buffer!(void) empty_buffer;
 
-            // NOTE: passing null here as a SuspendableRequestHandler
+            // NOTE: passing null here as a ContextAwaitingJob
             // makes the following call atomic. This is important
             // as it makes sure that the BucketFile can't be
             // in some intermediate state between open & closed

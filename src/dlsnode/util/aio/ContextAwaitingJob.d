@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    Common interface for various types of suspendable requests waiting for
+    Common interface for various types of suspendable contexts waiting for
     AsyncIO to finish.
 
     copyright:
@@ -11,10 +11,10 @@
 
 *******************************************************************************/
 
-module dlsnode.util.aio.SuspendableRequestHandler;
+module dlsnode.util.aio.ContextAwaitingJob;
 
 /// Ditto
-abstract class SuspendableRequestHandler
+abstract class ContextAwaitingJob
 {
     import ocean.core.array.Mutation: copy;
     import dlsnode.util.aio.internal.JobQueue: Job;
@@ -30,7 +30,7 @@ abstract class SuspendableRequestHandler
 
     /***************************************************************************
 
-        Pointer to the AIO job suspended on this SuspendableRequestHandler.
+        Pointer to the AIO job suspended on this ContextAwaitingJob.
         Used for canceling the jobs. TODO: is the closure possible combining
         remove_dg and job?
 
@@ -40,7 +40,7 @@ abstract class SuspendableRequestHandler
 
     /***************************************************************************
 
-        Yields the control to the suspendable request, indicating that the aio
+        Yields the control to the suspendable context, indicating that the aio
         operation has been done.
 
     ***************************************************************************/
@@ -49,7 +49,7 @@ abstract class SuspendableRequestHandler
 
     /***************************************************************************
 
-        Cedes the control from the suspendable request, waiting for the aio
+        Cedes the control from the suspendable context, waiting for the aio
         operation to be done. Implementation is defined by the concrete classes.
 
     ***************************************************************************/
@@ -58,7 +58,7 @@ abstract class SuspendableRequestHandler
 
     /***************************************************************************
 
-        Cedes the control from the suspendable request, waiting for the aio
+        Cedes the control from the suspendable context, waiting for the aio
         operation to be done. Called by AsyncIO framework internally.
 
         Params:
@@ -76,7 +76,7 @@ abstract class SuspendableRequestHandler
 
     /***************************************************************************
 
-        Yields the control to the suspendable request, indicating that the aio
+        Yields the control to the suspendable context, indicating that the aio
         operation has been done. Called by the AsyncIO framework internally.
 
     ***************************************************************************/

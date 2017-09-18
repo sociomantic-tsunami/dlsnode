@@ -53,7 +53,7 @@ scope class StorageProtocolV1: IStorageProtocol
         Reads next record header from the file, if any.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = record header to fill
@@ -64,7 +64,7 @@ scope class StorageProtocolV1: IStorageProtocol
     **************************************************************************/
 
     public override bool nextRecord (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, ref RecordHeader header )
     {
         RecordHeaderV1 header_buf;
@@ -75,7 +75,7 @@ scope class StorageProtocolV1: IStorageProtocol
         }
 
         // Read header of next record
-        file.readData(suspendable_request_handler,
+        file.readData(waiting_context,
                 (cast(void*)&header_buf)[0..header_buf.sizeof]);
 
         // check the record header
@@ -110,7 +110,7 @@ scope class StorageProtocolV1: IStorageProtocol
         Reads the next record value from the file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = current record's header
@@ -119,12 +119,12 @@ scope class StorageProtocolV1: IStorageProtocol
     **************************************************************************/
 
     public override void readRecordValue (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, RecordHeader header, ref mstring value )
     {
         // Read value from file
         value.length = header.len;
-        file.readData(suspendable_request_handler, value);
+        file.readData(waiting_context, value);
     }
 
     /**************************************************************************
@@ -132,7 +132,7 @@ scope class StorageProtocolV1: IStorageProtocol
         Skips the next record value in the file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = current record's header
@@ -140,7 +140,7 @@ scope class StorageProtocolV1: IStorageProtocol
     **************************************************************************/
 
     public override void skipRecordValue (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, ref RecordHeader header )
     {
         file.seek(header.len, File.Anchor.Current);
