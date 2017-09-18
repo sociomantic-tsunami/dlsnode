@@ -291,7 +291,7 @@ scope class RedistributeRequest: Protocol.Redistribute
 
         // Open the bucket for the reading
         scope file = new BucketFile(
-                this.resources.async_io, this.resources.suspendable_request_handler,
+                this.resources.async_io, this.resources.waiting_context,
                 tmp_file_path, this.input_buffer[]);
 
         scope (exit) file.close();
@@ -342,7 +342,7 @@ scope class RedistributeRequest: Protocol.Redistribute
         // Read values from the channel and pack them into the batch
         do
         {
-            eof = file.nextRecord (this.resources.suspendable_request_handler, header);
+            eof = file.nextRecord (this.resources.waiting_context, header);
 
             if (eof)
             {
@@ -350,7 +350,7 @@ scope class RedistributeRequest: Protocol.Redistribute
             }
 
             this.resources.value_buffer().length = header.len;
-            file.readRecordValue (this.resources.suspendable_request_handler,
+            file.readRecordValue (this.resources.waiting_context,
                     header, *this.resources.value_buffer());
             this.resources.key_buffer().length = Hash.HexDigest.length;
             Hash.toHexString(header.key, *this.resources.key_buffer());

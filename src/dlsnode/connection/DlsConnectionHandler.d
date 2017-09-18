@@ -411,14 +411,14 @@ public class DlsConnectionHandler
 
         /***********************************************************************
 
-            EventFDSuspendableRequestHandler newer.
+            EventFDContextAwaitingJob newer.
 
         ***********************************************************************/
 
-        override protected EventFDSuspendableRequestHandler
-             new_suspendable_request_handler ( )
+        override protected EventFDContextAwaitingJob
+             new_waiting_context ( )
         {
-            return new EventFDSuspendableRequestHandler(
+            return new EventFDContextAwaitingJob(
                     new FiberSelectEvent(this.outer.fiber));
         }
 
@@ -541,12 +541,12 @@ public class DlsConnectionHandler
 
         /***********************************************************************
 
-            EventFDSuspendableRequestHandler initialiser.
+            EventFDContextAwaitingJob initialiser.
 
         ***********************************************************************/
 
-        override protected void init_suspendable_request_handler (
-                EventFDSuspendableRequestHandler req )
+        override protected void init_waiting_context (
+                EventFDContextAwaitingJob req )
         {
             req.setFiber(this.outer.fiber);
         }

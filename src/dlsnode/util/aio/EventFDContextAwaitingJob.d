@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    FiberSelectEvent suspend/resume interface for suspendable requests waiting
+    FiberSelectEvent suspend/resume interface for suspendable contexts waiting
     for AsyncIO to finish.
 
     copyright:
@@ -11,14 +11,14 @@
 
 *******************************************************************************/
 
-module dlsnode.util.aio.EventFDSuspendableRequestHandler;
+module dlsnode.util.aio.EventFDContextAwaitingJob;
 
 import ocean.io.select.client.FiberSelectEvent;
 import ocean.io.select.fiber.SelectFiber;
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 
 /// ditto
-class EventFDSuspendableRequestHandler: SuspendableRequestHandler
+class EventFDContextAwaitingJob: ContextAwaitingJob
 {
     /***************************************************************************
 
@@ -50,7 +50,7 @@ class EventFDSuspendableRequestHandler: SuspendableRequestHandler
 
     /***************************************************************************
 
-        Yields the control to the suspendable request, indicating that the aio
+        Yields the control to the suspendable context, indicating that the aio
         operation has been done.
 
     ***************************************************************************/
@@ -62,7 +62,7 @@ class EventFDSuspendableRequestHandler: SuspendableRequestHandler
 
     /***************************************************************************
 
-        Cedes the control from the suspendable request, waiting for the aio
+        Cedes the control from the suspendable context, waiting for the aio
         operation to be done.
 
     ***************************************************************************/

@@ -17,7 +17,7 @@ import ocean.transition;
 import dlsnode.storage.protocol.model.IStorageProtocol;
 import ocean.io.device.File;
 import ocean.util.log.Logger;
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 
 /*******************************************************************************
 
@@ -53,7 +53,7 @@ scope class StorageProtocolLegacy: IStorageProtocol
         Reads next record header from the file, if any.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = record header to fill
@@ -64,7 +64,7 @@ scope class StorageProtocolLegacy: IStorageProtocol
     **************************************************************************/
 
     public override bool nextRecord (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, ref RecordHeader header )
     {
         if ( file.file_pos + header.sizeof >= file.file_length )
@@ -73,7 +73,7 @@ scope class StorageProtocolLegacy: IStorageProtocol
         }
 
         // Read header of next record
-        file.readData(suspendable_request_handler, (cast(void*)&header)[0..header.sizeof]);
+        file.readData(waiting_context, (cast(void*)&header)[0..header.sizeof]);
 
         // Sanity check: if the length of the record is beyond the end of
         // the file, then just return. This can occur in two cases:
@@ -92,7 +92,7 @@ scope class StorageProtocolLegacy: IStorageProtocol
         Reads the next record value from the file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = current record's header
@@ -101,12 +101,12 @@ scope class StorageProtocolLegacy: IStorageProtocol
     **************************************************************************/
 
     public override void readRecordValue (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, RecordHeader header, ref mstring value )
     {
         // Read value from file
         value.length = header.len;
-        file.readData(suspendable_request_handler, value);
+        file.readData(waiting_context, value);
     }
 
     /**************************************************************************
@@ -114,7 +114,7 @@ scope class StorageProtocolLegacy: IStorageProtocol
         Skips the next record value in the file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = current record's header
@@ -122,7 +122,7 @@ scope class StorageProtocolLegacy: IStorageProtocol
     **************************************************************************/
 
     public override void skipRecordValue (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             BucketFile file, ref RecordHeader header )
     {
         file.seek(header.len, File.Anchor.Current);

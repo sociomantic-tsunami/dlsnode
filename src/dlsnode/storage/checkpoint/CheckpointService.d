@@ -17,7 +17,7 @@
 
 module dlsnode.storage.checkpoint.CheckpointService;
 
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 import ocean.core.Test;
 import ocean.transition;
 
@@ -82,8 +82,8 @@ class CheckpointService
     import oceanArray = ocean.core.Array;
     import ocean.core.Array;
     import dlsnode.storage.FileSystemLayout;
-    import dlsnode.util.aio.SuspendableRequestHandler;
-    import dlsnode.util.aio.EventFDSuspendableRequestHandler;
+    import dlsnode.util.aio.ContextAwaitingJob;
+    import dlsnode.util.aio.EventFDContextAwaitingJob;
 
     /**************************************************************************
 
@@ -118,15 +118,15 @@ class CheckpointService
 
     /**************************************************************************
 
-        SuspendableRequestHandler used for doing fiber-blocking IO calls.
+        ContextAwaitingJob used for doing fiber-blocking IO calls.
 
     **************************************************************************/
 
-    private SuspendableRequestHandler fiber_suspendable_request_handler;
+    private ContextAwaitingJob fiber_waiting_context;
 
     /**************************************************************************
 
-        Timer suspendable_request_handler to periodically flush commit data to disk.
+        Timer waiting_context to periodically flush commit data to disk.
 
     **************************************************************************/
 
@@ -229,7 +229,7 @@ class CheckpointService
 
             ***************************************************************/
 
-            public void delegate(SuspendableRequestHandler) fsync;
+            public void delegate(ContextAwaitingJob) fsync;
 
             /***************************************************************
 
@@ -407,7 +407,7 @@ class CheckpointService
     ***************************************************************************/
 
     public void bucketOpen (cstring channel_name, ulong bucket_start, size_t position,
-            void delegate(SuspendableRequestHandler) bucket_fsync)
+            void delegate(ContextAwaitingJob) bucket_fsync)
     {
         if (!(channel_name in this.channels))
         {
@@ -479,8 +479,8 @@ class CheckpointService
         this.timer_fiber = new SelectFiber(epoll, &this.periodic_commit,
                 fiber_stack_size);
         this.checkpoint_timer = new FiberTimerEvent(this.timer_fiber);
-        this.fiber_suspendable_request_handler =
-            new EventFDSuspendableRequestHandler(this.timer_fiber);
+        this.fiber_waiting_context =
+            new EventFDContextAwaitingJob(this.timer_fiber);
         this.commit_seconds = commit_seconds;
         this.timer_fiber.start();
     }
@@ -516,7 +516,7 @@ class CheckpointService
         Commits the checkpoint service state to disk.
 
         Params:
-            suspendable_request_handler = suspendable_request_handler to block
+            waiting_context = waiting_context to block
                 the current fiber on, in case of blocking fsync operation
 
         Returns:
@@ -527,7 +527,7 @@ class CheckpointService
 
     ***************************************************************************/
 
-    private bool commit (SuspendableRequestHandler suspendable_request_handler)
+    private bool commit (ContextAwaitingJob waiting_context)
     {
         if (this.shutting_down || this.commit_in_progress)
         {
@@ -630,11 +630,11 @@ class CheckpointService
                                 // always be fsynced and then closed
                                 try
                                 {
-                                    bucket.fsync(suspendable_request_handler);
+                                    bucket.fsync(waiting_context);
                                 }
                                 catch (ErrnoException e)
                                 {
-                                    // Ignore bad file descriptor suspendable_request_handlers,
+                                    // Ignore bad file descriptor waiting_contexts,
                                     // where the file is already closed
                                     if (e.errorNumber() != EBADF)
                                     {
@@ -687,7 +687,7 @@ class CheckpointService
             try
             {
                 this.checkpoint_timer.wait(cast(double)this.commit_seconds);
-                this.commit(this.fiber_suspendable_request_handler);
+                this.commit(this.fiber_waiting_context);
             }
             catch (Exception e)
             {
@@ -717,7 +717,7 @@ unittest
     CheckpointService service = new CheckpointService (dir, "checkpoint.dat");
 
     // Dummy method for fsyncing the bucket
-    void dummy_fsync (SuspendableRequestHandler ev)
+    void dummy_fsync (ContextAwaitingJob ev)
     {
     }
 

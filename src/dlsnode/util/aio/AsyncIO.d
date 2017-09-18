@@ -8,7 +8,7 @@
 
     Fiber wanting to perform a request should submit its request to AsyncIO
     using public interface, passing all the arguments normally used by the
-    blocking call and SuspendableRequestHandler instance on which it will be
+    blocking call and ContextAwaitingJob instance on which it will be
     blocked.  After issuing the request, request will be put in the queue and
     the fiber will block immidiatelly, giving chance to other fibers to run.
 
@@ -43,7 +43,7 @@ import dlsnode.util.aio.internal.JobQueue;
 import dlsnode.util.aio.internal.ThreadWorker;
 import dlsnode.util.aio.internal.MutexOps;
 import dlsnode.util.aio.internal.AioScheduler;
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 
 /******************************************************************************
 
@@ -128,7 +128,7 @@ class AsyncIO
     /**************************************************************************
 
         Issues a pread request, blocking the fiber connected to the provided
-        suspendable_request_handler until the request finishes.
+        waiting_context until the request finishes.
 
         This will read buf.length number of bytes from fd to buf, starting
         from offset.
@@ -137,7 +137,7 @@ class AsyncIO
             buf = buffer to fill
             fd = file descriptor to read from
             offset = offset in the file to read from
-            suspendable_request_handler = SuspendableRequestHandler instance to
+            waiting_context = ContextAwaitingJob instance to
                 block the fiber on
 
         Returns:
@@ -149,7 +149,7 @@ class AsyncIO
     **************************************************************************/
 
     public size_t pread (void[] buf, int fd, size_t offset,
-            SuspendableRequestHandler suspendable_request_handler)
+            ContextAwaitingJob waiting_context)
     {
         ssize_t ret_val;
         int errno_val;
@@ -159,7 +159,7 @@ class AsyncIO
         job.recv_buffer.length = buf.length;
         enableStomping(job.recv_buffer);
         job.fd = fd;
-        job.suspendable_request_handler = suspendable_request_handler;
+        job.waiting_context = waiting_context;
         job.offset = offset;
         job.cmd = Job.Command.Read;
         job.ret_val = &ret_val;
@@ -172,7 +172,7 @@ class AsyncIO
         post_semaphore(&this.jobs.jobs_available);
 
         // Block the fiber
-        suspendable_request_handler.wait(job, &this.scheduler.discardResults);
+        waiting_context.wait(job, &this.scheduler.discardResults);
 
         // At this point, fiber is resumed,
         // check the return value and throw if needed
@@ -271,13 +271,13 @@ class AsyncIO
     /**************************************************************************
 
         Issues a fsync request, blocking the fiber connected to the provided
-        suspendable_request_handler until the request finishes.
+        waiting_context until the request finishes.
 
         Synchronize a file's in-core state with storage device.
 
         Params:
             fd = file descriptor to perform fsync on
-            suspendable_request_handler = SuspendableRequestHandler instance to
+            waiting_context = ContextAwaitingJob instance to
                 block the fiber on
 
         Throws:
@@ -286,7 +286,7 @@ class AsyncIO
     **************************************************************************/
 
     public void fsync (int fd,
-            SuspendableRequestHandler suspendable_request_handler)
+            ContextAwaitingJob waiting_context)
     {
         long ret_val;
         int errno_val;
@@ -295,7 +295,7 @@ class AsyncIO
                 &unlock_mutex);
 
         job.fd = fd;
-        job.suspendable_request_handler = suspendable_request_handler;
+        job.waiting_context = waiting_context;
         job.cmd = Job.Command.Fsync;
         job.ret_val = &ret_val;
         job.errno_val = &errno_val;
@@ -306,7 +306,7 @@ class AsyncIO
         post_semaphore(&this.jobs.jobs_available);
 
         // Block the fiber
-        suspendable_request_handler.wait(job, &this.scheduler.discardResults);
+        waiting_context.wait(job, &this.scheduler.discardResults);
 
         // At this point, fiber is resumed,
         // check the return value and throw if needed
@@ -326,7 +326,7 @@ class AsyncIO
 
         Params:
             fd = file descriptor to close
-            suspendable_request_handler = SuspendableRequestHandler instance to
+            waiting_context = ContextAwaitingJob instance to
                 block the caller on
 
         Throws:
@@ -335,7 +335,7 @@ class AsyncIO
     **************************************************************************/
 
     public void close (int fd,
-            SuspendableRequestHandler suspendable_request_handler)
+            ContextAwaitingJob waiting_context)
     {
         long ret_val;
         int errno_val;
@@ -344,7 +344,7 @@ class AsyncIO
                 &unlock_mutex);
 
         job.fd = fd;
-        job.suspendable_request_handler = suspendable_request_handler;
+        job.waiting_context = waiting_context;
         job.cmd = Job.Command.Close;
         job.ret_val = &ret_val;
         job.errno_val = &errno_val;
@@ -353,7 +353,7 @@ class AsyncIO
         post_semaphore(&this.jobs.jobs_available);
 
         // Block the fiber
-        suspendable_request_handler.wait(job, &this.scheduler.discardResults);
+        waiting_context.wait(job, &this.scheduler.discardResults);
 
         // At this point, fiber is resumed,
         // check the return value and throw if needed

@@ -38,7 +38,7 @@ import dlsnode.storage.iterator.model.IStorageEngineStepIterator;
 import dlsnode.storage.StorageEngine;
 
 import dlsnode.util.aio.AsyncIO;
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 import core.stdc.time;
 
 /*******************************************************************************
@@ -236,18 +236,18 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         with the methods below.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler instance to block the caller on.
+            waiting_context = ContextAwaitingJob instance to block the caller on.
 
     ***************************************************************************/
 
-    public override void getAll ( SuspendableRequestHandler suspendable_request_handler )
+    public override void getAll ( ContextAwaitingJob waiting_context )
     in
     {
         assert(this.storage, typeof(this).stringof ~ ".getAll: storage not set");
     }
     body
     {
-        this.reset(suspendable_request_handler, hash_t.min, hash_t.max);
+        this.reset(waiting_context, hash_t.min, hash_t.max);
     }
 
 
@@ -259,7 +259,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         the methods below.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler instance to block the caller on.
+            waiting_context = ContextAwaitingJob instance to block the caller on.
             min = string containing the hexadecimal key of the first
                 record to iterate
             max = string containing the hexadecimal key of the last
@@ -267,14 +267,14 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
 
     ***************************************************************************/
 
-    public override void getRange ( SuspendableRequestHandler suspendable_request_handler, cstring min, cstring max )
+    public override void getRange ( ContextAwaitingJob waiting_context, cstring min, cstring max )
     in
     {
         assert(this.storage, typeof(this).stringof ~ ".getRange: storage not set");
     }
     body
     {
-        this.reset(suspendable_request_handler,
+        this.reset(waiting_context,
                 Hash.straightToHash(min), Hash.straightToHash(max));
         this.started = false;
     }
@@ -307,18 +307,18 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         to.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block the fiber on until read is completed
+            waiting_context = ContextAwaitingJob to block the fiber on until read is completed
 
         Returns:
             current value
 
     ***************************************************************************/
 
-    public override cstring value ( SuspendableRequestHandler suspendable_request_handler )
+    public override cstring value ( ContextAwaitingJob waiting_context )
     {
         if ( this.read_header && !this.value_buffer.length )
         {
-            this.file.readRecordValue(suspendable_request_handler,
+            this.file.readRecordValue(waiting_context,
                     this.current_header, this.value_buffer);
         }
 
@@ -332,11 +332,11 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         the storage engine, if this.started is false.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block the fiber on until read is completed
+            waiting_context = ContextAwaitingJob to block the fiber on until read is completed
 
     ***************************************************************************/
 
-    public override void next ( SuspendableRequestHandler suspendable_request_handler )
+    public override void next ( ContextAwaitingJob waiting_context )
     in
     {
         assert(this.storage, typeof(this).stringof ~ ".next: storage not set");
@@ -346,7 +346,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         if ( !this.started )
         {
             this.started = true;
-            this.getFirstRecord(suspendable_request_handler);
+            this.getFirstRecord(waiting_context);
             return;
         }
 
@@ -366,18 +366,18 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
             // done when the record value is read).
             if ( this.read_header && !this.value_buffer.length )
             {
-                this.file.skipRecordValue(suspendable_request_handler,
+                this.file.skipRecordValue(waiting_context,
                         this.current_header);
             }
 
             this.resetCursorState();
 
-            end_of_bucket = this.file.nextRecord(suspendable_request_handler,
+            end_of_bucket = this.file.nextRecord(waiting_context,
                     this.current_header);
 
             if ( end_of_bucket )
             {
-                this.file.close(suspendable_request_handler);
+                this.file.close(waiting_context);
 
                 hash_t next_bucket_start;
                 end_of_channel = FileSystemLayout.getNextBucket(
@@ -388,7 +388,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
                 if ( !end_of_channel )
                 {
                     this.current_bucket_start = next_bucket_start;
-                    this.file.open(this.bucket_path, suspendable_request_handler,
+                    this.file.open(this.bucket_path, waiting_context,
                             this.file_buffer[],
                             File.ReadExisting);
                 }
@@ -447,11 +447,11 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         to next(), above.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block the fiber on until read is completed
+            waiting_context = ContextAwaitingJob to block the fiber on until read is completed
 
     ***************************************************************************/
 
-    private void getFirstRecord ( SuspendableRequestHandler suspendable_request_handler )
+    private void getFirstRecord ( ContextAwaitingJob waiting_context )
     {
         // Get the name of the first bucket file to scan. no_buckets is
         // set to true if no buckets exist in the specified range.
@@ -479,8 +479,8 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
 
         // Open the bucket and position the cursor to first record
         this.file.open(this.bucket_path,
-                suspendable_request_handler, this.file_buffer[], File.ReadExisting);
-        this.next(suspendable_request_handler);
+                waiting_context, this.file_buffer[], File.ReadExisting);
+        this.next(waiting_context);
     }
 
 
@@ -490,13 +490,13 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         bucket file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler instance to block the caller on.
+            waiting_context = ContextAwaitingJob instance to block the caller on.
 
     ***************************************************************************/
 
-    public void finished ( SuspendableRequestHandler suspendable_request_handler )
+    public void finished ( ContextAwaitingJob waiting_context )
     {
-        this.reset(suspendable_request_handler, 0, 0);
+        this.reset(waiting_context, 0, 0);
     }
 
 
@@ -505,13 +505,13 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         Resets all class members to their initial state.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler instance to block the caller on.
+            waiting_context = ContextAwaitingJob instance to block the caller on.
             min = minimum hash to iterate over
             max = maximum hash to iterate over
 
     ***************************************************************************/
 
-    private void reset ( SuspendableRequestHandler suspendable_request_handler, hash_t min, hash_t max )
+    private void reset ( ContextAwaitingJob waiting_context, hash_t min, hash_t max )
     in
     {
         assert(this.storage, typeof(this).stringof ~ ".getAll - storage not set");
@@ -532,7 +532,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
 
         if (this.file.is_open)
         {
-            this.file.close(suspendable_request_handler);
+            this.file.close(waiting_context);
         }
 
         this.file_buffer.reset();

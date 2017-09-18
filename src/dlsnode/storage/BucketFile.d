@@ -19,7 +19,7 @@ import ocean.transition;
 import ocean.io.model.IConduit;
 import ocean.transition;
 import dlsnode.util.aio.AsyncIO;
-import dlsnode.util.aio.SuspendableRequestHandler;
+import dlsnode.util.aio.ContextAwaitingJob;
 
 import ocean.util.serialize.contiguous.package_;
 
@@ -253,7 +253,7 @@ public class BucketFile: OutputStream
 
         Params:
             async_io = AsyncIO instance
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed. When `null`, `close` will
                 block the entire thread.
             path = file path
@@ -263,12 +263,12 @@ public class BucketFile: OutputStream
     **************************************************************************/
 
     public this ( AsyncIO async_io,
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             cstring path, void[] file_buffer,
             File.Style style = File.ReadExisting)
     {
         this(async_io);
-        this.open(path, suspendable_request_handler, file_buffer, style);
+        this.open(path, waiting_context, file_buffer, style);
     }
 
     /**************************************************************************
@@ -280,7 +280,7 @@ public class BucketFile: OutputStream
 
         Params:
             path = file path
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             file_buffer = buffer used for buffered input
             style = style in which file will be open for
@@ -288,7 +288,7 @@ public class BucketFile: OutputStream
     **************************************************************************/
 
     public void open (cstring path,
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             void[] file_buffer,
             File.Style style = File.ReadExisting)
     in
@@ -318,7 +318,7 @@ public class BucketFile: OutputStream
             // NOTE: there's no need to reposition cursor. The reason is that
             // we have opened underlying file with O_APPEND and writes will
             // always be appended to the end of the file
-            this.readBucketHeader(suspendable_request_handler);
+            this.readBucketHeader(waiting_context);
         }
     }
 
@@ -327,21 +327,21 @@ public class BucketFile: OutputStream
         Closes the file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed. When `null`, `close` will
                 block entire thread.
 
     **************************************************************************/
 
-    public void close (SuspendableRequestHandler suspendable_request_handler)
+    public void close (ContextAwaitingJob waiting_context)
     {
-        if (suspendable_request_handler is null)
+        if (waiting_context is null)
         {
             this.file.close();
         }
         else
         {
-            this.async_io.close(this.file.fileHandle(), suspendable_request_handler);
+            this.async_io.close(this.file.fileHandle(), waiting_context);
         }
 
         this.file_pos_ = 0;
@@ -391,7 +391,7 @@ public class BucketFile: OutputStream
         Reads and deserializes the data from the file.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed.
                 If null, this call will perform a blocking read request,
                 not switching to any other fiber, while data is being read.
@@ -402,12 +402,12 @@ public class BucketFile: OutputStream
 
     **************************************************************************/
 
-    public size_t readData (SuspendableRequestHandler suspendable_request_handler,
+    public size_t readData (ContextAwaitingJob waiting_context,
             void[] buf)
     {
         size_t bytes_read;
 
-        if (suspendable_request_handler is null)
+        if (waiting_context is null)
         {
             bytes_read = this.buffered_input.readData(buf,
                  delegate (void[] buf) {
@@ -426,7 +426,7 @@ public class BucketFile: OutputStream
                  delegate (void[] buf) {
                      long read_from_file = this.async_io.pread(buf,
                              this.file.fileHandle,
-                             this.file_pos_, suspendable_request_handler);
+                             this.file_pos_, waiting_context);
 
                      this.file_pos_ += read_from_file;
                      return read_from_file;
@@ -443,12 +443,12 @@ public class BucketFile: OutputStream
         Reads the bucket header.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
 
     **************************************************************************/
 
-    private void readBucketHeader(SuspendableRequestHandler suspendable_request_handler)
+    private void readBucketHeader(ContextAwaitingJob waiting_context)
     {
         BucketHeader header;
 
@@ -467,7 +467,7 @@ public class BucketFile: OutputStream
         assert(this.async_io);
 
         ubyte[header.sizeof] buf;
-        this.readData(suspendable_request_handler, buf);
+        this.readData(waiting_context, buf);
 
         // Async reads do not seek the file position, we need to do
         // manual intervention if needed.
@@ -576,7 +576,7 @@ public class BucketFile: OutputStream
         value.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             header = (output) header of next record
 
@@ -585,12 +585,12 @@ public class BucketFile: OutputStream
 
     ***************************************************************************/
 
-    public bool nextRecord ( SuspendableRequestHandler suspendable_request_handler,
+    public bool nextRecord ( ContextAwaitingJob waiting_context,
             ref RecordHeader header )
     {
         return this.performFileLayoutStrategy((IStorageProtocol strategy)
                 {
-                    return strategy.nextRecord(suspendable_request_handler, this, header);
+                    return strategy.nextRecord(waiting_context, this, header);
                 });
     }
 
@@ -623,20 +623,20 @@ public class BucketFile: OutputStream
         header.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             header = header of current record
             value = (output) receives record value
 
     ***************************************************************************/
 
-    public void readRecordValue ( SuspendableRequestHandler suspendable_request_handler,
+    public void readRecordValue ( ContextAwaitingJob waiting_context,
         RecordHeader header,
         ref mstring value )
     {
         this.performFileLayoutStrategy((IStorageProtocol strategy)
                {
-                    strategy.readRecordValue(suspendable_request_handler, this, header, value);
+                    strategy.readRecordValue(waiting_context, this, header, value);
                });
     }
 
@@ -647,19 +647,19 @@ public class BucketFile: OutputStream
         seek position is moved ready to read the next record's header.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler to block
+            waiting_context = ContextAwaitingJob to block
                 the fiber on until read is completed
             header = header of current record
 
     ***************************************************************************/
 
     public void skipRecordValue (
-            SuspendableRequestHandler suspendable_request_handler,
+            ContextAwaitingJob waiting_context,
             RecordHeader header )
     {
         this.performFileLayoutStrategy((IStorageProtocol strategy)
                {
-                    strategy.skipRecordValue(suspendable_request_handler, this, header);
+                    strategy.skipRecordValue(waiting_context, this, header);
                });
     }
 
@@ -732,17 +732,17 @@ public class BucketFile: OutputStream
         Calls fsync on the underlying file descriptor.
 
         Params:
-            suspendable_request_handler = SuspendableRequestHandler instance to
+            waiting_context = ContextAwaitingJob instance to
                 block the current fiber on. If null,
             the entire thread will be blocked.
 
     **************************************************************************/
 
-    public void sync (SuspendableRequestHandler suspendable_request_handler)
+    public void sync (ContextAwaitingJob waiting_context)
     {
-        if (suspendable_request_handler)
+        if (waiting_context)
         {
-            this.async_io.fsync(this.file.fileHandle, suspendable_request_handler);
+            this.async_io.fsync(this.file.fileHandle, waiting_context);
         }
         else
         {

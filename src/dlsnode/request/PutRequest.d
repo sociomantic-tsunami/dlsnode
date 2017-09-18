@@ -88,7 +88,7 @@ public scope class PutRequest : Protocol.Put
         auto dls_channel = downcast!(StorageEngine)(storage_channel);
         assert(dls_channel);
         dls_channel.put(key, value, *this.resources.record_buffer,
-                this.resources.suspendable_request_handler);
+                this.resources.waiting_context);
 
         return true;
     }

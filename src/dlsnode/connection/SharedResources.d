@@ -34,7 +34,7 @@ import ocean.transition;
 
 public import ocean.io.select.client.FiberSelectEvent;
 
-public import dlsnode.util.aio.EventFDSuspendableRequestHandler;
+public import dlsnode.util.aio.EventFDContextAwaitingJob;
 
 public import ocean.text.regex.PCRE;
 
@@ -82,7 +82,7 @@ public struct ConnectionResources
     hash_t[] hash_buffer;
     ubyte[] record_buffer;
     FiberSelectEvent event;
-    EventFDSuspendableRequestHandler suspendable_request_handler;
+    EventFDContextAwaitingJob waiting_context;
     LoopCeder loop_ceder;
     StorageEngineStepIterator iterator;
     StorageEngineFileIterator bucket_iterator;
