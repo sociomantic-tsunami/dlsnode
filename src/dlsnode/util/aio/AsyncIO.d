@@ -230,6 +230,8 @@ class AsyncIO
                 offset = offset in the file to read from
                 finish_callback_dg = method to call when the request has finished,
                     passing the return value of the pread call
+                waiting_context = waiting context to resume upon finishing the
+                    IO operation and calling finish_callback_dg
 
             Returns:
                 number of the bytes read
@@ -242,7 +244,8 @@ class AsyncIO
         public void pread (void[] buf, ssize_t* ret_val,
                 int* errno_val,
                 int fd, size_t offset,
-                void delegate(ssize_t) finish_callback_dg)
+                void delegate(ssize_t) finish_callback_dg,
+                ContextAwaitingJob waiting_context)
         {
             auto job = this.outer.jobs.reserveJobSlot(&lock_mutex,
                     &unlock_mutex);
@@ -258,6 +261,7 @@ class AsyncIO
             job.user_buffer = buf;
             job.finalize_results = &finalizeRead;
             job.finish_callback_dg = finish_callback_dg;
+            job.waiting_context = waiting_context;
 
             // Let the threads waiting on the semaphore know that they
             // can start doing single read
