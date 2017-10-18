@@ -8,7 +8,7 @@
 
 module test.versioning.cases.TestParityBroken;
 
-import dlstest.DlsTestCase;
+import test.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
 import ocean.transition;
@@ -20,7 +20,7 @@ import ocean.transition;
 
 *******************************************************************************/
 
-class GetAllParityBroken: DlsTestCase
+class GetAllParityBroken: DlsVersioningCase
 {
     this ( )
     {
