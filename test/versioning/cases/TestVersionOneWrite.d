@@ -8,7 +8,7 @@
 
 module test.versioning.cases.TestVersionOneWrite;
 
-import dlstest.DlsTestCase;
+import test.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
 import ocean.transition;
@@ -19,7 +19,7 @@ import ocean.transition;
 
 *******************************************************************************/
 
-class GetAllLegacy: DlsTestCase
+class GetAllLegacy: DlsVersioningCase
 {
     this ( )
     {
