@@ -113,6 +113,6 @@ private class DlsVersioningRunner : TurtleRunnerTask!(TestedAppKind.Daemon)
 int main ( istring[] args )
 {
     auto runner = new TurtleRunner!(DlsVersioningRunner)("dlsnode",
-            "test.versioning.cases");
+            "test.versioning.cases", "versioning_test");
     return runner.main(args);
 }
