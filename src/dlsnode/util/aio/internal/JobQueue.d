@@ -21,7 +21,7 @@ import core.sys.posix.pthread;
 import ocean.sys.ErrnoException;
 
 import dlsnode.util.aio.AsyncIO;
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 import dlsnode.util.aio.internal.AioScheduler;
 
 /**********************************************************************
@@ -93,11 +93,11 @@ public static struct Job
 
     /****************************************************************
 
-        ContextAwaitingJob used to wake the job.
+        JobNotification used to wake the job.
 
     ****************************************************************/
 
-    public ContextAwaitingJob waiting_context;
+    public JobNotification suspended_job;
 
     /****************************************************************
 

@@ -13,7 +13,7 @@
 
 module dlsnode.storage.util.RecentFiles;
 
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 import ocean.util.container.cache.LRUCache;
 
 import dlsnode.storage.BufferedBucketOutput;
@@ -39,8 +39,8 @@ class RecentFiles: LRUCache!(BufferedBucketOutput)
 
         Acquires an existing bucket from cache, or creates a new one, and drops
         an old one. Because on dropping old one sync might be required, the
-        ContextAwaitingJob of the current request needs to be passed, which
-        is the reason why this method accepts waiting_context - it merely passes it
+        JobNotification of the current request needs to be passed, which
+        is the reason why this method accepts suspended_job - it merely passes it
         to `itemDropped` (indirecly, since that method is called by the base
         class).
 

@@ -26,7 +26,7 @@ import swarm.node.storage.model.IStorageEngine;
 
 import ocean.util.log.Logger;
 
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 import dlsnode.util.aio.AsyncIO;
 
 import ocean.transition;
@@ -165,7 +165,7 @@ public class StorageEngine : IStorageEngine
         ***********************************************************************/
 
         public void put ( hash_t key, cstring value, ref ubyte[] record_buffer,
-                ContextAwaitingJob waiting_context )
+                JobNotification suspended_job )
         {
             // Calculate file hash.
             SlotBucket sb;
@@ -206,7 +206,7 @@ public class StorageEngine : IStorageEngine
                 file.setDir(this.outer.id, this.outer.channel_dir);
             }
 
-            file.put(key, value, record_buffer, waiting_context);
+            file.put(key, value, record_buffer, suspended_job);
         }
 
 
@@ -330,7 +330,7 @@ public class StorageEngine : IStorageEngine
             value = record value
             record_buffer = buffer used internally for rendering entire record
                             passing it to BufferedOutput.
-            waiting_context = waiting_context to block
+            suspended_job = suspended_job to block
                 and wait on for IO to happen
 
         Returns:
@@ -339,10 +339,10 @@ public class StorageEngine : IStorageEngine
     ***********************************************************************/
 
     typeof(this) put ( cstring key, cstring value, ref ubyte[] record_buffer,
-            ContextAwaitingJob waiting_context )
+            JobNotification suspended_job )
     {
         this.writers.put(Hash.straightToHash(key), value, record_buffer,
-                waiting_context);
+                suspended_job);
 
         return this;
     }
@@ -354,15 +354,15 @@ public class StorageEngine : IStorageEngine
 
         Params:
             iterator = iterator to initialise
-            waiting_context = ContextAwaitingJob instance to
+            suspended_job = JobNotification instance to
                 block the caller on.
 
     ***********************************************************************/
 
     public typeof(this) getAll ( IStorageEngineStepIterator iterator,
-            ContextAwaitingJob waiting_context )
+            JobNotification suspended_job )
     {
-        (cast(IStorageEngineStepIterator)iterator).getAll(waiting_context);
+        (cast(IStorageEngineStepIterator)iterator).getAll(suspended_job);
 
         return this;
     }
@@ -377,15 +377,15 @@ public class StorageEngine : IStorageEngine
             iterator = iterator to initialise
             min = minimum hash to iterate over
             max = maximum hash to iterate over
-            waiting_context = ContextAwaitingJob instance to
+            suspended_job = JobNotification instance to
                 block the caller on.
 
     ***********************************************************************/
 
     public typeof(this) getRange ( IStorageEngineStepIterator iterator,
-            cstring min, cstring max, ContextAwaitingJob waiting_context )
+            cstring min, cstring max, JobNotification suspended_job )
     {
-        (cast(IStorageEngineStepIterator)iterator).getRange(waiting_context, min, max);
+        (cast(IStorageEngineStepIterator)iterator).getRange(suspended_job, min, max);
 
         return this;
     }

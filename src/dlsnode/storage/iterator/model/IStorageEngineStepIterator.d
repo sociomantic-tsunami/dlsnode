@@ -24,7 +24,7 @@
 *******************************************************************************/
 
 module dlsnode.storage.iterator.model.IStorageEngineStepIterator;
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 
 import ocean.transition;
 
@@ -37,11 +37,11 @@ interface IStorageEngineStepIterator
         with the methods below.
 
         Params:
-            waiting_context = ContextAwaitingJob instance to block the caller on.
+            suspended_job = JobNotification instance to block the caller on.
 
     ***************************************************************************/
 
-    public void getAll ( ContextAwaitingJob waiting_context );
+    public void getAll ( JobNotification suspended_job );
 
 
     /***************************************************************************
@@ -52,7 +52,7 @@ interface IStorageEngineStepIterator
         the methods below.
 
         Params:
-            waiting_context = ContextAwaitingJob instance to block the caller on.
+            suspended_job = JobNotification instance to block the caller on.
             min = string containing the hexadecimal key of the first
                 record to iterate
             max = string containing the hexadecimal key of the last
@@ -60,7 +60,7 @@ interface IStorageEngineStepIterator
 
     ***************************************************************************/
 
-    public void getRange ( ContextAwaitingJob waiting_context, cstring min, cstring max );
+    public void getRange ( JobNotification suspended_job, cstring min, cstring max );
 
 
     /***************************************************************************
@@ -81,14 +81,14 @@ interface IStorageEngineStepIterator
         to.
 
         Params:
-            event = ContextAwaitingJob to block the fiber on until read is completed
+            event = JobNotification to block the fiber on until read is completed
 
         Returns:
             current value
 
     ***************************************************************************/
 
-    public cstring value ( ContextAwaitingJob waiting_context );
+    public cstring value ( JobNotification suspended_job );
 
 
     /***************************************************************************
@@ -97,11 +97,11 @@ interface IStorageEngineStepIterator
         the storage engine, if this.started is false.
 
         Params:
-            event = ContextAwaitingJob to block the fiber on until read is completed
+            event = JobNotification to block the fiber on until read is completed
 
     ***************************************************************************/
 
-    public void next ( ContextAwaitingJob waiting_context );
+    public void next ( JobNotification suspended_job );
 
 
     /***************************************************************************

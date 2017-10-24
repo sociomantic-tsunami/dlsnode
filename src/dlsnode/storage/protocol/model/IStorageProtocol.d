@@ -19,7 +19,7 @@ public import dlsnode.storage.Record;
 public import dlsnode.storage.BucketFile;
 public import ocean.io.stream.Buffered;
 
-public import dlsnode.util.aio.ContextAwaitingJob;
+public import dlsnode.util.aio.JobNotification;
 
 interface IStorageProtocol
 {
@@ -28,7 +28,7 @@ interface IStorageProtocol
         Reads next record header from the file, if any.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = record header to fill
@@ -39,7 +39,7 @@ interface IStorageProtocol
     **************************************************************************/
 
     public bool nextRecord (
-            ContextAwaitingJob waiting_context,
+            JobNotification suspended_job,
             BucketFile file, ref RecordHeader header );
 
 
@@ -48,7 +48,7 @@ interface IStorageProtocol
         Reads the next record value from the file.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = current record's header
@@ -57,7 +57,7 @@ interface IStorageProtocol
     **************************************************************************/
 
     public void readRecordValue (
-            ContextAwaitingJob waiting_context,
+            JobNotification suspended_job,
             BucketFile file, RecordHeader header, ref mstring value);
 
 
@@ -66,7 +66,7 @@ interface IStorageProtocol
         Skips the next record value in the file.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed
             file = bucket file instance to read from
             header = current record's header
@@ -74,7 +74,7 @@ interface IStorageProtocol
     **************************************************************************/
 
     public void skipRecordValue (
-            ContextAwaitingJob waiting_context,
+            JobNotification suspended_job,
             BucketFile file, ref RecordHeader header );
 
 
