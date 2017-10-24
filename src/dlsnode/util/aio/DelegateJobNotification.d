@@ -23,11 +23,11 @@
 
 module dlsnode.util.aio.DelegateJobNotification;
 
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 import ocean.core.Verify;
 
 /// ditto
-class DelegateJobNotification: ContextAwaitingJob
+class DelegateJobNotification: JobNotification
 {
     import ocean.core.Enforce: enforce;
 
@@ -68,7 +68,7 @@ class DelegateJobNotification: ContextAwaitingJob
 
     /***************************************************************************
 
-        Initialization method. Initializes ManualContextAwaitingJob (separated
+        Initialization method. Initializes ManualJobNotification (separated
         from constructor for convenient use in reusable pool).
 
         Params:

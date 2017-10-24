@@ -38,7 +38,7 @@ import dlsnode.storage.iterator.model.IStorageEngineStepIterator;
 import dlsnode.storage.StorageEngine;
 
 import dlsnode.util.aio.AsyncIO;
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 import core.stdc.time;
 
 /*******************************************************************************
@@ -236,18 +236,18 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         with the methods below.
 
         Params:
-            waiting_context = ContextAwaitingJob instance to block the caller on.
+            suspended_job = JobNotification instance to block the caller on.
 
     ***************************************************************************/
 
-    public override void getAll ( ContextAwaitingJob waiting_context )
+    public override void getAll ( JobNotification suspended_job )
     in
     {
         assert(this.storage, typeof(this).stringof ~ ".getAll: storage not set");
     }
     body
     {
-        this.reset(waiting_context, hash_t.min, hash_t.max);
+        this.reset(suspended_job, hash_t.min, hash_t.max);
     }
 
 
@@ -259,7 +259,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         the methods below.
 
         Params:
-            waiting_context = ContextAwaitingJob instance to block the caller on.
+            suspended_job = JobNotification instance to block the caller on.
             min = string containing the hexadecimal key of the first
                 record to iterate
             max = string containing the hexadecimal key of the last
@@ -267,14 +267,14 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
 
     ***************************************************************************/
 
-    public override void getRange ( ContextAwaitingJob waiting_context, cstring min, cstring max )
+    public override void getRange ( JobNotification suspended_job, cstring min, cstring max )
     in
     {
         assert(this.storage, typeof(this).stringof ~ ".getRange: storage not set");
     }
     body
     {
-        this.reset(waiting_context,
+        this.reset(suspended_job,
                 Hash.straightToHash(min), Hash.straightToHash(max));
         this.started = false;
     }
@@ -307,18 +307,18 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         to.
 
         Params:
-            waiting_context = ContextAwaitingJob to block the fiber on until read is completed
+            suspended_job = JobNotification to block the fiber on until read is completed
 
         Returns:
             current value
 
     ***************************************************************************/
 
-    public override cstring value ( ContextAwaitingJob waiting_context )
+    public override cstring value ( JobNotification suspended_job )
     {
         if ( this.read_header && !this.value_buffer.length )
         {
-            this.file.readRecordValue(waiting_context,
+            this.file.readRecordValue(suspended_job,
                     this.current_header, this.value_buffer);
         }
 
@@ -332,11 +332,11 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         the storage engine, if this.started is false.
 
         Params:
-            waiting_context = ContextAwaitingJob to block the fiber on until read is completed
+            suspended_job = JobNotification to block the fiber on until read is completed
 
     ***************************************************************************/
 
-    public override void next ( ContextAwaitingJob waiting_context )
+    public override void next ( JobNotification suspended_job )
     in
     {
         assert(this.storage, typeof(this).stringof ~ ".next: storage not set");
@@ -346,7 +346,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         if ( !this.started )
         {
             this.started = true;
-            this.getFirstRecord(waiting_context);
+            this.getFirstRecord(suspended_job);
             return;
         }
 
@@ -366,18 +366,18 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
             // done when the record value is read).
             if ( this.read_header && !this.value_buffer.length )
             {
-                this.file.skipRecordValue(waiting_context,
+                this.file.skipRecordValue(suspended_job,
                         this.current_header);
             }
 
             this.resetCursorState();
 
-            end_of_bucket = this.file.nextRecord(waiting_context,
+            end_of_bucket = this.file.nextRecord(suspended_job,
                     this.current_header);
 
             if ( end_of_bucket )
             {
-                this.file.close(waiting_context);
+                this.file.close(suspended_job);
 
                 hash_t next_bucket_start;
                 end_of_channel = FileSystemLayout.getNextBucket(
@@ -388,7 +388,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
                 if ( !end_of_channel )
                 {
                     this.current_bucket_start = next_bucket_start;
-                    this.file.open(this.bucket_path, waiting_context,
+                    this.file.open(this.bucket_path, suspended_job,
                             this.file_buffer[],
                             File.ReadExisting);
                 }
@@ -447,11 +447,11 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         to next(), above.
 
         Params:
-            waiting_context = ContextAwaitingJob to block the fiber on until read is completed
+            suspended_job = JobNotification to block the fiber on until read is completed
 
     ***************************************************************************/
 
-    private void getFirstRecord ( ContextAwaitingJob waiting_context )
+    private void getFirstRecord ( JobNotification suspended_job )
     {
         // Get the name of the first bucket file to scan. no_buckets is
         // set to true if no buckets exist in the specified range.
@@ -479,8 +479,8 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
 
         // Open the bucket and position the cursor to first record
         this.file.open(this.bucket_path,
-                waiting_context, this.file_buffer[], File.ReadExisting);
-        this.next(waiting_context);
+                suspended_job, this.file_buffer[], File.ReadExisting);
+        this.next(suspended_job);
     }
 
 
@@ -490,13 +490,13 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         bucket file.
 
         Params:
-            waiting_context = ContextAwaitingJob instance to block the caller on.
+            suspended_job = JobNotification instance to block the caller on.
 
     ***************************************************************************/
 
-    public void finished ( ContextAwaitingJob waiting_context )
+    public void finished ( JobNotification suspended_job )
     {
-        this.reset(waiting_context, 0, 0);
+        this.reset(suspended_job, 0, 0);
     }
 
 
@@ -505,13 +505,13 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         Resets all class members to their initial state.
 
         Params:
-            waiting_context = ContextAwaitingJob instance to block the caller on.
+            suspended_job = JobNotification instance to block the caller on.
             min = minimum hash to iterate over
             max = maximum hash to iterate over
 
     ***************************************************************************/
 
-    private void reset ( ContextAwaitingJob waiting_context, hash_t min, hash_t max )
+    private void reset ( JobNotification suspended_job, hash_t min, hash_t max )
     in
     {
         assert(this.storage, typeof(this).stringof ~ ".getAll - storage not set");
@@ -532,7 +532,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
 
         if (this.file.is_open)
         {
-            this.file.close(waiting_context);
+            this.file.close(suspended_job);
         }
 
         this.file_buffer.reset();

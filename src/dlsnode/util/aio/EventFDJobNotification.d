@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    FiberSelectEvent suspend/resume interface for suspendable contexts waiting
+    FiberSelectEvent suspend/resume interface for suspendable jobs waiting
     for AsyncIO to finish.
 
     copyright:
@@ -11,14 +11,14 @@
 
 *******************************************************************************/
 
-module dlsnode.util.aio.EventFDContextAwaitingJob;
+module dlsnode.util.aio.EventFDJobNotification;
 
 import ocean.io.select.client.FiberSelectEvent;
 import ocean.io.select.fiber.SelectFiber;
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 
 /// ditto
-class EventFDContextAwaitingJob: ContextAwaitingJob
+class EventFDJobNotification: JobNotification
 {
     /***************************************************************************
 
@@ -50,7 +50,7 @@ class EventFDContextAwaitingJob: ContextAwaitingJob
 
     /***************************************************************************
 
-        Yields the control to the suspendable context, indicating that the aio
+        Yields the control to the suspendable job, indicating that the aio
         operation has been done.
 
     ***************************************************************************/
@@ -62,7 +62,7 @@ class EventFDContextAwaitingJob: ContextAwaitingJob
 
     /***************************************************************************
 
-        Cedes the control from the suspendable context, waiting for the aio
+        Cedes the control from the suspendable job, waiting for the aio
         operation to be done.
 
     ***************************************************************************/

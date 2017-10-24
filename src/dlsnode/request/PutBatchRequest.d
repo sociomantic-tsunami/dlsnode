@@ -100,7 +100,7 @@ public scope class PutBatchRequest : Protocol.PutBatch
     final override protected bool putRecord ( cstring channel, cstring key, cstring value )
     {
         this.storage_channel.put(key, value, *this.resources.record_buffer,
-                this.resources.waiting_context);
+                this.resources.suspended_job);
 
         this.resources.node_info.record_action_counters
             .increment("handled", value.length);

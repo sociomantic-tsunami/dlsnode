@@ -17,7 +17,7 @@
 
 module dlsnode.storage.checkpoint.CheckpointService;
 
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 import ocean.core.Test;
 import ocean.transition;
 
@@ -82,8 +82,8 @@ class CheckpointService
     import oceanArray = ocean.core.Array;
     import ocean.core.Array;
     import dlsnode.storage.FileSystemLayout;
-    import dlsnode.util.aio.ContextAwaitingJob;
-    import dlsnode.util.aio.EventFDContextAwaitingJob;
+    import dlsnode.util.aio.JobNotification;
+    import dlsnode.util.aio.EventFDJobNotification;
 
     /**************************************************************************
 
@@ -118,15 +118,15 @@ class CheckpointService
 
     /**************************************************************************
 
-        ContextAwaitingJob used for doing fiber-blocking IO calls.
+        JobNotification used for doing fiber-blocking IO calls.
 
     **************************************************************************/
 
-    private ContextAwaitingJob fiber_waiting_context;
+    private JobNotification fiber_suspended_job;
 
     /**************************************************************************
 
-        Timer waiting_context to periodically flush commit data to disk.
+        Timer suspended_job to periodically flush commit data to disk.
 
     **************************************************************************/
 
@@ -229,7 +229,7 @@ class CheckpointService
 
             ***************************************************************/
 
-            public void delegate(ContextAwaitingJob) fsync;
+            public void delegate(JobNotification) fsync;
 
             /***************************************************************
 
@@ -407,7 +407,7 @@ class CheckpointService
     ***************************************************************************/
 
     public void bucketOpen (cstring channel_name, ulong bucket_start, size_t position,
-            void delegate(ContextAwaitingJob) bucket_fsync)
+            void delegate(JobNotification) bucket_fsync)
     {
         if (!(channel_name in this.channels))
         {
@@ -479,8 +479,8 @@ class CheckpointService
         this.timer_fiber = new SelectFiber(epoll, &this.periodic_commit,
                 fiber_stack_size);
         this.checkpoint_timer = new FiberTimerEvent(this.timer_fiber);
-        this.fiber_waiting_context =
-            new EventFDContextAwaitingJob(this.timer_fiber);
+        this.fiber_suspended_job =
+            new EventFDJobNotification(this.timer_fiber);
         this.commit_seconds = commit_seconds;
         this.timer_fiber.start();
     }
@@ -516,7 +516,7 @@ class CheckpointService
         Commits the checkpoint service state to disk.
 
         Params:
-            waiting_context = waiting_context to block
+            suspended_job = suspended_job to block
                 the current fiber on, in case of blocking fsync operation
 
         Returns:
@@ -527,7 +527,7 @@ class CheckpointService
 
     ***************************************************************************/
 
-    private bool commit (ContextAwaitingJob waiting_context)
+    private bool commit (JobNotification suspended_job)
     {
         if (this.shutting_down || this.commit_in_progress)
         {
@@ -630,11 +630,11 @@ class CheckpointService
                                 // always be fsynced and then closed
                                 try
                                 {
-                                    bucket.fsync(waiting_context);
+                                    bucket.fsync(suspended_job);
                                 }
                                 catch (ErrnoException e)
                                 {
-                                    // Ignore bad file descriptor waiting_contexts,
+                                    // Ignore bad file descriptor suspended_jobs,
                                     // where the file is already closed
                                     if (e.errorNumber() != EBADF)
                                     {
@@ -687,7 +687,7 @@ class CheckpointService
             try
             {
                 this.checkpoint_timer.wait(cast(double)this.commit_seconds);
-                this.commit(this.fiber_waiting_context);
+                this.commit(this.fiber_suspended_job);
             }
             catch (Exception e)
             {
@@ -717,7 +717,7 @@ unittest
     CheckpointService service = new CheckpointService (dir, "checkpoint.dat");
 
     // Dummy method for fsyncing the bucket
-    void dummy_fsync (ContextAwaitingJob ev)
+    void dummy_fsync (JobNotification ev)
     {
     }
 
