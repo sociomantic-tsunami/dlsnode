@@ -18,6 +18,10 @@ import ocean.transition;
 import dlsnode.storage.protocol.model.IStorageProtocol;
 import ocean.io.device.File;
 import ocean.util.log.Logger;
+import ocean.core.Verify;
+import ocean.core.array.Mutation: copy;
+import ocean.core.Exception;
+import dlsnode.storage.util.Promise;
 
 /*******************************************************************************
 
@@ -26,9 +30,25 @@ import ocean.util.log.Logger;
 *******************************************************************************/
 
 private Logger log;
+
+/*******************************************************************************
+
+    Exception thrown on the bad parity.
+
+*******************************************************************************/
+
+public class ParityException: Exception
+{
+    mixin ReusableExceptionImplementation!();
+}
+
+/// ditto
+private ParityException parity_exception;
+
 static this ( )
 {
     log = Log.lookup("dlsnode.storage.protocol.StorageProtocolV1");
+    parity_exception = new ParityException;
 }
 
 /******************************************************************************
@@ -48,6 +68,7 @@ static this ( )
 
 scope class StorageProtocolV1: IStorageProtocol
 {
+
     /**************************************************************************
 
         Reads next record header from the file, if any.
@@ -107,6 +128,71 @@ scope class StorageProtocolV1: IStorageProtocol
 
     /**************************************************************************
 
+        Tries to read the next record header from the file. In case the record
+        can't be fetched, the request should suspend itself, wait to be resumed
+        by job_notification and then collect results from the resulting future.
+
+        Params:
+            job_notification = JobNotification to wake up
+                the fiber on the completion of the IO operation
+            file = bucket file instance to read from
+
+        Returns:
+            future that either contains or will contain the next record's
+            header.
+
+    **************************************************************************/
+
+    public override Future!(RecordHeader) nextRecord (
+            JobNotification job_notification,
+            BucketFile file)
+    {
+        auto future = file.readDataAsync!(RecordHeaderV1)(job_notification, RecordHeaderV1.sizeof);
+
+        // Wrap the future into the conversion method to convert
+        // from RecordHeaderV1 to RecordHeader
+        return future.compose(&this.transformRecordHeader);
+    }
+
+    /***************************************************************************
+
+        Converts RecordHeaderV1 to RecordHeader and checks the parity. Used
+        as the future's transformation delegate.
+
+        Params:
+            buf = buffer containing RecordHeaderV1
+
+        Returns:
+            RecordHeader from the RecordHeaderV1.
+
+        Throws:
+            ParityException if the parity check fails.
+
+    ***************************************************************************/
+
+    private RecordHeader transformRecordHeader (in void[] buf)
+    {
+        RecordHeaderV1 read_header = *(cast(RecordHeaderV1*)(buf[0..RecordHeaderV1.sizeof]));
+
+        auto parity = read_header.calcParity();
+        // check the record header
+        if (parity != 0)
+        {
+            // Record header is corrupted. Report that there are no more records
+            log.warn("Record header parity check failed. Will not read any more "
+                "records from this bucket file.");
+
+            throw .parity_exception;
+        }
+
+        // Checksum was correct
+        return read_header.header;
+    }
+
+
+
+    /**************************************************************************
+
         Reads the next record value from the file.
 
         Params:
@@ -125,6 +211,30 @@ scope class StorageProtocolV1: IStorageProtocol
         // Read value from file
         value.length = header.len;
         file.readData(suspended_job, value);
+    }
+
+    /**************************************************************************
+
+        Tries to read the next record value from the file. In case the record
+        can't be fetched, the request should suspend itself, wait to be resumed
+        by job_notification and then collect results from the resulting future.
+
+        Params:
+            job_notification = JobNotification to wake up
+                the fiber on the completion of the IO operation
+            file = bucket file instance to read from
+            header = current record's header
+
+        Returns:
+            future that either contains or will contain the record's value
+
+    **************************************************************************/
+
+    public override Future!(void[]) readRecordValue (
+            JobNotification job_notification,
+            BucketFile file, RecordHeader header)
+    {
+        return file.readDataAsync!(void[])(job_notification, header.len);
     }
 
     /**************************************************************************
