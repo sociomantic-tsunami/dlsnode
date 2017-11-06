@@ -12,6 +12,8 @@
 
 module dlsnode.util.aio.internal.JobQueue;
 
+import ocean.transition;
+
 import core.stdc.errno;
 import core.stdc.stdint;
 import core.sys.posix.unistd;
@@ -153,7 +155,7 @@ public static struct Job
 
     ***************************************************************************/
 
-    public void delegate(ssize_t)  finish_callback_dg;
+    public void delegate(ssize_t)[]  finish_callback_dgs;
 
     /***************************************************************************
 
@@ -176,10 +178,25 @@ public static struct Job
             this.finalize_results(this);
         }
 
-        if (this.finish_callback_dg)
+        if (this.finish_callback_dgs.length)
         {
-            this.finish_callback_dg(*this.ret_val);
+            foreach (dg; this.finish_callback_dgs)
+            {
+                dg(this.return_value);
+            }
         }
+    }
+
+    /***************************************************************************
+
+        Registers the callback to call after finishing the job.
+
+    ***************************************************************************/
+
+    public Job* registerCallback (void delegate(ssize_t) dg)
+    {
+        this.finish_callback_dgs ~= dg;
+        return this;
     }
 
     /***************************************************************************
@@ -363,7 +380,10 @@ public static class JobQueue
         free_job.is_taken = false;
         free_job.is_slot_free = false;
         free_job.owner_queue = this;
-        free_job.finish_callback_dg = null;
+        free_job.finish_callback_dgs.length = 0;
+        enableStomping(free_job.finish_callback_dgs);
+        free_job.ret_val = null;
+        free_job.errno_val = null;
 
         return free_job;
     }
