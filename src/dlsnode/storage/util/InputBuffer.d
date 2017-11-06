@@ -14,9 +14,16 @@
 
 module dlsnode.storage.util.InputBuffer;
 
+import ocean.transition;
+
 import core.sys.posix.sys.types;
 import ocean.core.Buffer;
+import ocean.core.Verify;
 import ocean.io.device.File;
+import core.stdc.string;
+import ocean.core.array.Mutation;
+
+import dlsnode.storage.util.Promise;
 
 version (UnitTest)
 {
@@ -55,6 +62,25 @@ struct InputBuffer
 
     private size_t position_in_chunk;
 
+
+    /***************************************************************************
+
+        Indicator that there's no more data available in the input.
+
+    ***************************************************************************/
+
+    private bool feof_occured;
+
+
+    /**************************************************************************
+
+        Promise to fill after reading data into buffer.
+
+    **************************************************************************/
+
+    private Promise* promise;
+
+
     /**************************************************************************
 
         Consumes dest.length bytes from the internal buffer and fills the
@@ -77,6 +103,27 @@ struct InputBuffer
         this.position_in_chunk += dest.length;
     }
 
+    /**************************************************************************
+
+        Consumes required.length bytes from the internal buffer and sinks them
+        into the `sink` delegate keeping the track of the position in the
+        internal buffer.
+
+        Params:
+            required = number of bytes required to consume
+            sink = sink delegate to fill from the internal buffer.
+
+    **************************************************************************/
+
+    private void consumeFromInternalBuffer (size_t required, void delegate(in void[] dest) sink)
+    {
+        verify(this.buffer.length - this.position_in_chunk >= required);
+
+        sink(
+            this.buffer[this.position_in_chunk .. this.position_in_chunk + required]);
+        this.position_in_chunk += required;
+    }
+
     /*************************************************************************
 
         Resets the object to the clean state, specifying the input buffer.
@@ -90,9 +137,21 @@ struct InputBuffer
 
     public void reset (void[] buffer)
     {
+        this.reset();
         this.buffer = buffer;
-        this.data_in_chunk = 0;
+    }
+
+    /*************************************************************************
+
+        Resets the object to the clean state, still using the same buffer (if any).
+
+    *************************************************************************/
+
+    public void reset ()
+    {
         this.position_in_chunk = 0;
+        this.feof_occured = false;
+        this.data_in_chunk = 0;
     }
 
     /**************************************************************************
@@ -143,6 +202,68 @@ struct InputBuffer
     public size_t remainingInBuffer ( )
     {
         return this.data_in_chunk - this.position_in_chunk;
+    }
+
+    /***************************************************************************
+
+        Tries to read data in non-blocking manner. If the requested data is
+        available in the internal buffer, this method would return immediately,
+        filling the buffer with the requested data. Otherwise, provided method
+        async_read_data will be called, expecting to fill the internal buffer 
+        and call asyncReadCompleted to let InputBuffer update it's state with the data
+        actually read from the file. Either way, this method will return
+        *immediately* and user should check if the read has completed inspecting
+        the Future object.
+
+        Params:
+            promise = promise to fulfil
+            async_read_data = delegate to read the data and let the input buffer know
+                        when it's done (via asyncReadCompleted parameter).
+
+    ***************************************************************************/
+
+    public void asyncReadData (ref Promise promise,
+            void delegate(void[] dest,
+                          void delegate(ssize_t) asyncReadCompleted) async_read_data)
+    {
+        // If we don't need to read anything
+        if (promise.dataMissing() == 0)
+        {
+            promise.fulfilled(false);
+            return;
+        }
+
+        // Do we have enough data already in the buffer?
+        if (this.remainingInBuffer() >= promise.dataMissing)
+        {
+            this.consumeFromInternalBuffer(promise.dataMissing(), &promise.fillResult);
+            promise.fulfilled(false);
+            return;
+        }
+        else if (this.feof_occured)
+        {
+            // Copy what we can and return that.
+            auto remaining = this.remainingInBuffer();
+            this.consumeFromInternalBuffer(remaining, &promise.fillResult);
+            promise.fulfilled(true);
+            return;
+        }
+
+        // There's not enough data in the buffer? Let's move the remaining of the
+        // data to the front of the buffer, and refill the buffer with the new data
+        auto remaining = this.moveRemainingToFront();
+
+        // If user is asking for more data than the size of the internal buffer
+        // we'll resize the buffer first
+        if (this.buffer.length < promise.dataMissing)
+        {
+            this.buffer.length = promise.dataMissing;
+            enableStomping(this.buffer);
+        }
+
+        // Set the final destination buffer to read from
+        this.promise = &promise;
+        async_read_data(this.buffer[remaining..$], &this.asyncReadCompleted);
     }
 
     /**************************************************************************
@@ -228,6 +349,72 @@ struct InputBuffer
                     dest[already_copied_to_output .. already_copied_to_output + to_copy_from_internal]);
 
             return already_copied_to_output + to_copy_from_internal;
+        }
+    }
+
+    /***************************************************************************
+
+        Reorders buffer in the way that all unused elements are moved to the
+        front of the buffer, making the end of the buffer available for a refill.
+
+        Returns:
+            amount of remaining elements in the buffer
+
+    ***************************************************************************/
+
+    private size_t moveRemainingToFront ()
+    {
+        auto remaining = this.remainingInBuffer();
+
+        void* src = buffer.ptr + this.position_in_chunk;
+        void* dst = buffer.ptr;
+        memmove(dst, src, remaining);
+
+        this.position_in_chunk = 0;
+        this.data_in_chunk = remaining;
+        return remaining;
+    }
+
+    /***************************************************************************
+
+        Should be called from AIO subsystem when the requested AIO read has
+        been completed. It updates buffer's internal state to reflect the
+        result of the nonblocking read.
+
+        Params:
+            bytes_read = number of bytes read
+
+    ***************************************************************************/
+
+    private void asyncReadCompleted (ssize_t bytes_read)
+    {
+        if (bytes_read < 0)
+        {
+            this.promise.fulfilled(true);
+            return;
+        }
+
+        if (bytes_read == 0)
+        {
+            this.feof_occured = true;
+        }
+
+        this.data_in_chunk += bytes_read;
+
+        // Now let's fill the consumer's buffer
+        // Do we have enough data already in the buffer?
+        if (this.remainingInBuffer() >= this.promise.dataMissing)
+        {
+            this.consumeFromInternalBuffer(this.promise.dataMissing,
+                &this.promise.fillResult);
+            this.promise.fulfilled(false);
+        }
+        else if (this.feof_occured)
+        {
+            // Copy what we can and return that.
+            auto remaining = this.remainingInBuffer();
+            this.consumeFromInternalBuffer(remaining, &this.promise.fillResult);
+            this.promise.fulfilled(true);
         }
     }
 }
