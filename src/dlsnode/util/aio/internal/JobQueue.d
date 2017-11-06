@@ -77,6 +77,14 @@ public static struct Job
 
     /****************************************************************
 
+        The field to store the return value of the system call.
+
+    ****************************************************************/
+
+    public ssize_t return_value;
+
+    /****************************************************************
+
         Pointer to variable which should receive the return value of
         the system call.
 

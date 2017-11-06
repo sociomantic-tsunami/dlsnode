@@ -93,7 +93,9 @@ extern (C) static void* thread_entry_point (void* job_queue_ptr)
                 break;
         }
 
-        if (ret_value != 0)
+        job.return_value = ret_value;
+
+        if (ret_value != 0 && job.ret_val !is null)
         {
             *job.errno_val = .errno;
             *job.ret_val = ret_value;

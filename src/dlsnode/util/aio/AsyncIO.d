@@ -198,10 +198,15 @@ class AsyncIO
 
     private static void finalizeRead (Job* job)
     {
-        if (*job.ret_val >= 0)
+        if (job.ret_val !is null)
         {
-            auto dest = (job.user_buffer.ptr)[0..*job.ret_val];
-            copy(dest, job.recv_buffer[0..*job.ret_val]);
+            *job.ret_val = job.return_value;
+        }
+
+        if (job.return_value >= 0)
+        {
+            auto dest = (job.user_buffer.ptr)[0..job.return_value];
+            copy(dest, job.recv_buffer[0..job.return_value]);
         }
     }
 
@@ -254,8 +259,6 @@ class AsyncIO
             job.fd = fd;
             job.offset = offset;
             job.cmd = Job.Command.Read;
-            job.ret_val = ret_val;
-            job.errno_val = errno_val;
             job.user_buffer = buf;
             job.finalize_results = &finalizeRead;
             job.suspended_job = suspended_job;
