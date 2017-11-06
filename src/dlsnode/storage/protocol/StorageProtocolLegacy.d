@@ -15,9 +15,12 @@ module dlsnode.storage.protocol.StorageProtocolLegacy;
 import ocean.transition;
 
 import dlsnode.storage.protocol.model.IStorageProtocol;
+import dlsnode.storage.util.Promise;
 import ocean.io.device.File;
 import ocean.util.log.Logger;
 import dlsnode.util.aio.JobNotification;
+import ocean.core.Verify;
+import ocean.core.array.Mutation;
 
 /*******************************************************************************
 
@@ -48,6 +51,56 @@ static this ( )
 
 scope class StorageProtocolLegacy: IStorageProtocol
 {
+
+    /**************************************************************************
+
+        Tries to read the next record header from the file. In case the record
+        can't be fetched, the request should suspend itself, wait to be resumed
+        by job_notification and then collect results from the resulting future.
+
+        Params:
+            job_notification = JobNotification to wake up
+                the fiber on the completion of the IO operation
+            file = bucket file instance to read from
+
+        Returns:
+            future that either contains or will contain the next record's
+            header.
+
+    **************************************************************************/
+
+    public override Future!(RecordHeader) nextRecord (
+            JobNotification job_notification,
+            BucketFile file)
+    {
+        return file.readDataAsync!(RecordHeader)(job_notification, RecordHeader.sizeof);
+    }
+
+    /**************************************************************************
+
+        Tries to read the next record value from the file. In case the record
+        can't be fetched, the request should suspend itself, wait to be resumed
+        by job_notification and then collect results from the resulting future.
+
+        Params:
+            job_notification = JobNotification to wake up
+                the fiber on the completion of the IO operation
+            file = bucket file instance to read from
+            header = current record's header
+
+        Returns:
+            future that either contains or will contain the record's value
+
+    **************************************************************************/
+
+    public override Future!(void[]) readRecordValue (
+            JobNotification job_notification,
+            BucketFile file, RecordHeader header)
+    {
+        // Read value from file
+        return file.readDataAsync!(void[])(job_notification, header.len);
+    }
+
     /**************************************************************************
 
         Reads next record header from the file, if any.

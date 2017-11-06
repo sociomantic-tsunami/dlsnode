@@ -21,6 +21,8 @@ public import ocean.io.stream.Buffered;
 
 public import dlsnode.util.aio.JobNotification;
 
+import dlsnode.storage.util.Promise;
+
 interface IStorageProtocol
 {
     /**************************************************************************
@@ -42,6 +44,26 @@ interface IStorageProtocol
             JobNotification suspended_job,
             BucketFile file, ref RecordHeader header );
 
+    /**************************************************************************
+
+        Tries to read the next record header from the file. In case the record
+        can't be fetched, the request should suspend itself, wait to be resumed
+        by job_notification and then collect results from the resulting future.
+
+        Params:
+            job_notification = JobNotification to wake up
+                the fiber on the completion of the IO operation
+            file = bucket file instance to read from
+
+        Returns:
+            future that either contains or will contain the next record's
+            header.
+
+    **************************************************************************/
+
+    public Future!(RecordHeader) nextRecord (
+            JobNotification job_notification,
+            BucketFile file);
 
     /**************************************************************************
 
@@ -60,6 +82,26 @@ interface IStorageProtocol
             JobNotification suspended_job,
             BucketFile file, RecordHeader header, ref mstring value);
 
+    /**************************************************************************
+
+        Tries to read the next record value from the file. In case the record
+        can't be fetched, the request should suspend itself, wait to be resumed
+        by job_notification and then collect results from the resulting future.
+
+        Params:
+            job_notification = JobNotification to wake up
+                the fiber on the completion of the IO operation
+            file = bucket file instance to read from
+            header = current record's header
+
+        Returns:
+            future that either contains or will contain the record's value
+
+    **************************************************************************/
+
+    public Future!(void[]) readRecordValue (
+            JobNotification job_notification,
+            BucketFile file, RecordHeader header);
 
     /**************************************************************************
 
