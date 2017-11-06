@@ -15,6 +15,7 @@
 module dlsnode.storage.BucketFile;
 
 import ocean.transition;
+import ocean.core.Verify;
 
 import ocean.io.model.IConduit;
 import ocean.transition;
@@ -22,6 +23,7 @@ import dlsnode.util.aio.AsyncIO;
 import dlsnode.util.aio.JobNotification;
 
 import ocean.util.serialize.contiguous.package_;
+import dlsnode.storage.util.Promise;
 
 /*******************************************************************************
 
@@ -54,7 +56,7 @@ public class BucketFile: OutputStream
 
     // TODO; remove with ocean v2.5.0
     import core.stdc.errno;
-    import core.sys.posix.sys.types: off_t;
+    import core.sys.posix.sys.types: off_t, ssize_t;
     import posix = core.sys.posix.unistd;
 
     /**************************************************************************
@@ -164,6 +166,15 @@ public class BucketFile: OutputStream
     **************************************************************************/
 
     private ulong bucket_version;
+
+
+    /**************************************************************************
+
+      Promise instance used for the nonblocking asynchronous IO.
+
+    **************************************************************************/
+
+    private Promise promise;
 
 
     /**************************************************************************
@@ -298,6 +309,7 @@ public class BucketFile: OutputStream
     }
     body
     {
+        this.promise.reset();
         this.buffered_input.reset(file_buffer);
         this.file.open(path, style);
         this.file_length_ = this.file.length;
@@ -436,6 +448,63 @@ public class BucketFile: OutputStream
         enforce(bytes_read == buf.length, typeof(this).stringof ~ "readData failed");
         return bytes_read;
 
+    }
+
+    /**************************************************************************
+
+        Reads data from the file, not blocking the fiber if there's not enough
+        data, giving the opportunity to the user to suspend in the most convenient
+        location. After the context has been resumed by AsyncIO, the resulting
+        Future can be reaped for the result or for the error, if the scheduled
+        read failed for whatever reason.
+
+        Params:
+            T = type of the result to read from the BucketFile
+            job_nofification = JobNotification used to wake
+                          the calling context when the read is completed
+            num_bytes = requested amount of data to read from the file
+
+        Returns:
+            Future instance which may or may not be immediately filled with the
+            result. If the future is empty when this method returns, user should
+            wait for the JobNotification to notify the caller and then the
+            Future will either provide result or an error.
+
+    **************************************************************************/
+
+    public Future!(T) readDataAsync(T) (JobNotification job_notification,
+            size_t num_bytes)
+    {
+        assert(this.async_io);
+
+        this.promise.reset(num_bytes);
+
+        this.buffered_input.asyncReadData(
+             this.promise,
+             delegate (void[] buf, void delegate(ssize_t) set_last_read) {
+                 this.async_io.nonblocking.pread(buf,
+                         this.file.fileHandle,
+                         this.file_pos_,
+                         job_notification)
+                         .registerCallback(set_last_read)
+                         .registerCallback(&this.incrementFileCursor);
+                });
+
+        return this.promise.getFuture!(T)();
+    }
+
+    /**************************************************************************
+
+        Increments the file cursor after non-blocking aio read.
+
+        Params:
+            read_bytes = number of bytes read.
+
+    ***************************************************************************/
+
+    private void incrementFileCursor (ssize_t read_bytes)
+    {
+        this.file_pos_ += read_bytes;
     }
 
     /**************************************************************************
