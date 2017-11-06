@@ -663,6 +663,31 @@ public class BucketFile: OutputStream
                 });
     }
 
+    /***************************************************************************
+
+        Reads the header of a record from the current seek position of an open
+        bucket file. The seek position is moved ready to read the record's
+        value.
+
+        Params:
+            job_notification = JobNotification which will
+                wake up the request when the node has finished reading required
+                data.
+
+        Returns:
+            future that either contains or will contain the next record's
+            header.
+
+    ***************************************************************************/
+
+    public Future!(RecordHeader) nextRecord ( JobNotification job_notification )
+    {
+        return this.performFileLayoutStrategy((IStorageProtocol strategy)
+                {
+                    return strategy.nextRecord(job_notification, this);
+                });
+    }
+
     /**************************************************************************
 
         Appends a record to the output buffer.
@@ -706,6 +731,34 @@ public class BucketFile: OutputStream
         this.performFileLayoutStrategy((IStorageProtocol strategy)
                {
                     strategy.readRecordValue(suspended_job, this, header, value);
+               });
+    }
+
+    /***************************************************************************
+
+        Reads the value of a record from the current seek position of an open
+        bucket file. The seek position is moved ready to read the next record's
+        header.
+
+        Params:
+            job_notification = JobnNotification which will
+                wake up the request when the node has finished reading required
+                data.
+            header = header of current record
+
+        Returns:
+            future that either contains or will contain the next record's
+            value.
+
+    ***************************************************************************/
+
+    public Future!(void[]) readRecordValue ( JobNotification job_notification,
+        RecordHeader header )
+    {
+        return this.performFileLayoutStrategy((IStorageProtocol strategy)
+               {
+                    return strategy.readRecordValue(job_notification,
+                            this, header);
                });
     }
 
