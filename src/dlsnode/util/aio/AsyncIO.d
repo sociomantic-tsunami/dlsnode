@@ -234,17 +234,15 @@ class AsyncIO
                     IO operation and calling finish_callback_dg
 
             Returns:
-                number of the bytes read
+                Job that's scheduled
 
             Throws:
                 ErrnoException with appropriate errno set in case of failure
 
         **************************************************************************/
 
-        public void pread (void[] buf, ssize_t* ret_val,
-                int* errno_val,
+        public Job* pread (void[] buf,
                 int fd, size_t offset,
-                void delegate(ssize_t) finish_callback_dg,
                 JobNotification suspended_job)
         {
             auto job = this.outer.jobs.reserveJobSlot(&lock_mutex,
@@ -260,12 +258,13 @@ class AsyncIO
             job.errno_val = errno_val;
             job.user_buffer = buf;
             job.finalize_results = &finalizeRead;
-            job.finish_callback_dg = finish_callback_dg;
             job.suspended_job = suspended_job;
 
             // Let the threads waiting on the semaphore know that they
             // can start doing single read
             post_semaphore(&this.outer.jobs.jobs_available);
+
+            return job;
         }
     }
 
