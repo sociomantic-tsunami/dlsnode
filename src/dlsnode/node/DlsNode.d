@@ -20,7 +20,7 @@ module dlsnode.node.DlsNode;
 
 *******************************************************************************/
 
-import swarm.node.model.ChannelsNode : ChannelsNodeBase;
+import swarm.node.model.NeoChannelsNode : ChannelsNodeBase;
 
 import ocean.transition;
 
@@ -47,6 +47,7 @@ public class DlsNode :
     import swarm.Const : NodeItem;
 
     import dlsnode.connection.DlsConnectionHandler : DlsConnectionSetupParams;
+    import NeoSharedResources = dlsnode.connection.neo.SharedResources;
     import dlsnode.connection.SharedResources;
 
     import dlsnode.storage.StorageChannels;
@@ -54,6 +55,9 @@ public class DlsNode :
     import ocean.io.select.EpollSelectDispatcher;
 
     import ocean.io.compress.lzo.LzoChunkCompressor;
+
+    import swarm.neo.authentication.HmacDef: Key;
+    import dlsnode.neo.RequestHandlers;
 
 
     /***************************************************************************
@@ -79,19 +83,30 @@ public class DlsNode :
         Constructor.
 
         Params:
-            node_item = node address/port
+            node_item = node address/ legacy port
+            neo_port = port for node to listen for neo requests
             channels = storage channels instance to use
             epoll = epoll select dispatcher to be used internally
             backlog = (see ISelectListener ctor)
             per_request_stats = names of requests to be stats tracked
+            no_delay = indicator if the no_delay should be used
+            unix_socket_path = path where unix socket should bind to
+            credentials_path = path to the neo credentails file
             async_io = AsyncIO instance
+            file_buffer_size = size of the input file buffer.
 
     ***************************************************************************/
 
-    public this ( NodeItem node_item, StorageChannels channels,
+    public this ( NodeItem node_item,
+        ushort neo_port,
+        StorageChannels channels,
         EpollSelectDispatcher epoll,
         int backlog, istring[] per_request_stats,
-        AsyncIO async_io )
+        bool no_delay,
+        istring unix_socket_path,
+        istring credentials_path,
+        AsyncIO async_io,
+        size_t file_buffer_size )
     {
 
         auto conn_setup_params = new DlsConnectionSetupParams;
@@ -104,7 +119,19 @@ public class DlsNode :
         conn_setup_params.pcre.complexity_limit = PcreComplexityLimit;
         conn_setup_params.async_io = async_io;
 
-        super(node_item, channels, conn_setup_params, backlog);
+        Options neo_options;
+        neo_options.requests = requests;
+        neo_options.epoll = epoll;
+        neo_options.no_delay = no_delay;
+        neo_options.shared_resources =
+            new NeoSharedResources.SharedResources(channels,
+                async_io, file_buffer_size);
+        neo_options.unix_socket_path = unix_socket_path;
+        neo_options.credentials_filename = credentials_path;
+
+
+        super(node_item, neo_port, channels, conn_setup_params,
+                neo_options, backlog);
 
         // Initialise requests to be stats tracked.
         foreach ( cmd; per_request_stats )
