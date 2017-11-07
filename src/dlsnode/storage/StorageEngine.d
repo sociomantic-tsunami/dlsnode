@@ -28,6 +28,7 @@ import ocean.util.log.Logger;
 
 import dlsnode.util.aio.JobNotification;
 import dlsnode.util.aio.AsyncIO;
+import core.stdc.time;
 
 import ocean.transition;
 
@@ -343,6 +344,31 @@ public class StorageEngine : IStorageEngine
     {
         this.writers.put(Hash.straightToHash(key), value, record_buffer,
                 suspended_job);
+
+        return this;
+    }
+
+    /***********************************************************************
+
+        Puts a record into the database.
+
+        Params:
+            key   = record key
+            value = record value
+            record_buffer = buffer used internally for rendering entire record
+                            passing it to BufferedOutput.
+            event = event to block and wait on for IO to happen
+
+        Returns:
+            this instance
+
+    ***********************************************************************/
+
+    typeof(this) put ( time_t key, char[] value, ref ubyte[] record_buffer,
+           JobNotification waiting_context )
+    {
+        this.writers.put(key, value, record_buffer,
+                waiting_context);
 
         return this;
     }

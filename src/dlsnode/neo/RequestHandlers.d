@@ -16,6 +16,7 @@ import swarm.neo.node.ConnectionHandler;
 import dlsproto.common.RequestCodes;
 
 import GetRange = dlsnode.neo.request.GetRange;
+import Put = dlsnode.neo.request.Put;
 
 /******************************************************************************
 
@@ -30,4 +31,5 @@ public ConnectionHandler.RequestMap requests;
 static this ( )
 {
     requests.add(RequestCode.GetRange, "GetRange", &GetRange.handle);
+    requests.add(RequestCode.Put, "Put", &Put.handle);
 }
