@@ -279,10 +279,10 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         this.started = false;
     }
 
-
     /***************************************************************************
 
-        Gets the key of the current record the iterator is pointing to.
+        Gets the string containing key of the current record the iterator is
+        pointing to.
 
         Returns:
             current key
@@ -300,6 +300,20 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
         return this.key_buffer;
     }
 
+
+    /***************************************************************************
+
+        Gets the key of the current record the iterator is pointing to.
+
+        Returns:
+            current key
+
+    ***************************************************************************/
+
+    public time_t key_timestamp ()
+    {
+        return cast(time_t)this.current_header.key;
+    }
 
     /***************************************************************************
 

@@ -15,6 +15,8 @@ module dlsnode.neo.RequestHandlers;
 import swarm.neo.node.ConnectionHandler;
 import dlsproto.common.RequestCodes;
 
+import GetRange = dlsnode.neo.request.GetRange;
+
 /******************************************************************************
 
     This table of request handlers by command is used by the connection
@@ -27,4 +29,5 @@ public ConnectionHandler.RequestMap requests;
 
 static this ( )
 {
+    requests.add(RequestCode.GetRange, "GetRange", &GetRange.handle);
 }
