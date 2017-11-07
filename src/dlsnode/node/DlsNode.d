@@ -49,6 +49,7 @@ public class DlsNode :
     import dlsnode.connection.DlsConnectionHandler : DlsConnectionSetupParams;
     import NeoSharedResources = dlsnode.connection.neo.SharedResources;
     import dlsnode.connection.SharedResources;
+    import swarm.node.model.NeoNode;
 
     import dlsnode.storage.StorageChannels;
 
