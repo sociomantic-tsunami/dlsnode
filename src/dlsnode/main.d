@@ -316,8 +316,15 @@ public class DlsNodeServer : DaemonApp
             this.performance_config.file_buffer_size,
             this.dls_config.write_buffer_size);
 
-        this.node = new DlsNode(this.node_item, storage_channels, this.epoll,
-                server_config.backlog, this.per_request_stats, this.async_io);
+        this.node = new DlsNode(this.node_item,
+                this.server_config.neoport(),
+                storage_channels, this.epoll,
+                server_config.backlog, this.per_request_stats,
+                this.performance_config.no_delay,
+                idup(this.server_config.unix_socket_path()),
+                idup(this.server_config.credentials_path),
+                this.async_io,
+                this.performance_config.file_buffer_size);
 
         this.dls_stats =
             new NodeStats(this.node, this.stats_ext.stats_log);

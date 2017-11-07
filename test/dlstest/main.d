@@ -38,7 +38,8 @@ private class RealDlsTestRunner : DlsTestRunner
     override public CopyFileEntry[] copyFiles ( )
     {
         return [
-            CopyFileEntry("/test/dlstest/etc/config.ini", "etc/config.ini")
+            CopyFileEntry("/test/dlstest/etc/config.ini", "etc/config.ini"),
+            CopyFileEntry("/test/dlstest/etc/credentials", "etc/credentials")
         ];
     }
 
