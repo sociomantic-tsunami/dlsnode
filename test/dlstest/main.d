@@ -75,6 +75,6 @@ private class RealDlsTestRunner : DlsTestRunner
 int main ( istring[] args )
 {
     auto runner =
-        new TurtleRunner!(RealDlsTestRunner)("dlsnode", "dlstest.cases.legacy");
+        new TurtleRunner!(RealDlsTestRunner)("dlsnode", "dlstest.cases");
     return runner.main(args);
 }
