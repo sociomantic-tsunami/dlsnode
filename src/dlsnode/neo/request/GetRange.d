@@ -63,9 +63,9 @@ public void handle ( Object shared_resources, RequestOnConn connection,
 
     switch (cmdver)
     {
-        case 0:
+        case 1:
             scope rq_resources = dls_shared_resources.new RequestResources;
-            scope rq = new GetRangeImpl_v0(dls_shared_resources.storage_channels, rq_resources);
+            scope rq = new GetRangeImpl_v1(dls_shared_resources.storage_channels, rq_resources);
             rq.handle(connection, msg_payload);
             break;
 
@@ -83,11 +83,11 @@ public void handle ( Object shared_resources, RequestOnConn connection,
 
 /*******************************************************************************
 
-    Node implementation of the GetRangeProtocol_v0.
+    Node implementation of the GetRangeProtocol_v1.
 
 *******************************************************************************/
 
-private scope class GetRangeImpl_v0: GetRangeProtocol_v0
+private scope class GetRangeImpl_v1: GetRangeProtocol_v1
 {
     import swarm.util.Hash;
     import dlsnode.storage.StorageChannels;
@@ -428,18 +428,6 @@ private scope class GetRangeImpl_v0: GetRangeProtocol_v0
     ***************************************************************************/
 
     override protected void requestFinished ()
-    {
-        this.job_notification.discardResults();
-    }
-
-    /***************************************************************************
-
-        Indicates storage engine that this request has been suspended and that
-        results are no longer required.
-
-    ***************************************************************************/
-
-    override protected void requestSuspended ()
     {
         this.job_notification.discardResults();
     }

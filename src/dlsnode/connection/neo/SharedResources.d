@@ -87,6 +87,14 @@ public final class SharedResources
 
     /***************************************************************************
 
+        Lzo object for compressing the record batches.
+
+    ***************************************************************************/
+
+    private Lzo lzo;
+
+    /***************************************************************************
+
         Pool of CompiledRegex instances to use.
 
     ***************************************************************************/
@@ -134,6 +142,7 @@ public final class SharedResources
             size_t file_buffer_size )
     {
         this.pcre = new PCRE;
+        this.lzo = new Lzo;
         this.file_buffer_size = file_buffer_size;
         this.async_io = async_io;
         this.storage_channels = storage_channels;
@@ -259,6 +268,18 @@ public final class SharedResources
             return this.acquired_void_buffers.acquire();
         }
 
+
+        /***********************************************************************
+
+            Returns:
+                lzo object for compressing the record batches.
+
+        ***********************************************************************/
+
+        override public Lzo getLzo ( )
+        {
+            return this.outer.lzo;
+        }
 
         /***********************************************************************
 
