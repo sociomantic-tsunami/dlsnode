@@ -4,7 +4,7 @@
 if [ "$1" = "configure" -a -z "$2" ]
 then
     # Check if the user exists, and creates one if not
-    getent passwd dlsnodereadonly > /dev/null || useradd -d /srv/dlsnode/ -s /bin/false dlsnodereadonly
+    getent passwd dlsnodereadonly > /dev/null || useradd -d /srv/dlsnode/ -g dlsnode -s /bin/false dlsnodereadonly
 
     chmod 644 "/etc/init/dlsreadonly.conf"
 fi
