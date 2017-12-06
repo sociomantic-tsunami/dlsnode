@@ -31,5 +31,4 @@ public ConnectionHandler.RequestMap requests;
 static this ( )
 {
     requests.add(RequestCode.GetRange, "GetRange", &GetRange.handle);
-    requests.add(RequestCode.Put, "Put", &Put.handle);
 }
