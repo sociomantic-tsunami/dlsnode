@@ -8,16 +8,13 @@ if VAR.suffix:
 OPTS.update(
     name = VAR.name,
     description = get_desc('common config files'),
-    deb_recommends = 'dlsnode',
+    deb_recommends = 'dlsnode-readonly',
     after_install='pkg/after_install.sh',
 )
 
 ARGS = [
     "README.rst=/usr/share/doc/" + VAR.name + "/README.rst",
-    "deploy/logrotate/dlsnode-logs=/etc/logrotate.d/dlsnode-logs",
-    "deploy/upstart/dls.conf=/etc/init/dls.conf",
-    "deploy/cron/compress_data.sh=/srv/dlsnode/etc/compress_data.sh",
-    "deploy/cron/compress_dls_data=/etc/cron.d/",
+    "deploy/upstart/dlsreadonly.conf=/etc/init/dlsreadonly.conf",
 ]
 
 # vim: set ft=python et sw=4 sts=4 :
