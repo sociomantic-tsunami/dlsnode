@@ -80,17 +80,8 @@ public scope class PutRequest : Protocol.Put
     {
         this.resources.node_info.record_action_counters
             .increment("handled", value.length);
-
-        auto storage_channel = this.resources.storage_channels.getCreate(channel);
-        if (storage_channel is null)
-            return false;
-
-        auto dls_channel = downcast!(StorageEngine)(storage_channel);
-        assert(dls_channel);
-        dls_channel.put(key, value, *this.resources.record_buffer,
-                this.resources.suspended_job);
-
-        return true;
+        // disabled
+        return false;
     }
 }
 
