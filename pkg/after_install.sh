@@ -7,6 +7,11 @@ then
     getent passwd dlsnodereadonly > /dev/null || useradd -d /srv/dlsnode/ -g dlsnode -s /bin/false dlsnodereadonly
 
     chmod 644 "/etc/init/dlsreadonly.conf"
+    mkdir -p "/srv/dlsnode/readonly/etc/"
+
+    mkdir -p "/srv/dlsnode/readonly/log/"
+    mkdir -p "/srv/dlsnode/readonly/etc/"
+    chown dlsnodereadonly:dlsnode "/srv/dlsnode/readonly/log"
 fi
 
 if [ -d /run/systemd/system ]; then
