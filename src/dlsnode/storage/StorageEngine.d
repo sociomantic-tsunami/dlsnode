@@ -30,6 +30,7 @@ import dlsnode.util.aio.JobNotification;
 import dlsnode.util.aio.AsyncIO;
 import core.stdc.time;
 
+import ocean.core.Exception;
 import ocean.transition;
 
 
@@ -44,6 +45,20 @@ static this ( )
 {
     log = Log.lookup("dlsnode.torage.StorageEngine");
 }
+
+/*******************************************************************************
+
+    Exception thrown on the unsupported operation
+
+*******************************************************************************/
+
+public class UnsupportedOperationException: Exception
+{
+    mixin ReusableExceptionImplementation!();
+}
+
+/// ditto
+private UnsupportedOperationException unsuported_exception;
 
 
 
@@ -168,46 +183,51 @@ public class StorageEngine : IStorageEngine
         public void put ( hash_t key, cstring value, ref ubyte[] record_buffer,
                 JobNotification suspended_job )
         {
-            // Calculate file hash.
-            SlotBucket sb;
-            auto file_hash = sb.fromKey(key).toHash();
+            throw .unsuported_exception.set("Put not allowed on readonly node");
 
-            // Get file from cache, recycled (LRU) file, or a pointer to null
-            // (if a new file instance must be created).
-            bool recently_used;
-            auto file =
-                this.recent_files.getRefreshOrCreate(file_hash, recently_used);
-
-            // A null file means that the cache is being filled up and we need
-            // to construct a new instance.
-            if ( *file is null )
+            version (none)
             {
-                debug
+                // Calculate file hash.
+                SlotBucket sb;
+                auto file_hash = sb.fromKey(key).toHash();
+
+                // Get file from cache, recycled (LRU) file, or a pointer to null
+                // (if a new file instance must be created).
+                bool recently_used;
+                auto file =
+                    this.recent_files.getRefreshOrCreate(file_hash, recently_used);
+
+                // A null file means that the cache is being filled up and we need
+                // to construct a new instance.
+                if ( *file is null )
                 {
-                    ++this.files_created;
-                    assert(this.files_created <= this.max_files);
-                    .log.trace("Newing {}th writer for storage engine 0x{:x}",
-                        this.files_created, cast(void*)this.outer);
+                    debug
+                    {
+                        ++this.files_created;
+                        assert(this.files_created <= this.max_files);
+                        .log.trace("Newing {}th writer for storage engine 0x{:x}",
+                            this.files_created, cast(void*)this.outer);
+                    }
+
+                    *file = new BufferedBucketOutput(this.checkpointer,
+                           this.outer.async_io,
+                           write_buffer_size);
                 }
 
-                *file = new BufferedBucketOutput(this.checkpointer,
-                       this.outer.async_io,
-                       write_buffer_size);
-            }
+                // If the file was 1. already in the cache but has expired and
+                // should now be reused and 2. not currently open, we reset its
+                // directory. This is to handle the case where a channel (an
+                // instance of StorageEngine) has been deleted then recycled -- the
+                // files it had open for writing must be reset to write to the new
+                // channel's directory.
+                // (Note that all files are closed upon calling commitAndClose().)
+                if ( !recently_used || !file.isOpen() )
+                {
+                    file.setDir(this.outer.id, this.outer.channel_dir);
+                }
 
-            // If the file was 1. already in the cache but has expired and
-            // should now be reused and 2. not currently open, we reset its
-            // directory. This is to handle the case where a channel (an
-            // instance of StorageEngine) has been deleted then recycled -- the
-            // files it had open for writing must be reset to write to the new
-            // channel's directory.
-            // (Note that all files are closed upon calling commitAndClose().)
-            if ( !recently_used || !file.isOpen() )
-            {
-                file.setDir(this.outer.id, this.outer.channel_dir);
+                file.put(key, value, record_buffer, suspended_job);
             }
-
-            file.put(key, value, record_buffer, suspended_job);
         }
 
 
@@ -342,10 +362,8 @@ public class StorageEngine : IStorageEngine
     typeof(this) put ( cstring key, cstring value, ref ubyte[] record_buffer,
             JobNotification suspended_job )
     {
-        this.writers.put(Hash.straightToHash(key), value, record_buffer,
-                suspended_job);
-
-        return this;
+        throw .unsuported_exception.set("Put not allowed on readonly node");
+        assert(0);
     }
 
     /***********************************************************************
@@ -367,10 +385,8 @@ public class StorageEngine : IStorageEngine
     typeof(this) put ( time_t key, char[] value, ref ubyte[] record_buffer,
            JobNotification waiting_context )
     {
-        this.writers.put(key, value, record_buffer,
-                waiting_context);
-
-        return this;
+        throw .unsuported_exception.set("Put not allowed on readonly node");
+        assert(0);
     }
 
     /***********************************************************************
@@ -453,13 +469,8 @@ public class StorageEngine : IStorageEngine
 
     public override typeof(this) clear ( )
     {
-        .log.info("Clearing (deleting) DLS channel '{}'", super.id);
-
-        this.commitAndClose();
-        FileSystemLayout.removeFiles(this.channel_dir);
-        this.removeChannelDir();
-
-        return this;
+        throw .unsuported_exception.set("RemoveChannel not allowed on readonly node");
+        assert(0);
     }
 
 
