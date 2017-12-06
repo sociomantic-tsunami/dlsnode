@@ -21,8 +21,8 @@ import turtle.runner.Runner;
 
 import test.versioning.cases.TestEmptyBuckets;
 import test.versioning.cases.TestLegacy;
-import test.versioning.cases.TestLegacyWrite;
-import test.versioning.cases.TestVersionOneWrite;
+//import test.versioning.cases.TestLegacyWrite;
+//import test.versioning.cases.TestVersionOneWrite;
 import test.versioning.cases.TestParityFine;
 import test.versioning.cases.TestParityBroken;
 
