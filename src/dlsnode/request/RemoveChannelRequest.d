@@ -52,6 +52,6 @@ public scope class RemoveChannelRequest : Protocol.RemoveChannel
 
     final override protected void removeChannel ( cstring channel_name )
     {
-        this.resources.storage_channels.remove(channel_name);
+        // disabled
     }
 }
