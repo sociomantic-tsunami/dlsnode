@@ -73,13 +73,8 @@ public scope class PutBatchRequest : Protocol.PutBatch
 
     final override protected bool prepareChannel ( cstring channel_name )
     {
-        if (!super.prepareChannel(channel_name))
-            return false;
-        auto storage_channel = this.resources.storage_channels.getCreate(channel_name);
-        this.storage_channel = downcast!(StorageEngine)(storage_channel);
-        if (this.storage_channel is null)
-            return false;
-        return true;
+        // disabled
+        return false;
     }
 
 
