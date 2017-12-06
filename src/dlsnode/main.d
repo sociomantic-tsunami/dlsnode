@@ -305,10 +305,10 @@ public class DlsNodeServer : DaemonApp
                 this.performance_config.number_of_thread_workers);
 
         // Truncate buckets to the last checkpointed position
-        CheckpointFile.truncateBuckets("data", "checkpoint.dat");
+        CheckpointFile.truncateBuckets(this.server_config.checkpoint_dir, "checkpoint.dat");
 
         // Create Checkpoint service
-        this.checkpointer = new CheckpointService("data", "checkpoint.dat");
+        this.checkpointer = new CheckpointService(this.server_config.checkpoint_dir, "checkpoint.dat");
 
         auto storage_channels = new StorageChannels(
             this.server_config.data_dir,
