@@ -20,8 +20,8 @@ import ocean.transition;
 import turtle.runner.Runner;
 
 import integrationtest.versioning.cases.TestEmptyBuckets;
-import integrationtest.versioning.cases.TestLegacy;
-import integrationtest.versioning.cases.TestLegacyWrite;
+//import integrationtest.versioning.cases.TestLegacy;
+//import integrationtest.versioning.cases.TestLegacyWrite;
 import integrationtest.versioning.cases.TestVersionOneWrite;
 import integrationtest.versioning.cases.TestParityFine;
 import integrationtest.versioning.cases.TestParityBroken;
