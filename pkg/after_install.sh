@@ -3,6 +3,8 @@
 # Only on clean install
 if [ "$1" = "configure" -a -z "$2" ]
 then
+    # Check if the dlsnode group exists
+    getent group dlsnode > /dev/null || groupadd dlsnode
     # Check if the user exists, and creates one if not
     getent passwd dlsnodereadonly > /dev/null || useradd -d /srv/dlsnode/ -g dlsnode -s /bin/false dlsnodereadonly
 
