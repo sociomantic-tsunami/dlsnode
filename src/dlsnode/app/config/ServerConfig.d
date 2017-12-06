@@ -54,5 +54,8 @@ public class ServerConfig
 
     /// Path to the credentials file
     mstring credentials_path = "etc/credentials".dup;
+
+    /// Path to the directory where to store the checkpoint.dat file
+    mstring checkpoint_dir = "data".dup;
 }
 
