@@ -21,6 +21,10 @@ import ocean.transition;
 import dlsnode.util.aio.AsyncIO;
 import dlsnode.util.aio.ContextAwaitingJob;
 
+import dlsnode.storage.protocol.model.IStorageProtocol;
+import dlsnode.storage.protocol.StorageProtocolLegacy;
+import dlsnode.storage.protocol.StorageProtocolV1;
+
 import ocean.util.serialize.contiguous.package_;
 
 /*******************************************************************************
@@ -47,10 +51,6 @@ public class BucketFile: OutputStream
     import ocean.sys.ErrnoException;
 
     import DlsInputBuffer = dlsnode.storage.util.InputBuffer;
-
-    import dlsnode.storage.protocol.model.IStorageProtocol;
-    import dlsnode.storage.protocol.StorageProtocolLegacy;
-    import dlsnode.storage.protocol.StorageProtocolV1;
 
     // TODO; remove with ocean v2.5.0
     import core.stdc.errno;
