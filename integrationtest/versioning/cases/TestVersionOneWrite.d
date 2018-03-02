@@ -6,9 +6,9 @@
 
 ******************************************************************************/
 
-module test.versioning.cases.TestVersionOneWrite;
+module integrationtest.versioning.cases.TestVersionOneWrite;
 
-import test.versioning.DlsVersioningCase;
+import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
 import ocean.transition;

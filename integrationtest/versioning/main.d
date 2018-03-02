@@ -7,7 +7,7 @@
 
 *******************************************************************************/
 
-module test.versioning.main;
+module integrationtest.versioning.main;
 
 /*******************************************************************************
 
@@ -19,12 +19,12 @@ import ocean.transition;
 
 import turtle.runner.Runner;
 
-import test.versioning.cases.TestEmptyBuckets;
-import test.versioning.cases.TestLegacy;
-import test.versioning.cases.TestLegacyWrite;
-import test.versioning.cases.TestVersionOneWrite;
-import test.versioning.cases.TestParityFine;
-import test.versioning.cases.TestParityBroken;
+import integrationtest.versioning.cases.TestEmptyBuckets;
+import integrationtest.versioning.cases.TestLegacy;
+import integrationtest.versioning.cases.TestLegacyWrite;
+import integrationtest.versioning.cases.TestVersionOneWrite;
+import integrationtest.versioning.cases.TestParityFine;
+import integrationtest.versioning.cases.TestParityBroken;
 
 
 /*******************************************************************************
@@ -61,34 +61,34 @@ private class DlsVersioningRunner : TurtleRunnerTask!(TestedAppKind.Daemon)
     override public CopyFileEntry[] copyFiles ( )
     {
         return [
-            CopyFileEntry("/test/versioning/etc/config.ini", "etc/config.ini"),
-            CopyFileEntry("/test/versioning/data/putlegacy/0000000057/275",
+            CopyFileEntry("/integrationtest/versioning/etc/config.ini", "etc/config.ini"),
+            CopyFileEntry("/integrationtest/versioning/data/putlegacy/0000000057/275",
                     "data/putlegacy/0000000057/275"),
-            CopyFileEntry("/test/versioning/data/parity-fine/0000000057/275",
+            CopyFileEntry("/integrationtest/versioning/data/parity-fine/0000000057/275",
                     "data/putversionone/0000000057/275"),
-            CopyFileEntry("/test/versioning/data/legacy/0000000057/275",
+            CopyFileEntry("/integrationtest/versioning/data/legacy/0000000057/275",
                     "data/legacy/0000000057/275"),
-            CopyFileEntry("/test/versioning/data/parity-fine/0000000057/275",
+            CopyFileEntry("/integrationtest/versioning/data/parity-fine/0000000057/275",
                     "data/parity-fine/0000000057/275"),
-            CopyFileEntry("/test/versioning/data/parity-broken/0000000057/275",
+            CopyFileEntry("/integrationtest/versioning/data/parity-broken/0000000057/275",
                     "data/parity-broken/0000000057/275"),
-            CopyFileEntry("/test/versioning/data/legacy/0000000057/275",
+            CopyFileEntry("/integrationtest/versioning/data/legacy/0000000057/275",
                     "data/mixed/0000000057/275"),
-            CopyFileEntry("/test/versioning/data/parity-fine/0000000057/275",
+            CopyFileEntry("/integrationtest/versioning/data/parity-fine/0000000057/275",
                     "data/mixed/0000000058/275"),
-            CopyFileEntry("/test/versioning/data/empty-bucket/0000000057/21b",
+            CopyFileEntry("/integrationtest/versioning/data/empty-bucket/0000000057/21b",
                     "data/empty-bucket/0000000057/21b"),
-            CopyFileEntry("/test/versioning/data/empty-bucket/0000000057/21c",
+            CopyFileEntry("/integrationtest/versioning/data/empty-bucket/0000000057/21c",
                     "data/empty-bucket/0000000057/21c"),
-            CopyFileEntry("/test/versioning/data/empty-bucket/0000000057/220",
+            CopyFileEntry("/integrationtest/versioning/data/empty-bucket/0000000057/220",
                     "data/empty-bucket/0000000057/220"),
-            CopyFileEntry("/test/versioning/data/empty-bucket/0000000057/236",
+            CopyFileEntry("/integrationtest/versioning/data/empty-bucket/0000000057/236",
                     "data/empty-bucket/0000000057/236"),
-            CopyFileEntry("/test/versioning/data/empty-bucket/0000000057/25b",
+            CopyFileEntry("/integrationtest/versioning/data/empty-bucket/0000000057/25b",
                     "data/empty-bucket/0000000057/25b"),
-            CopyFileEntry("/test/versioning/data/empty-bucket/0000000057/6bb",
+            CopyFileEntry("/integrationtest/versioning/data/empty-bucket/0000000057/6bb",
                     "data/empty-bucket/0000000057/6bb"),
-            CopyFileEntry("/test/versioning/data/empty-bucket/0000000057/6bc",
+            CopyFileEntry("/integrationtest/versioning/data/empty-bucket/0000000057/6bc",
                     "data/empty-bucket/0000000057/6bc")
         ];
     }
@@ -110,9 +110,10 @@ private class DlsVersioningRunner : TurtleRunnerTask!(TestedAppKind.Daemon)
 
 *******************************************************************************/
 
+version (UnitTest) {} else
 int main ( istring[] args )
 {
     auto runner = new TurtleRunner!(DlsVersioningRunner)("dlsnode",
-            "test.versioning.cases", "versioning_test");
+            "integrationtest.versioning.cases", "versioning_test");
     return runner.main(args);
 }

@@ -8,7 +8,7 @@
 
 *******************************************************************************/
 
-module dlstest.main;
+module integrationtest.dlstest.main;
 
 /*******************************************************************************
 
@@ -38,7 +38,7 @@ private class RealDlsTestRunner : DlsTestRunner
     override public CopyFileEntry[] copyFiles ( )
     {
         return [
-            CopyFileEntry("/test/dlstest/etc/config.ini", "etc/config.ini")
+            CopyFileEntry("/integrationtest/dlstest/etc/config.ini", "etc/config.ini")
         ];
     }
 
@@ -71,6 +71,7 @@ private class RealDlsTestRunner : DlsTestRunner
 
 *******************************************************************************/
 
+version (UnitTest) {} else
 int main ( istring[] args )
 {
     auto runner =

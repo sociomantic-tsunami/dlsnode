@@ -1,23 +1,20 @@
-
-from defaults import OPTS, get_desc
+# -*- python -*-
+from defaults import get_desc
 
 # we don't want a suffix for this pkg
-if VAR.suffix:
-    VAR.name = VAR.name[:-len(VAR.suffix)]
-
 OPTS.update(
-    name = VAR.name,
+    name = VAR.shortname,
     description = get_desc('common config files'),
     deb_recommends = 'dlsnode',
     after_install='pkg/after_install.sh',
 )
 
-ARGS = [
-    "README.rst=/usr/share/doc/" + VAR.name + "/README.rst",
+ARGS.extend([
+    "README.rst=/usr/share/doc/" + VAR.shortname + "/README.rst",
     "deploy/logrotate/dlsnode-logs=/etc/logrotate.d/dlsnode-logs",
     "deploy/upstart/dls.conf=/etc/init/dls.conf",
     "deploy/cron/compress_data.sh=/srv/dlsnode/etc/compress_data.sh",
     "deploy/cron/compress_dls_data=/etc/cron.d/",
-]
+])
 
 # vim: set ft=python et sw=4 sts=4 :

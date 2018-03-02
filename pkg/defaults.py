@@ -11,8 +11,8 @@ others' existence.
 Data in the dls node is stored in file system, under the data directory, with
 a separate subdirectory per data channel.'''
 
-OPTS = dict(
-    name = VAR.name,
+OPTS.update(
+    name = VAR.fullname,
     url = 'https://github.com/sociomantic-tsunami/dlsnode',
     maintainer = 'Sociomantic Labs GmbH <tsunami@sociomantic.com>',
     vendor = 'Sociomantic Labs GmbH',

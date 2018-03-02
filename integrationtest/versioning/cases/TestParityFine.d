@@ -1,52 +1,58 @@
 /******************************************************************************
 
-    Tests the reading of the legacy buckets.
+    Tests the reading of the buckets with parity check with no errors inside.
 
     Copyright: (c) 2016 Sociomantic Labs. All rights reserved.
 
 ******************************************************************************/
 
-module test.versioning.cases.TestLegacy;
+module integrationtest.versioning.cases.TestParityFine;
 
-import test.versioning.DlsVersioningCase;
+import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
 import ocean.transition;
 
 /******************************************************************************
 
-    Check if the legacy records can be read.
+    Tests if the buckets with parity check can be read
 
 *******************************************************************************/
 
-class GetAllLegacy: DlsVersioningCase
+class GetAllParityFine: DlsVersioningCase
 {
     this ( )
     {
-        this.test_channel = "legacy";
+        this.test_channel = "parity-fine";
     }
 
     override public Description description ( )
     {
         Description desc;
         desc.priority = 100;
-        desc.name = "GetAll over the legacy channel";
+        desc.name = "GetAll over the good channel with parity check";
         return desc;
     }
 
     public override void run ( )
     {
-        // A single bucket file in the legacy format is copied into the test DLS
+        // A single bucket file in the v1 format is copied into the test DLS
         // node's data folder (see DlsVersioningRunner.copyFiles()). We can then
         // perform tests to check that the DLS can read it properly.
 
-        // The layout of the legacy channel
+        // The layout of the test channel
+        // (Despite what some of the record values say, all should get read
+        // successfully.)
         cstring[][hash_t] records =
         [
-            0x0000000057275806: ["Hello there"],
-            0x0000000057275809: ["I'm a legacy channel"],
-            0x000000005727580c: ["Nice to meet you finaly"],
-            0x0000000057275810: ["Oh, yes indeed."]
+            0x000000005727545c: ["Hello there"],
+            0x0000000057275461: ["how are you are you fine"],
+            0x0000000057275464: ["I'm very good! Thanks!"],
+            0x000000005727546a: ["Let's see"],
+            0x000000005727546d: ["This one will get broken"],
+            0x0000000057275471: ["we'll never receive this one"],
+            0x0000000057275474: ["nor this one"],
+            0x0000000057275475: ["bye"]
         ];
 
         // Do a GetAll to retrieve them all

@@ -6,9 +6,9 @@
 
 ******************************************************************************/
 
-module test.versioning.cases.TestEmptyBuckets;
+module integrationtest.versioning.cases.TestEmptyBuckets;
 
-import test.versioning.DlsVersioningCase;
+import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
 import ocean.transition;

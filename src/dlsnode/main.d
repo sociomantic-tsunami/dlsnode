@@ -92,6 +92,7 @@ private extern(C) void signalHandler (int signum)
 
 *******************************************************************************/
 
+version (UnitTest) {} else
 private int main ( istring[] cl_args )
 {
     auto app = new DlsNodeServer;
@@ -247,7 +248,7 @@ public class DlsNodeServer : DaemonApp
 
         this.epoll = new EpollSelectDispatcher;
 
-        super(app_name, app_desc, versionInfo);
+        super(app_name, app_desc, version_info);
     }
 
 
@@ -618,4 +619,3 @@ public class DlsNodeServer : DaemonApp
         assert(false);
     }
 }
-
