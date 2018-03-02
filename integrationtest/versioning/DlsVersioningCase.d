@@ -10,7 +10,7 @@
 
 *******************************************************************************/
 
-module test.versioning.DlsVersioningCase;
+module integrationtest.versioning.DlsVersioningCase;
 
 import dlstest.DlsTestCase;
 

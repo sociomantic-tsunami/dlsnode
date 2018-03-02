@@ -1,64 +1,52 @@
 /******************************************************************************
 
-    Tests reading from legacy and non-legacy (v1) buckets.
+    Tests the reading of the legacy buckets.
 
     Copyright: (c) 2016 Sociomantic Labs. All rights reserved.
 
 ******************************************************************************/
 
-module test.versioning.cases.TestParityFine;
+module integrationtest.versioning.cases.TestLegacy;
 
-import test.versioning.DlsVersioningCase;
+import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
 import ocean.transition;
 
 /******************************************************************************
 
-    Check that records can be read from a channel made of buckets of multiple
-    versions
+    Check if the legacy records can be read.
 
 *******************************************************************************/
 
-class GetAllMixedBuckets: DlsVersioningCase
+class GetAllLegacy: DlsVersioningCase
 {
     this ( )
     {
-        this.test_channel = "mixed";
+        this.test_channel = "legacy";
     }
 
     override public Description description ( )
     {
         Description desc;
         desc.priority = 100;
-        desc.name = "GetAll over a channel with mixed-version buckets";
+        desc.name = "GetAll over the legacy channel";
         return desc;
     }
 
     public override void run ( )
     {
-        // One bucket file in the legacy format and one in the v1 format are
-        // copied into the test DLS node's data folder as a single channel
-        // (see DlsVersioningRunner.copyFiles()). We can then perform tests to
-        // check that the DLS can read the channel properly.
+        // A single bucket file in the legacy format is copied into the test DLS
+        // node's data folder (see DlsVersioningRunner.copyFiles()). We can then
+        // perform tests to check that the DLS can read it properly.
 
-        // The layout of the test channel
-        // (Despite what some of the record values say, all should get read
-        // successfully.)
+        // The layout of the legacy channel
         cstring[][hash_t] records =
         [
             0x0000000057275806: ["Hello there"],
             0x0000000057275809: ["I'm a legacy channel"],
             0x000000005727580c: ["Nice to meet you finaly"],
-            0x0000000057275810: ["Oh, yes indeed."],
-            0x000000005727545c: ["Hello there"],
-            0x0000000057275461: ["how are you are you fine"],
-            0x0000000057275464: ["I'm very good! Thanks!"],
-            0x000000005727546a: ["Let's see"],
-            0x000000005727546d: ["This one will get broken"],
-            0x0000000057275471: ["we'll never receive this one"],
-            0x0000000057275474: ["nor this one"],
-            0x0000000057275475: ["bye"]
+            0x0000000057275810: ["Oh, yes indeed."]
         ];
 
         // Do a GetAll to retrieve them all

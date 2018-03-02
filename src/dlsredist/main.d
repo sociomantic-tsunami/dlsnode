@@ -50,6 +50,7 @@ import ocean.util.Convert;
 
 ******************************************************************************/
 
+version (UnitTest) {} else
 int main ( istring[] args )
 {
     auto app = new DlsRedist;
@@ -95,7 +96,7 @@ DLS. The standard use case when adding a new nodes to DLS is as follows:
         OptionalSettings settings;
         settings.help = help;
 
-        super (name, desc, versionInfo, settings);
+        super (name, desc, version_info, settings);
         this.epoll = new EpollSelectDispatcher;
     }
 
@@ -271,4 +272,3 @@ DLS. The standard use case when adding a new nodes to DLS is as follows:
         this.epoll.eventLoop();
     }
 }
-

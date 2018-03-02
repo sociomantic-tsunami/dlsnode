@@ -1,17 +1,18 @@
-
-from defaults import OPTS, get_desc
+# -*- python -*-
+import defaults
 
 bin_name = 'dlsnode'
 bin_path = VAR.bindir + '/' + bin_name
 
 OPTS.update(
-    provides = 'dlsnode',
+    provides = VAR.shortname,
     deb_recommends = 'dlsnode-common',
     depends = FUN.autodeps(bin_path)
 )
 
-ARGS = ['{0}/{1}=/usr/sbin/{1}{2}'.format(VAR.bindir, bin_name, VAR.suffix),
-    "README.rst=/usr/share/doc/" + VAR.name + "/README.rst",
-]
+ARGS.extend([
+    '{0}/{1}=/usr/sbin/{1}{2}'.format(VAR.bindir, bin_name, VAR.suffix),
+    "README.rst=/usr/share/doc/" + VAR.shortname + "/README.rst",
+])
 
 # vim: set ft=python et sw=4 sts=4 :

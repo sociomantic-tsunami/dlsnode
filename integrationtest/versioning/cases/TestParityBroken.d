@@ -1,58 +1,58 @@
 /******************************************************************************
 
-    Tests the reading of the buckets with parity check with no errors inside.
+    Tests the reading of the buckets with parity check with errors inside.
 
     Copyright: (c) 2016 Sociomantic Labs. All rights reserved.
 
 ******************************************************************************/
 
-module test.versioning.cases.TestParityFine;
+module integrationtest.versioning.cases.TestParityBroken;
 
-import test.versioning.DlsVersioningCase;
+import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
 import ocean.transition;
 
 /******************************************************************************
 
-    Tests if the buckets with parity check can be read
+  Checks if the garbage records after the broken record will not be sent
+  to the client.
 
 *******************************************************************************/
 
-class GetAllParityFine: DlsVersioningCase
+class GetAllParityBroken: DlsVersioningCase
 {
     this ( )
     {
-        this.test_channel = "parity-fine";
+        this.test_channel = "parity-broken";
     }
 
     override public Description description ( )
     {
         Description desc;
         desc.priority = 100;
-        desc.name = "GetAll over the good channel with parity check";
+        desc.name = "GetAll over the bad channel with parity check";
         return desc;
     }
 
     public override void run ( )
     {
-        // A single bucket file in the v1 format is copied into the test DLS
-        // node's data folder (see DlsVersioningRunner.copyFiles()). We can then
-        // perform tests to check that the DLS can read it properly.
+        // A single bucket file in the v1 format, with partity errors, is copied
+        // into the test DLS node's data folder (see
+        // DlsVersioningRunner.copyFiles()). We can then perform tests to check
+        // that the DLS can read it properly.
 
         // The layout of the test channel
-        // (Despite what some of the record values say, all should get read
-        // successfully.)
         cstring[][hash_t] records =
         [
             0x000000005727545c: ["Hello there"],
             0x0000000057275461: ["how are you are you fine"],
             0x0000000057275464: ["I'm very good! Thanks!"],
-            0x000000005727546a: ["Let's see"],
-            0x000000005727546d: ["This one will get broken"],
-            0x0000000057275471: ["we'll never receive this one"],
-            0x0000000057275474: ["nor this one"],
-            0x0000000057275475: ["bye"]
+            0x000000005727546a: ["Let's see"]
+            //0x000000005727546d: ["This one will get broken"],
+            //0x0000000057275471: ["we'll never receive this one"],
+            //0x0000000057275474: ["nor this one"],
+            //0x0000000057275475: ["bye"]
         ];
 
         // Do a GetAll to retrieve them all
