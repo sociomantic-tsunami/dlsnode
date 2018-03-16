@@ -25,6 +25,6 @@ then
 fi
 
 if [ -d /run/systemd/system ]; then
-    systemctl enable dlsnode
     systemctl daemon-reload
+    systemctl enable dlsnode
 fi
