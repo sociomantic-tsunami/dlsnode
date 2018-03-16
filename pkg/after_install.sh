@@ -23,3 +23,8 @@ then
         "/etc/cron.d/compress_dls_data" \
         "/etc/logrotate.d/dlsnode-logs"
 fi
+
+if [ -d /run/systemd/system ]; then
+    systemctl enable dlsnode
+    systemctl daemon-reload
+fi
