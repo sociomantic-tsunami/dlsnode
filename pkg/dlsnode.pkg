@@ -13,6 +13,7 @@ OPTS.update(
 ARGS.extend([
     '{0}/{1}=/usr/sbin/{1}{2}'.format(VAR.bindir, bin_name, VAR.suffix),
     "README.rst=/usr/share/doc/" + VAR.shortname + "/README.rst",
+    "deploy/systemd/dlsnode.service=/lib/systemd/system/dlsnode.service"
 ])
 
 # vim: set ft=python et sw=4 sts=4 :
