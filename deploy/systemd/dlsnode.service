@@ -1,0 +1,26 @@
+[Unit]
+Description=DLS node - Distributed log store node
+Documentation=https://github.com/sociomantic-tsunami/dlsnode/
+
+AssertPathExists=/srv/dlsnode/
+Wants=local-fs.target network-online.target
+After=local-fs.target network-online.target
+
+[Service]
+Type=simple
+User=dlsnode
+Group=core
+WorkingDirectory=/srv/dlsnode/
+ExecStart=/srv/dlsnode/dlsnode -c etc/config.ini
+ExecReload=/bin/kill -HUP $MAINPID
+ProtectHome=true
+ProtectSystem=full
+RuntimeDirectory=dlsnode
+Restart=on-failure
+
+# Note infinity is used instead of unlimited
+LimitNOFILE=100000:100000
+LimitCORE=infinity:infinity
+
+[Install]
+WantedBy=multi-user.target
