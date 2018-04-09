@@ -16,7 +16,7 @@
 	notifempty
 	delaycompress
 	compress
-	size 500M
+	maxsize 500M
 	sharedscripts
 	postrotate
 		service dls reload >/dev/null 2>&1
