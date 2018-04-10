@@ -360,6 +360,7 @@ public class DlsNodeServer : DaemonApp
 
     override protected void onStatsTimer ( )
     {
+        this.reportSystemStats();
         this.dls_stats.log();
         this.stats_ext.stats_log.add(ocean.util.log.Logger.Log.stats());
         this.stats_ext.stats_log.add(getNumFilesStats());
