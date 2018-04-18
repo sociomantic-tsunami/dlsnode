@@ -341,27 +341,30 @@ private scope class GetRangeImpl_v0: GetRangeProtocol_v0
     override protected bool getNextRecord ( out time_t timestamp, ref void[] value,
             out bool wait_for_data)
     {
+record_loop:
         for (;;)
         {
-            bool last_key = this.iterator.next(this.job_notification, timestamp, value,
-                    wait_for_data);
+            auto res = this.iterator.next(this.job_notification, timestamp, value);
 
-            if (wait_for_data)
+            with (NeoStorageEngineStepIterator.NextResult)
             {
-                return true;
+                switch (res)
+                {
+                    case NoMoreData:
+                        return false;
+                    case WaitForData:
+                        wait_for_data = true;
+                        return true;
+                    case RecordRead:
+                        if (!this.filterRecord(timestamp, value))
+                        {
+                            continue record_loop;
+                        }
+                        return true;
+                    default:
+                        assert(false);
+                }
             }
-
-            if (last_key)
-            {
-                return false;
-            }
-
-            if (!this.filterRecord(timestamp, value))
-            {
-                continue;
-            }
-
-            return true;
         }
 
         assert(false);
@@ -705,27 +708,30 @@ private scope class GetRangeImpl_v1: GetRangeProtocol_v1
     override protected bool getNextRecord ( out time_t timestamp, ref void[] value,
             out bool wait_for_data)
     {
+record_loop:
         for (;;)
         {
-            bool last_key = this.iterator.next(this.job_notification, timestamp, value,
-                    wait_for_data);
+            auto res = this.iterator.next(this.job_notification, timestamp, value);
 
-            if (wait_for_data)
+            with (NeoStorageEngineStepIterator.NextResult)
             {
-                return true;
+                switch (res)
+                {
+                    case NoMoreData:
+                        return false;
+                    case WaitForData:
+                        wait_for_data = true;
+                        return true;
+                    case RecordRead:
+                        if (!this.filterRecord(timestamp, value))
+                        {
+                            continue record_loop;
+                        }
+                        return true;
+                    default:
+                        assert(false);
+                }
             }
-
-            if (last_key)
-            {
-                return false;
-            }
-
-            if (!this.filterRecord(timestamp, value))
-            {
-                continue;
-            }
-
-            return true;
         }
 
         assert(false);
