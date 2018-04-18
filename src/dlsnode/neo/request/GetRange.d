@@ -341,7 +341,6 @@ private scope class GetRangeImpl_v0: GetRangeProtocol_v0
     override protected bool getNextRecord ( out time_t timestamp, ref void[] value,
             out bool wait_for_data)
     {
-record_loop:
         for (;;)
         {
             auto res = this.iterator.next(this.job_notification, timestamp, value);
@@ -358,7 +357,7 @@ record_loop:
                     case RecordRead:
                         if (!this.filterRecord(timestamp, value))
                         {
-                            continue record_loop;
+                            break;
                         }
                         return true;
                     default:
@@ -708,7 +707,6 @@ private scope class GetRangeImpl_v1: GetRangeProtocol_v1
     override protected bool getNextRecord ( out time_t timestamp, ref void[] value,
             out bool wait_for_data)
     {
-record_loop:
         for (;;)
         {
             auto res = this.iterator.next(this.job_notification, timestamp, value);
@@ -725,7 +723,7 @@ record_loop:
                     case RecordRead:
                         if (!this.filterRecord(timestamp, value))
                         {
-                            continue record_loop;
+                            break;
                         }
                         return true;
                     default:
