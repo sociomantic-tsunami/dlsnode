@@ -219,6 +219,22 @@ public class NeoStorageEngineStepIterator
 
     /***************************************************************************
 
+        Result of the next method.
+
+    ***************************************************************************/
+
+    enum NextResult
+    {
+        /// No more data in the bucket file
+        NoMoreData,
+        /// The caller should wait for more data
+        WaitForData,
+        /// The record has loaded in the provided buffer
+        RecordRead,
+    }
+
+    /***************************************************************************
+
         Advances the iterator to the next record or to the first record in
         the storage engine, if this.started is false.
 
@@ -228,19 +244,17 @@ public class NeoStorageEngineStepIterator
                 to this method should be repeated
             key = read key of the record
             value = read value of the record
-            wait_for_data = out parameter indicating that the disk IO operation
-                has been scheduled and that the request should now sleep and
-                wait for the provided waiting_context to wake it up before calling
-                this method again.
 
         Returns:
-            true if there's no more data in the requested range, false otherwise.
+            NextResult indicating if there are no more data in the bucket,
+            if the caller should wait for the read to complete, or if the
+            next record is read.
 
     ***************************************************************************/
 
-    public bool next (JobNotification job_notification,
+    public NextResult next (JobNotification job_notification,
             out time_t key,
-            ref void[] value, out bool wait_for_data)
+            ref void[] value )
     {
         bool end_of_bucket, end_of_channel;
 
@@ -253,7 +267,7 @@ public class NeoStorageEngineStepIterator
                 case State.Initializing:
                     if (!this.openFirstBucket())
                     {
-                        return true;
+                        return NextResult.NoMoreData;
                     }
 
                     this.state = State.ExpectingRecordHeader;
@@ -262,7 +276,7 @@ public class NeoStorageEngineStepIterator
                 case State.LookingForNextBucket:
                     if (!this.openNextBucket())
                     {
-                        return true;
+                        return NextResult.NoMoreData;
                     }
 
                     this.state = State.ExpectingRecordHeader;
@@ -275,8 +289,7 @@ public class NeoStorageEngineStepIterator
 
                         if (!this.header_future.valid())
                         {
-                            wait_for_data = true;
-                            return false;
+                            return NextResult.WaitForData;
                         }
                     }
 
@@ -301,8 +314,7 @@ public class NeoStorageEngineStepIterator
 
                         if (!this.value_future.valid())
                         {
-                            wait_for_data = true;
-                            return false;
+                            return NextResult.WaitForData;
                         }
                     }
 
@@ -319,7 +331,7 @@ public class NeoStorageEngineStepIterator
                         key = cast(time_t)this.record_header.key;
                         value.copy(this.value_future.get());
                         this.state = State.ExpectingRecordHeader;
-                        return false;
+                        return NextResult.RecordRead;
                     }
                 default:
                     assert(false);
