@@ -179,6 +179,15 @@ public class BucketFile: OutputStream
 
     /**************************************************************************
 
+        Future holding the Bucket's header when read asynchronously.
+
+    ***************************************************************************/
+
+    private Future!(void[]) open_future;
+
+
+    /**************************************************************************
+
         Constructor.
 
         Params:
@@ -331,6 +340,70 @@ public class BucketFile: OutputStream
             // we have opened underlying file with O_APPEND and writes will
             // always be appended to the end of the file
             this.readBucketHeader(suspended_job);
+        }
+    }
+
+
+    /**************************************************************************
+
+        Opens the bucket file and reads or writes the bucket header in a
+        non-blocking fashion.
+
+        Params:
+            path = file path
+            suspended_job = JobNotification to block
+                the fiber on until read is completed
+            file_buffer = buffer used for buffered input
+            style = style in which file will be open for
+
+    **************************************************************************/
+
+    public bool openAsync (cstring path,
+            JobNotification suspended_job,
+            void[] file_buffer,
+            File.Style style = File.ReadExisting)
+    in
+    {
+        assert(style == File.ReadExisting || style == File.ReadWriteAppending,
+                "Currently BucketFile only supports ReadExisting or ReadWriteAppending");
+    }
+    body
+    {
+        if (!this.is_open_)
+        {
+            this.promise.reset();
+            this.buffered_input.reset(file_buffer);
+            this.file.open(path, style);
+            this.file_length_ = this.file.length;
+            this.file_pos_ = this.file.position;
+            this.is_open_ = true;
+        }
+
+        // In case we opened this file for writing,
+        // but the position is at 0 (empty file), we need to
+        // write the magic header.
+        if (style == File.ReadWriteAppending && this.file_length_ == 0)
+        {
+            // from the applications' PoV, this is going to be non-blocking,
+            // since it just copies the data to page cache, and the writeback
+            // daemon is responsible for moving this page back to the disk
+            this.writeBucketHeader();
+            return true;
+        }
+        else
+        {
+            // in case we're opening already existing file,
+            // just read the existing header (if any).
+            auto open = this.readBucketHeaderAsync(suspended_job);
+
+            // if the file is open for appending, seek to the end
+            // before appending anything
+            if (open && style == File.ReadWriteAppending)
+            {
+                this.seek(0, File.Anchor.End);
+            }
+
+            return open;
         }
     }
 
@@ -568,6 +641,55 @@ public class BucketFile: OutputStream
             // ReadWriteAppending
             this.seek(previous_pos);
         }
+    }
+
+    /**************************************************************************
+
+        Reads the bucket file's header using async IO.
+
+        Params:
+            suspended_job = JobNotification to resume the fiber when the read
+                            completes.
+
+        Returns:
+            true if the reading was successful, false if the reader needs to wait
+            for the completion
+
+    ***************************************************************************/
+
+    private bool readBucketHeaderAsync(JobNotification suspended_job)
+    {
+        BucketHeader header;
+
+        // rewind to the beginning of the file
+        this.seek(0);
+
+        size_t bytes_read;
+
+        // Read header of next record
+        assert(this.async_io);
+
+        if (!this.open_future.valid())
+        {
+            this.open_future = this.readDataAsync!(void[])(suspended_job, header.sizeof);
+        }
+
+        if (!this.open_future.valid())
+            return false; /* suspend and wait for the completion */
+
+        // At this point we've read the bucket header. Since AsyncIO will
+        // not move the file cursor, let's move it after the header
+        this.seek(header.sizeof);
+
+        // Read the data from the future.
+        void[] void_buf = this.open_future.get();
+        header = *Deserializer.deserialize!(BucketHeader)(void_buf).ptr;
+
+        enforce(header.magic[] == this.magic, "Magic number mismatch.");
+        enforce(header.version_no <= this.current_version, "Found bucket with no version.");
+
+        this.bucket_version = header.version_no;
+        return true;
     }
 
     /***************************************************************************

@@ -161,6 +161,8 @@ public class NeoStorageEngineStepIterator
         Initializing,
         /// The previous bucket file has been read, now looking for the next one
         LookingForNextBucket,
+        /// The opening of the next bucket is in progress in the background
+        OpeningNextBucket,
         /// Expecting the record header
         ExpectingRecordHeader,
         /// Expecting the record value
@@ -265,19 +267,35 @@ public class NeoStorageEngineStepIterator
             switch (this.state)
             {
                 case State.Initializing:
-                    if (!this.openFirstBucket())
+                    bool wait_for_open;
+                    auto has_more_buckets = this.openFirstBucket(job_notification,
+                            wait_for_open);
+
+                    if (wait_for_open)
                     {
-                        return NextResult.NoMoreData;
+                        return NextResult.WaitForData;
                     }
+
+                    if (!has_more_buckets)
+                        return NextResult.NoMoreData;
 
                     this.state = State.ExpectingRecordHeader;
                     break;
 
                 case State.LookingForNextBucket:
-                    if (!this.openNextBucket())
+                case State.OpeningNextBucket:
+                    bool wait_for_open;
+                    auto has_more_buckets = this.openNextBucket(job_notification,
+                            wait_for_open);
+
+                    if (wait_for_open && has_more_buckets)
                     {
-                        return NextResult.NoMoreData;
+                        this.state = State.OpeningNextBucket;
+                        return NextResult.WaitForData;
                     }
+
+                    if (!has_more_buckets)
+                        return NextResult.NoMoreData;
 
                     this.state = State.ExpectingRecordHeader;
                     break;
@@ -346,13 +364,18 @@ public class NeoStorageEngineStepIterator
 
         Search for and open the first bucket in the range.
 
+        Params:
+            job_notification = notification to notify the user on the bucket
+            opening completion
+            wait_for_open = indicator if the user needs to wait for the open
+
         Returns:
             false if the end of channel/range has been reached and no more
             data is available, true otherwise.
 
     ***************************************************************************/
 
-    private bool openFirstBucket ()
+    private bool openFirstBucket ( JobNotification job_notification, out bool wait_for_open)
     {
         return openBucket(()
                 {
@@ -364,12 +387,17 @@ public class NeoStorageEngineStepIterator
 
                     this.current_bucket_start = tmp;
                     return ret;
-                });
+                }, job_notification, wait_for_open);
     }
 
     /***************************************************************************
 
         Search for and open the next bucket in the range.
+
+        Params:
+            job_notification = notification to notify the user on the bucket
+            opening completion
+            wait_for_open = indicator if the user needs to wait for the open
 
         Returns:
             false if the end of channel/range has been reached and no more
@@ -377,21 +405,25 @@ public class NeoStorageEngineStepIterator
 
     ***************************************************************************/
 
-    private bool openNextBucket ()
+    private bool openNextBucket (JobNotification job_notification, out bool wait_for_open)
     {
         // hash_t to satisfy the interface of FileSystemLayout
         hash_t next_bucket_start;
 
         auto end_of_channel = !openBucket(()
                 {
-                     return FileSystemLayout.getNextBucket(
-                            this.storage.working_dir,
-                            this.bucket_path, next_bucket_start,
-                            this.current_bucket_start, this.max_timestamp);
-                });
+                     /* move to the next bucket only if we're not resuming the
+                        opening of the current one. */
+                     return this.state != State.OpeningNextBucket?
+                         FileSystemLayout.getNextBucket(
+                                this.storage.working_dir,
+                                this.bucket_path, next_bucket_start,
+                                this.current_bucket_start, this.max_timestamp):
+                         false;
+                }, job_notification, wait_for_open);
 
 
-        if (!end_of_channel)
+        if (!end_of_channel && this.state != State.OpeningNextBucket)
         {
             this.current_bucket_start = next_bucket_start;
         }
@@ -405,6 +437,9 @@ public class NeoStorageEngineStepIterator
 
         Params:
             find_bucket = delegate called to find the next bucket's path.
+            job_notification = notification to notify the user on the bucket
+            opening completion
+            wait_for_open = indicator if the user needs to wait for the open
 
         Returns:
             false if the end of channel/range has been reached and no more
@@ -412,7 +447,9 @@ public class NeoStorageEngineStepIterator
 
     ***************************************************************************/
 
-    private bool openBucket (bool delegate() find_bucket)
+    private bool openBucket (bool delegate() find_bucket,
+            JobNotification job_notification,
+            out bool wait_for_open)
     {
         auto end_of_channel = find_bucket();
 
@@ -425,8 +462,10 @@ public class NeoStorageEngineStepIterator
             return false;
         }
 
-        this.file.open(this.bucket_path, null,
+        auto opened = this.file.openAsync(this.bucket_path, job_notification,
                 this.file_buffer[], File.ReadExisting);
+
+        wait_for_open = !opened;
 
         assert(!end_of_channel);
         return true;
@@ -454,6 +493,7 @@ public class NeoStorageEngineStepIterator
         this.current_bucket_start = this.min_timestamp;
 
         this.resetCursorState();
+        this.state = State.Initializing;
 
         if (this.file.is_open)
         {
@@ -481,6 +521,5 @@ public class NeoStorageEngineStepIterator
     private void resetCursorState ( )
     {
         this.value_buffer.length = 0;
-        this.state = State.Initializing;
     }
 }
