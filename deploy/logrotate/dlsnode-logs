@@ -19,6 +19,10 @@
 	maxsize 500M
 	sharedscripts
 	postrotate
-		service dls reload >/dev/null 2>&1
+        if [ -d /run/systemd/system ]; then
+            systemctl reload dlsnode >/dev/null 2>&1
+        else
+            service dls reload >/dev/null 2>&1
+        fi
 	endscript
 }
