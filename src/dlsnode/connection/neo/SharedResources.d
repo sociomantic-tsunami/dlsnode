@@ -346,5 +346,18 @@ public final class SharedResources
         {
             return this.acquired_regexes.acquire(this.outer.pcre.new CompiledRegex);
         }
+
+        /**********************************************************************
+
+            Returns:
+                Reference to StorageChannels instance to use during the
+                request's lifetime.
+
+        **********************************************************************/
+
+        public StorageChannels storage_channels ()
+        {
+            return this.outer.storage_channels;
+        }
     }
 }

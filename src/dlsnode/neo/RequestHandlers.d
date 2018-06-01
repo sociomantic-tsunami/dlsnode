@@ -13,10 +13,11 @@
 module dlsnode.neo.RequestHandlers;
 
 import swarm.neo.node.ConnectionHandler;
+import swarm.neo.request.Command;
 import dlsproto.common.RequestCodes;
 
-import GetRange = dlsnode.neo.request.GetRange;
-import Put = dlsnode.neo.request.Put;
+import dlsnode.neo.request.GetRange;
+import dlsnode.neo.request.Put;
 
 /******************************************************************************
 
@@ -30,6 +31,6 @@ public ConnectionHandler.RequestMap requests;
 
 static this ( )
 {
-    requests.add(RequestCode.GetRange, "GetRange", &GetRange.handle);
-    requests.add(RequestCode.Put, "Put", &Put.handle);
+    requests.add(Command(RequestCode.GetRange, 2), "GetRange", GetRangeImpl_v2.classinfo);
+    requests.add(Command(RequestCode.Put, 1), "Put", PutImpl_v1.classinfo);
 }

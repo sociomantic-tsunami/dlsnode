@@ -62,8 +62,6 @@ private class DlsVersioningRunner : TurtleRunnerTask!(TestedAppKind.Daemon)
     {
         return [
             CopyFileEntry("/integrationtest/versioning/etc/config.ini", "etc/config.ini"),
-            CopyFileEntry("/integrationtest/versioning/data/putlegacy/0000000057/275",
-            CopyFileEntry("/integrationtest/versioning/etc/config.ini", "etc/config.ini"),
             CopyFileEntry("/integrationtest/dlstest/etc/credentials", "etc/credentials"),
             CopyFileEntry("/integrationtest/versioning/data/putlegacy/0000000057/275",
                     "data/putlegacy/0000000057/275"),
@@ -116,7 +114,7 @@ private class DlsVersioningRunner : TurtleRunnerTask!(TestedAppKind.Daemon)
 version (UnitTest) {} else
 int main ( istring[] args )
 {
-    auto runner = new TurtleRunner!(DlsVersioningRunner)("dlsnode",
-            "integrationtest.versioning.cases", "versioning_test");
+    auto runner =
+        new TurtleRunner!(DlsVersioningRunner)("dlsnode", "integrationtest.versioning.cases");
     return runner.main(args);
 }

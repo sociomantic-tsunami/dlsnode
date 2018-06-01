@@ -23,6 +23,7 @@ module dlsnode.node.DlsNode;
 import swarm.node.model.NeoChannelsNode : ChannelsNodeBase;
 
 import ocean.transition;
+import ocean.core.TypeConvert;
 
 import dlsnode.node.IDlsNodeInfo;
 
@@ -194,6 +195,24 @@ public class DlsNode :
     override protected istring[] record_action_counter_ids ( )
     {
         return ["handled", "redistributed"];
+    }
+
+    /**************************************************************************
+
+        Calls `callback` with a `RequestResources` object whose scope is limited
+        to the run-time of `callback`.
+
+        Params:
+            callback = a callback to call with a `RequestResources` object.
+
+    **************************************************************************/
+
+    override protected void getResourceAcquirer (
+            void delegate ( Object request_resources ) callback )
+    {
+        auto node_resources = downcast!(NeoSharedResources.SharedResources)(this.shared_resources);
+        scope request_resources = node_resources.new RequestResources;
+        callback(request_resources);
     }
 }
 

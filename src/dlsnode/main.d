@@ -151,7 +151,6 @@ public class DlsNodeServer : DaemonApp
     import core.sys.posix.sys.mman : mlockall, MCL_CURRENT, MCL_FUTURE;
     import core.stdc.errno : errno, EPERM, ENOMEM;
     import core.stdc.string : strerror_r;
-    import ocean.stdc.stringz : fromStringz;
     import ocean.sys.CpuAffinity;
     import ocean.sys.Stats;
 
@@ -476,10 +475,6 @@ public class DlsNodeServer : DaemonApp
         {
             // Don't log these exception types, which only occur on the normal
             // disconnection of a client.
-        }
-        else if ( cast(OutOfMemoryException)exception )
-        {
-            logger.error("OutOfMemoryException caught in eventLoop");
         }
         else
         {
