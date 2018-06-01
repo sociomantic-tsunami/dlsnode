@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    FiberSelectEvent suspend/resume interface for suspendable contexts waiting
+    FiberSelectEvent suspend/resume interface for suspendable jobs waiting
     for AsyncIO to finish.
 
     copyright:
@@ -11,14 +11,14 @@
 
 *******************************************************************************/
 
-module dlsnode.util.aio.EventFDContextAwaitingJob;
+module dlsnode.util.aio.EventFDJobNotification;
 
 import ocean.io.select.client.FiberSelectEvent;
 import ocean.io.select.fiber.SelectFiber;
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.DelegateJobNotification;
 
 /// ditto
-class EventFDContextAwaitingJob: ContextAwaitingJob
+class EventFDJobNotification: DelegateJobNotification
 {
     /***************************************************************************
 
@@ -32,6 +32,7 @@ class EventFDContextAwaitingJob: ContextAwaitingJob
     this (FiberSelectEvent event)
     {
         this.event = event;
+        super(&this.trigger, &this.wait);
     }
 
     /***************************************************************************
@@ -46,30 +47,7 @@ class EventFDContextAwaitingJob: ContextAwaitingJob
     this (SelectFiber fiber)
     {
         this.event = new FiberSelectEvent(fiber);
-    }
-
-    /***************************************************************************
-
-        Yields the control to the suspendable context, indicating that the aio
-        operation has been done.
-
-    ***************************************************************************/
-
-    protected override void wake_ ()
-    {
-        this.event.trigger;
-    }
-
-    /***************************************************************************
-
-        Cedes the control from the suspendable context, waiting for the aio
-        operation to be done.
-
-    ***************************************************************************/
-
-    protected override void wait_ ()
-    {
-        this.event.wait;
+        super(&this.trigger, &this.wait);
     }
 
     /***************************************************************************
@@ -86,6 +64,28 @@ class EventFDContextAwaitingJob: ContextAwaitingJob
         this.event.fiber = fiber;
     }
 
+    /**************************************************************************
+
+        Triggers the event.
+
+    **************************************************************************/
+
+    private void trigger ()
+    {
+        this.event.trigger();
+    }
+
+    /**************************************************************************
+
+        Waits on the event.
+
+    **************************************************************************/
+
+    private void wait ()
+    {
+        this.event.wait();
+    }
+
     /***************************************************************************
 
         FiberSelectEvent synchronise object.
@@ -93,4 +93,5 @@ class EventFDContextAwaitingJob: ContextAwaitingJob
     ***************************************************************************/
 
     private FiberSelectEvent event;
+
 }

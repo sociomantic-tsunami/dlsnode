@@ -38,7 +38,8 @@ private class RealDlsTestRunner : DlsTestRunner
     override public CopyFileEntry[] copyFiles ( )
     {
         return [
-            CopyFileEntry("/integrationtest/dlstest/etc/config.ini", "etc/config.ini")
+            CopyFileEntry("/integrationtest/dlstest/etc/config.ini", "etc/config.ini"),
+            CopyFileEntry("/integrationtest/dlstest/etc/credentials", "etc/credentials")
         ];
     }
 
@@ -75,6 +76,6 @@ version (UnitTest) {} else
 int main ( istring[] args )
 {
     auto runner =
-        new TurtleRunner!(RealDlsTestRunner)("dlsnode", "dlstest.cases.legacy");
+        new TurtleRunner!(RealDlsTestRunner)("dlsnode", "dlstest.cases");
     return runner.main(args);
 }

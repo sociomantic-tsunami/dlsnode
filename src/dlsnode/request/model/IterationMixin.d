@@ -118,12 +118,12 @@ public template ChannelIteration ( alias resources, IterationKind kind,
             assert (iterator);
             static if (kind == IterationKind.Ranged)
             {
-                iterator.getRange(resources.waiting_context,
+                iterator.getRange(resources.suspended_job,
                         this.key_lower, this.key_upper);
             }
             else
             {
-                iterator.getAll(resources.waiting_context);
+                iterator.getAll(resources.suspended_job);
             }
         }
 
@@ -154,7 +154,7 @@ public template ChannelIteration ( alias resources, IterationKind kind,
         // loops either until match is found or last key processed
         while (true)
         {
-            this.iterator.next(this.resources.waiting_context);
+            this.iterator.next(this.resources.suspended_job);
 
             resources.loop_ceder.handleCeding();
 
@@ -162,7 +162,7 @@ public template ChannelIteration ( alias resources, IterationKind kind,
                 return false;
 
             key = iterator.key();
-            value = iterator.value(this.resources.waiting_context);
+            value = iterator.value(this.resources.suspended_job);
 
             static if (kind == IterationKind.Ranged)
             {

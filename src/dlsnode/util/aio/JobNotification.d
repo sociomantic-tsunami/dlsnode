@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    Common interface for various types of suspendable contexts waiting for
+    Common interface for various types of suspendable jobs waiting for
     AsyncIO to finish.
 
     copyright:
@@ -11,10 +11,10 @@
 
 *******************************************************************************/
 
-module dlsnode.util.aio.ContextAwaitingJob;
+module dlsnode.util.aio.JobNotification;
 
 /// Ditto
-abstract class ContextAwaitingJob
+abstract class JobNotification
 {
     import ocean.core.array.Mutation: copy;
     import dlsnode.util.aio.internal.JobQueue: Job;
@@ -30,7 +30,7 @@ abstract class ContextAwaitingJob
 
     /***************************************************************************
 
-        Pointer to the AIO job suspended on this ContextAwaitingJob.
+        Pointer to the AIO job suspended on this JobNotification.
         Used for canceling the jobs. TODO: is the closure possible combining
         remove_dg and job?
 
@@ -40,7 +40,7 @@ abstract class ContextAwaitingJob
 
     /***************************************************************************
 
-        Yields the control to the suspendable context, indicating that the aio
+        Yields the control to the suspendable job, indicating that the aio
         operation has been done.
 
     ***************************************************************************/
@@ -49,7 +49,7 @@ abstract class ContextAwaitingJob
 
     /***************************************************************************
 
-        Cedes the control from the suspendable context, waiting for the aio
+        Cedes the control from the suspendable job, waiting for the aio
         operation to be done. Implementation is defined by the concrete classes.
 
     ***************************************************************************/
@@ -58,7 +58,7 @@ abstract class ContextAwaitingJob
 
     /***************************************************************************
 
-        Cedes the control from the suspendable context, waiting for the aio
+        Cedes the control from the suspendable job, waiting for the aio
         operation to be done. Called by AsyncIO framework internally.
 
         Params:
@@ -76,7 +76,7 @@ abstract class ContextAwaitingJob
 
     /***************************************************************************
 
-        Yields the control to the suspendable context, indicating that the aio
+        Yields the control to the suspended job, indicating that the aio
         operation has been done. Called by the AsyncIO framework internally.
 
     ***************************************************************************/

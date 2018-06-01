@@ -63,6 +63,9 @@ private class DlsVersioningRunner : TurtleRunnerTask!(TestedAppKind.Daemon)
         return [
             CopyFileEntry("/integrationtest/versioning/etc/config.ini", "etc/config.ini"),
             CopyFileEntry("/integrationtest/versioning/data/putlegacy/0000000057/275",
+            CopyFileEntry("/integrationtest/versioning/etc/config.ini", "etc/config.ini"),
+            CopyFileEntry("/integrationtest/dlstest/etc/credentials", "etc/credentials"),
+            CopyFileEntry("/integrationtest/versioning/data/putlegacy/0000000057/275",
                     "data/putlegacy/0000000057/275"),
             CopyFileEntry("/integrationtest/versioning/data/parity-fine/0000000057/275",
                     "data/putversionone/0000000057/275"),

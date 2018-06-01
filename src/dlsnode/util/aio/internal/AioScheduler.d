@@ -11,7 +11,7 @@
     themselves while accessing the queue.
 
     At the beginning, both queues are empty. When worker thread is finished
-    processing the request, ContextAwaitingJob is put into the workers'
+    processing the request, JobNotification is put into the workers'
     queue and notifies the main thread that there are request that it needs to
     wake up. However, since the main thread may not immediately do this, more
     than one request could end up in the queue. Once main thread is ready to
@@ -34,6 +34,7 @@
 
 module dlsnode.util.aio.internal.AioScheduler;
 
+import ocean.transition;
 import ocean.io.select.client.SelectEvent;
 
 /// Ditto
@@ -41,7 +42,7 @@ class AioScheduler: ISelectEvent
 {
     import ocean.sys.ErrnoException;
     import core.sys.posix.pthread;
-    import dlsnode.util.aio.ContextAwaitingJob;
+    import dlsnode.util.aio.JobNotification;
     import dlsnode.util.aio.internal.MutexOps;
     import swarm.neo.util.TreeQueue;
     import dlsnode.util.aio.internal.JobQueue: Job;
@@ -150,7 +151,7 @@ class AioScheduler: ISelectEvent
         Discards the results of the given AIO operation.
 
         Params:
-            req = ContextAwaitingJob instance that was waiting for results
+            req = JobNotification instance that was waiting for results
 
     ***************************************************************************/
 
@@ -194,7 +195,7 @@ class AioScheduler: ISelectEvent
 
         foreach (job; *this.waking_queue)
         {
-            auto req = job.waiting_context;
+            auto req = job.suspended_job;
             assert (req);
 
             job.finished();

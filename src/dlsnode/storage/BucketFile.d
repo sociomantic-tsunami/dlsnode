@@ -15,17 +15,19 @@
 module dlsnode.storage.BucketFile;
 
 import ocean.transition;
+import ocean.core.Verify;
 
 import ocean.io.model.IConduit;
 import ocean.transition;
 import dlsnode.util.aio.AsyncIO;
-import dlsnode.util.aio.ContextAwaitingJob;
+import dlsnode.util.aio.JobNotification;
 
 import dlsnode.storage.protocol.model.IStorageProtocol;
 import dlsnode.storage.protocol.StorageProtocolLegacy;
 import dlsnode.storage.protocol.StorageProtocolV1;
 
 import ocean.util.serialize.contiguous.package_;
+import dlsnode.storage.util.Promise;
 
 /*******************************************************************************
 
@@ -54,7 +56,7 @@ public class BucketFile: OutputStream
 
     // TODO; remove with ocean v2.5.0
     import core.stdc.errno;
-    import core.sys.posix.sys.types: off_t;
+    import core.sys.posix.sys.types: off_t, ssize_t;
     import posix = core.sys.posix.unistd;
 
     /**************************************************************************
@@ -168,6 +170,24 @@ public class BucketFile: OutputStream
 
     /**************************************************************************
 
+      Promise instance used for the nonblocking asynchronous IO.
+
+    **************************************************************************/
+
+    private Promise promise;
+
+
+    /**************************************************************************
+
+        Future holding the Bucket's header when read asynchronously.
+
+    ***************************************************************************/
+
+    private Future!(void[]) open_future;
+
+
+    /**************************************************************************
+
         Constructor.
 
         Params:
@@ -253,7 +273,7 @@ public class BucketFile: OutputStream
 
         Params:
             async_io = AsyncIO instance
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed. When `null`, `close` will
                 block the entire thread.
             path = file path
@@ -263,12 +283,12 @@ public class BucketFile: OutputStream
     **************************************************************************/
 
     public this ( AsyncIO async_io,
-            ContextAwaitingJob waiting_context,
+            JobNotification suspended_job,
             cstring path, void[] file_buffer,
             File.Style style = File.ReadExisting)
     {
         this(async_io);
-        this.open(path, waiting_context, file_buffer, style);
+        this.open(path, suspended_job, file_buffer, style);
     }
 
     /**************************************************************************
@@ -280,7 +300,7 @@ public class BucketFile: OutputStream
 
         Params:
             path = file path
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed
             file_buffer = buffer used for buffered input
             style = style in which file will be open for
@@ -288,7 +308,7 @@ public class BucketFile: OutputStream
     **************************************************************************/
 
     public void open (cstring path,
-            ContextAwaitingJob waiting_context,
+            JobNotification suspended_job,
             void[] file_buffer,
             File.Style style = File.ReadExisting)
     in
@@ -298,6 +318,7 @@ public class BucketFile: OutputStream
     }
     body
     {
+        this.promise.reset();
         this.buffered_input.reset(file_buffer);
         this.file.open(path, style);
         this.file_length_ = this.file.length;
@@ -318,7 +339,71 @@ public class BucketFile: OutputStream
             // NOTE: there's no need to reposition cursor. The reason is that
             // we have opened underlying file with O_APPEND and writes will
             // always be appended to the end of the file
-            this.readBucketHeader(waiting_context);
+            this.readBucketHeader(suspended_job);
+        }
+    }
+
+
+    /**************************************************************************
+
+        Opens the bucket file and reads or writes the bucket header in a
+        non-blocking fashion.
+
+        Params:
+            path = file path
+            suspended_job = JobNotification to block
+                the fiber on until read is completed
+            file_buffer = buffer used for buffered input
+            style = style in which file will be open for
+
+    **************************************************************************/
+
+    public bool openAsync (cstring path,
+            JobNotification suspended_job,
+            void[] file_buffer,
+            File.Style style = File.ReadExisting)
+    in
+    {
+        assert(style == File.ReadExisting || style == File.ReadWriteAppending,
+                "Currently BucketFile only supports ReadExisting or ReadWriteAppending");
+    }
+    body
+    {
+        if (!this.is_open_)
+        {
+            this.promise.reset();
+            this.buffered_input.reset(file_buffer);
+            this.file.open(path, style);
+            this.file_length_ = this.file.length;
+            this.file_pos_ = this.file.position;
+            this.is_open_ = true;
+        }
+
+        // In case we opened this file for writing,
+        // but the position is at 0 (empty file), we need to
+        // write the magic header.
+        if (style == File.ReadWriteAppending && this.file_length_ == 0)
+        {
+            // from the applications' PoV, this is going to be non-blocking,
+            // since it just copies the data to page cache, and the writeback
+            // daemon is responsible for moving this page back to the disk
+            this.writeBucketHeader();
+            return true;
+        }
+        else
+        {
+            // in case we're opening already existing file,
+            // just read the existing header (if any).
+            auto open = this.readBucketHeaderAsync(suspended_job);
+
+            // if the file is open for appending, seek to the end
+            // before appending anything
+            if (open && style == File.ReadWriteAppending)
+            {
+                this.seek(0, File.Anchor.End);
+            }
+
+            return open;
         }
     }
 
@@ -327,21 +412,21 @@ public class BucketFile: OutputStream
         Closes the file.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed. When `null`, `close` will
                 block entire thread.
 
     **************************************************************************/
 
-    public void close (ContextAwaitingJob waiting_context)
+    public void close (JobNotification suspended_job)
     {
-        if (waiting_context is null)
+        if (suspended_job is null)
         {
             this.file.close();
         }
         else
         {
-            this.async_io.close(this.file.fileHandle(), waiting_context);
+            this.async_io.close(this.file.fileHandle(), suspended_job);
         }
 
         this.file_pos_ = 0;
@@ -391,7 +476,7 @@ public class BucketFile: OutputStream
         Reads and deserializes the data from the file.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed.
                 If null, this call will perform a blocking read request,
                 not switching to any other fiber, while data is being read.
@@ -402,12 +487,12 @@ public class BucketFile: OutputStream
 
     **************************************************************************/
 
-    public size_t readData (ContextAwaitingJob waiting_context,
+    public size_t readData (JobNotification suspended_job,
             void[] buf)
     {
         size_t bytes_read;
 
-        if (waiting_context is null)
+        if (suspended_job is null)
         {
             bytes_read = this.buffered_input.readData(buf,
                  delegate (void[] buf) {
@@ -426,7 +511,7 @@ public class BucketFile: OutputStream
                  delegate (void[] buf) {
                      long read_from_file = this.async_io.pread(buf,
                              this.file.fileHandle,
-                             this.file_pos_, waiting_context);
+                             this.file_pos_, suspended_job);
 
                      this.file_pos_ += read_from_file;
                      return read_from_file;
@@ -440,15 +525,72 @@ public class BucketFile: OutputStream
 
     /**************************************************************************
 
+        Reads data from the file, not blocking the fiber if there's not enough
+        data, giving the opportunity to the user to suspend in the most convenient
+        location. After the context has been resumed by AsyncIO, the resulting
+        Future can be reaped for the result or for the error, if the scheduled
+        read failed for whatever reason.
+
+        Params:
+            T = type of the result to read from the BucketFile
+            job_nofification = JobNotification used to wake
+                          the calling context when the read is completed
+            num_bytes = requested amount of data to read from the file
+
+        Returns:
+            Future instance which may or may not be immediately filled with the
+            result. If the future is empty when this method returns, user should
+            wait for the JobNotification to notify the caller and then the
+            Future will either provide result or an error.
+
+    **************************************************************************/
+
+    public Future!(T) readDataAsync(T) (JobNotification job_notification,
+            size_t num_bytes)
+    {
+        assert(this.async_io);
+
+        this.promise.reset(num_bytes);
+
+        this.buffered_input.asyncReadData(
+             this.promise,
+             delegate (void[] buf, void delegate(ssize_t) set_last_read) {
+                 this.async_io.nonblocking.pread(buf,
+                         this.file.fileHandle,
+                         this.file_pos_,
+                         job_notification)
+                         .registerCallback(set_last_read)
+                         .registerCallback(&this.incrementFileCursor);
+                });
+
+        return this.promise.getFuture!(T)();
+    }
+
+    /**************************************************************************
+
+        Increments the file cursor after non-blocking aio read.
+
+        Params:
+            read_bytes = number of bytes read.
+
+    ***************************************************************************/
+
+    private void incrementFileCursor (ssize_t read_bytes)
+    {
+        this.file_pos_ += read_bytes;
+    }
+
+    /**************************************************************************
+
         Reads the bucket header.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed
 
     **************************************************************************/
 
-    private void readBucketHeader(ContextAwaitingJob waiting_context)
+    private void readBucketHeader(JobNotification suspended_job)
     {
         BucketHeader header;
 
@@ -467,7 +609,7 @@ public class BucketFile: OutputStream
         assert(this.async_io);
 
         ubyte[header.sizeof] buf;
-        this.readData(waiting_context, buf);
+        this.readData(suspended_job, buf);
 
         // Async reads do not seek the file position, we need to do
         // manual intervention if needed.
@@ -499,6 +641,55 @@ public class BucketFile: OutputStream
             // ReadWriteAppending
             this.seek(previous_pos);
         }
+    }
+
+    /**************************************************************************
+
+        Reads the bucket file's header using async IO.
+
+        Params:
+            suspended_job = JobNotification to resume the fiber when the read
+                            completes.
+
+        Returns:
+            true if the reading was successful, false if the reader needs to wait
+            for the completion
+
+    ***************************************************************************/
+
+    private bool readBucketHeaderAsync(JobNotification suspended_job)
+    {
+        BucketHeader header;
+
+        // rewind to the beginning of the file
+        this.seek(0);
+
+        size_t bytes_read;
+
+        // Read header of next record
+        assert(this.async_io);
+
+        if (!this.open_future.valid())
+        {
+            this.open_future = this.readDataAsync!(void[])(suspended_job, header.sizeof);
+        }
+
+        if (!this.open_future.valid())
+            return false; /* suspend and wait for the completion */
+
+        // At this point we've read the bucket header. Since AsyncIO will
+        // not move the file cursor, let's move it after the header
+        this.seek(header.sizeof);
+
+        // Read the data from the future.
+        void[] void_buf = this.open_future.get();
+        header = *Deserializer.deserialize!(BucketHeader)(void_buf).ptr;
+
+        enforce(header.magic[] == this.magic, "Magic number mismatch.");
+        enforce(header.version_no <= this.current_version, "Found bucket with no version.");
+
+        this.bucket_version = header.version_no;
+        return true;
     }
 
     /***************************************************************************
@@ -576,7 +767,7 @@ public class BucketFile: OutputStream
         value.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed
             header = (output) header of next record
 
@@ -585,12 +776,37 @@ public class BucketFile: OutputStream
 
     ***************************************************************************/
 
-    public bool nextRecord ( ContextAwaitingJob waiting_context,
+    public bool nextRecord ( JobNotification suspended_job,
             ref RecordHeader header )
     {
         return this.performFileLayoutStrategy((IStorageProtocol strategy)
                 {
-                    return strategy.nextRecord(waiting_context, this, header);
+                    return strategy.nextRecord(suspended_job, this, header);
+                });
+    }
+
+    /***************************************************************************
+
+        Reads the header of a record from the current seek position of an open
+        bucket file. The seek position is moved ready to read the record's
+        value.
+
+        Params:
+            job_notification = JobNotification which will
+                wake up the request when the node has finished reading required
+                data.
+
+        Returns:
+            future that either contains or will contain the next record's
+            header.
+
+    ***************************************************************************/
+
+    public Future!(RecordHeader) nextRecord ( JobNotification job_notification )
+    {
+        return this.performFileLayoutStrategy((IStorageProtocol strategy)
+                {
+                    return strategy.nextRecord(job_notification, this);
                 });
     }
 
@@ -623,20 +839,48 @@ public class BucketFile: OutputStream
         header.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed
             header = header of current record
             value = (output) receives record value
 
     ***************************************************************************/
 
-    public void readRecordValue ( ContextAwaitingJob waiting_context,
+    public void readRecordValue ( JobNotification suspended_job,
         RecordHeader header,
         ref mstring value )
     {
         this.performFileLayoutStrategy((IStorageProtocol strategy)
                {
-                    strategy.readRecordValue(waiting_context, this, header, value);
+                    strategy.readRecordValue(suspended_job, this, header, value);
+               });
+    }
+
+    /***************************************************************************
+
+        Reads the value of a record from the current seek position of an open
+        bucket file. The seek position is moved ready to read the next record's
+        header.
+
+        Params:
+            job_notification = JobnNotification which will
+                wake up the request when the node has finished reading required
+                data.
+            header = header of current record
+
+        Returns:
+            future that either contains or will contain the next record's
+            value.
+
+    ***************************************************************************/
+
+    public Future!(void[]) readRecordValue ( JobNotification job_notification,
+        RecordHeader header )
+    {
+        return this.performFileLayoutStrategy((IStorageProtocol strategy)
+               {
+                    return strategy.readRecordValue(job_notification,
+                            this, header);
                });
     }
 
@@ -647,19 +891,19 @@ public class BucketFile: OutputStream
         seek position is moved ready to read the next record's header.
 
         Params:
-            waiting_context = ContextAwaitingJob to block
+            suspended_job = JobNotification to block
                 the fiber on until read is completed
             header = header of current record
 
     ***************************************************************************/
 
     public void skipRecordValue (
-            ContextAwaitingJob waiting_context,
+            JobNotification suspended_job,
             RecordHeader header )
     {
         this.performFileLayoutStrategy((IStorageProtocol strategy)
                {
-                    strategy.skipRecordValue(waiting_context, this, header);
+                    strategy.skipRecordValue(suspended_job, this, header);
                });
     }
 
@@ -732,17 +976,17 @@ public class BucketFile: OutputStream
         Calls fsync on the underlying file descriptor.
 
         Params:
-            waiting_context = ContextAwaitingJob instance to
+            suspended_job = JobNotification instance to
                 block the current fiber on. If null,
             the entire thread will be blocked.
 
     **************************************************************************/
 
-    public void sync (ContextAwaitingJob waiting_context)
+    public void sync (JobNotification suspended_job)
     {
-        if (waiting_context)
+        if (suspended_job)
         {
-            this.async_io.fsync(this.file.fileHandle, waiting_context);
+            this.async_io.fsync(this.file.fileHandle, suspended_job);
         }
         else
         {

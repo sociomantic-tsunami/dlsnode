@@ -37,6 +37,9 @@ public class ServerConfig
 
     ConfigReader.Required!(ushort) port;
 
+    /// Listening port for the neo protocol
+    ConfigReader.Required!(ushort) neoport;
+
     /// CPU index counting from 0; negative: use any CPU
     ConfigReader.Min!(int, -1) cpu;
 
@@ -45,5 +48,11 @@ public class ServerConfig
     uint connection_limit = 5_000;
 
     uint backlog = 2048;
+
+    /// Unix domain socket path for sending commands to node
+    ConfigReader.Required!(mstring) unix_socket_path;
+
+    /// Path to the credentials file
+    mstring credentials_path = "etc/credentials".dup;
 }
 

@@ -1,5 +1,5 @@
 override DFLAGS += -w
-override LDFLAGS += -llzo2 -lgcrypt -lgpg-error -lglib-2.0 
+override LDFLAGS += -llzo2 -lebtree -lrt -lgcrypt -lgpg-error -lglib-2.0
 
 ifneq ($(DVER),1)
 	DC := dmd-transitional
