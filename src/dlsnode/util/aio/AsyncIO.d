@@ -262,6 +262,7 @@ class AsyncIO
             job.user_buffer = buf;
             job.finalize_results = &finalizeRead;
             job.suspended_job = suspended_job;
+            suspended_job.register(job, &this.outer.scheduler.discardResults);
 
             // Let the threads waiting on the semaphore know that they
             // can start doing single read

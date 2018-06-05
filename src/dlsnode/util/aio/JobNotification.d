@@ -69,9 +69,38 @@ abstract class JobNotification
 
     public final void wait (Job* job, typeof(this.remove_dg) remove_dg)
     {
-        this.remove_dg = remove_dg;
-        this.job = job;
+        this.register(job, remove_dg);
         this.wait_();
+    }
+
+    /**************************************************************************
+
+        Registers the Job instance with this job notification and sets up
+        removal delegate.
+
+        Params:
+            job = instance of the job that this job notification is waiting on
+            remove_dg = delegate to call to inform AIO that results of this job
+                        can be discarded.
+
+    ***************************************************************************/
+
+    public final void register (Job* job, typeof(this.remove_dg) remove_dg)
+    {
+        this.job = job;
+        this.remove_dg = remove_dg;
+    }
+
+    /***************************************************************************
+
+        Detaches the Job instance from this JobNotification (the opposite of
+        register).
+
+    ***************************************************************************/
+
+    public final void unregister ()
+    {
+        this.job = null;
     }
 
     /***************************************************************************
@@ -83,6 +112,7 @@ abstract class JobNotification
 
     public final void wake ()
     {
+        this.unregister();
         this.wake_();
     }
 
