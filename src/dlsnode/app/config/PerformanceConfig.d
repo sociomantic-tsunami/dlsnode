@@ -49,15 +49,5 @@ public class PerformanceConfig
     **************************************************************************/
 
     uint number_of_thread_workers = 20;
-
-    /***************************************************************************
-
-        Disable Nagle's algorithm for neo sockets. This is important for
-        testing requests with large volumes of data -- Nagle's algorithm slows
-        them down too much, if left enabled.
-
-    ***************************************************************************/
-
-    bool no_delay = false;
 }
 
