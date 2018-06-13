@@ -1,21 +1,21 @@
 [Unit]
-Description=DLS node - Distributed log store node
+Description=DLS node - Distributed log store node - readonly instance
 Documentation=https://github.com/sociomantic-tsunami/dlsnode/
 
-AssertPathExists=/srv/dlsnode/
+AssertPathExists=/srv/dlsnode/readonly
 Wants=local-fs.target network-online.target
 After=local-fs.target network-online.target
 
 [Service]
 Type=simple
-User=dlsnode
-Group=core
-WorkingDirectory=/srv/dlsnode/
-ExecStart=/srv/dlsnode/dlsnode -c etc/config.ini
+User=dlsnodereadonly
+Group=dlsnode
+WorkingDirectory=/srv/dlsnode/readonly
+ExecStart=/srv/dlsnode/readonly/dlsnode-readonly -c etc/config.ini
 ExecReload=/bin/kill -HUP $MAINPID
 ProtectHome=true
 ProtectSystem=full
-RuntimeDirectory=dlsnode
+RuntimeDirectory=dlsnode-readonly
 Restart=on-failure
 
 # Note infinity is used instead of unlimited

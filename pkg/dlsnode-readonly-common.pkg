@@ -12,6 +12,7 @@ OPTS.update(
 ARGS.extend([
     "README.rst=/usr/share/doc/" + VAR.shortname + "/README.rst",
     "deploy/upstart/dlsreadonly.conf=/etc/init/dlsreadonly.conf",
+    "deploy/systemd/dlsnode-readonly.service=/lib/systemd/system/dlsnode-readonly.service"
 ])
 
 # vim: set ft=python et sw=4 sts=4 :
