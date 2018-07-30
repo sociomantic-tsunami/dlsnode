@@ -3,7 +3,7 @@
     Dls versioning system test. Runs a set of test for the versioning
     system.
 
-    copyright: Copyright (c) 2016 sociomantic labs. All rights reserved
+    copyright: Copyright (c) 2016 dunnhumby Germany GmbH. All rights reserved
 
 *******************************************************************************/
 

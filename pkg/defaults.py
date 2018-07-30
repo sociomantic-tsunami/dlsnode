@@ -14,8 +14,8 @@ a separate subdirectory per data channel.'''
 OPTS.update(
     name = VAR.fullname,
     url = 'https://github.com/sociomantic-tsunami/dlsnode',
-    maintainer = 'Sociomantic Labs GmbH <tsunami@sociomantic.com>',
-    vendor = 'Sociomantic Labs GmbH',
+    maintainer = 'dunnhumby Germany GmbH <tsunami@sociomantic.com>',
+    vendor = 'dunnhumby Germany GmbH',
     description = get_desc(),
     category = 'net'
 )

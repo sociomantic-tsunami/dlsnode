@@ -4,7 +4,7 @@
 
     Imports the DLS test from dlsproto and runs it on the real DLS node.
 
-    copyright: Copyright (c) 2016 sociomantic labs. All rights reserved
+    copyright: Copyright (c) 2016 dunnhumby Germany GmbH. All rights reserved
 
 *******************************************************************************/
 
