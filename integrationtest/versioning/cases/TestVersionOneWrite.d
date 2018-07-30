@@ -2,7 +2,7 @@
 
     Tests the reading of the version one buckets.
 
-    Copyright: (c) 2016 Sociomantic Labs. All rights reserved.
+    Copyright: (c) 2016 dunnhumby Germany GmbH. All rights reserved.
 
 ******************************************************************************/
 

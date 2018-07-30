@@ -2,7 +2,7 @@
 
     Test reading a channel with empty buckets inside
 
-    Copyright: (c) 2016 Sociomantic Labs. All rights reserved.
+    Copyright: (c) 2016 dunnhumby Germany GmbH. All rights reserved.
 
 ******************************************************************************/
 

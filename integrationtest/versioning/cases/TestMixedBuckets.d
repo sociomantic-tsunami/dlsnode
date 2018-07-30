@@ -2,7 +2,7 @@
 
     Tests reading from legacy and non-legacy (v1) buckets.
 
-    Copyright: (c) 2016 Sociomantic Labs. All rights reserved.
+    Copyright: (c) 2016 dunnhumby Germany GmbH. All rights reserved.
 
 ******************************************************************************/
 
