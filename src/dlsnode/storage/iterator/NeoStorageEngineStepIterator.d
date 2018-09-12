@@ -262,7 +262,7 @@ public class NeoStorageEngineStepIterator
 
         // State machine. Start from the last state and move through
         // the records.
-        do
+        try do
         {
             switch (this.state)
             {
@@ -319,8 +319,16 @@ public class NeoStorageEngineStepIterator
                     else
                     {
                         // We have the record, let's read value
-                        this.record_header = this.header_future.get();
-                        this.state = State.ExpectingRecordValue;
+                        try
+                        {
+                            this.record_header = this.header_future.get();
+                            this.state = State.ExpectingRecordValue;
+                        }
+                        catch (Exception e)
+                        {
+                            // on error reading, skip this bucket
+                            this.state = State.LookingForNextBucket;
+                        }
                     }
                     break;
 
@@ -342,20 +350,35 @@ public class NeoStorageEngineStepIterator
                         // move to the next bucket
                         this.file.close();
                         this.state = State.LookingForNextBucket;
-                        break;
                     }
                     else
                     {
-                        key = cast(time_t)this.record_header.key;
-                        value.copy(this.value_future.get());
-                        this.state = State.ExpectingRecordHeader;
-                        return NextResult.RecordRead;
+                        try
+                        {
+                            key = cast(time_t)this.record_header.key;
+                            value.copy(this.value_future.get());
+                            this.state = State.ExpectingRecordHeader;
+                            return NextResult.RecordRead;
+                        }
+                        catch (Exception e)
+                        {
+                            // on error reading, skip this bucket
+                            this.state = State.LookingForNextBucket;
+                        }
                     }
+                    break;
+
                 default:
                     assert(false);
             }
         }
         while ( true );
+        catch (Exception e)
+        {
+            // just silently ignore possible data errors (the storage layer
+            // will already report them)
+            return NextResult.NoMoreData;
+        }
 
         assert(false);
     }
