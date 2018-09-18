@@ -54,6 +54,12 @@ jobs:
         - <<: *test-matrix
           env: DMD=2.078.* F=devel COV=1
 
+        # Test deployment docker image generation
+        - stage: Test
+          script:
+              - docker build --build-arg DMD=2.078.* --build-arg DIST=xenial
+                -t dlsnode -f docker/Dockerfile.dlsnode .
+
         # Package matrix
         - <<: *package-matrix
           env: DMD=1.082.* F=production COV=0
