@@ -18,6 +18,9 @@ before_install: git submodule update --init
 env:
     global:
         - DIST=xenial
+        # Default beaver image names. May be overriden in specific stages
+        - BEAVER_DOCKER_IMG=builder
+        - BEAVER_DOCKER_CONTEXT=docker/builder
         # Make sure beaver is in the PATH
         - PATH="$(git config -f .gitmodules submodule.beaver.path)/bin:$PATH"
 
