@@ -12,7 +12,6 @@ OPTS.update(
 ARGS.extend([
     "README.rst=/usr/share/doc/" + VAR.shortname + "/README.rst",
     "deploy/logrotate/dlsnode-logs=/etc/logrotate.d/dlsnode-logs",
-    "deploy/upstart/dls.conf=/etc/init/dls.conf",
     "deploy/cron/compress_data.sh=/srv/dlsnode/etc/compress_data.sh",
     "deploy/cron/compress_dls_data=/etc/cron.d/",
     "deploy/systemd/dlsnode.service=/lib/systemd/system/dlsnode.service"
