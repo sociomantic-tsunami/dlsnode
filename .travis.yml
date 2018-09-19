@@ -47,12 +47,12 @@ jobs:
         - <<: *test-matrix
           env: DMD=1.082.* F=devel COV=1
         - <<: *test-matrix
-          env: DMD=2.071.2.s* F=production COV=1
+          env: DMD=2.078.* F=production COV=1
         - <<: *test-matrix
-          env: DMD=2.071.2.s* F=devel COV=1
+          env: DMD=2.078.* F=devel COV=1
 
         # Package matrix
         - <<: *package-matrix
           env: DMD=1.082.* F=production COV=0
         - <<: *package-matrix
-          env: DMD=2.071.2.s* F=production COV=0
+          env: DMD=2.078.* F=production COV=0
