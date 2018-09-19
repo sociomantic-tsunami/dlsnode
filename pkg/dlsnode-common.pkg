@@ -15,6 +15,7 @@ ARGS.extend([
     "deploy/upstart/dls.conf=/etc/init/dls.conf",
     "deploy/cron/compress_data.sh=/srv/dlsnode/etc/compress_data.sh",
     "deploy/cron/compress_dls_data=/etc/cron.d/",
+    "deploy/systemd/dlsnode.service=/lib/systemd/system/dlsnode.service"
 ])
 
 # vim: set ft=python et sw=4 sts=4 :
