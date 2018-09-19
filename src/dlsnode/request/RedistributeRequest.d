@@ -46,6 +46,7 @@ static this ( )
 
 scope class RedistributeRequest: Protocol.Redistribute
 {
+    import swarm.util.RecordBatcher;
     import dlsnode.request.model.ConstructorMixin;
     import dlsnode.storage.StorageEngine;
     import dlsnode.storage.iterator.StorageEngineFileIterator;

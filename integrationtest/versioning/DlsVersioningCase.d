@@ -13,6 +13,7 @@
 module integrationtest.versioning.DlsVersioningCase;
 
 import dlstest.DlsTestCase;
+import dlstest.DlsClient;
 
 /******************************************************************************
 

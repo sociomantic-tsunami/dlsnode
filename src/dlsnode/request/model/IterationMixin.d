@@ -43,6 +43,7 @@ enum IterationKind
 public template ChannelIteration ( alias resources, IterationKind kind,
     alias predicate = alwaysTrue )
 {
+    import ocean.transition;
     import dlsnode.storage.StorageChannels;
     import dlsnode.storage.StorageEngine;
     import dlsnode.storage.iterator.StorageEngineStepIterator;
