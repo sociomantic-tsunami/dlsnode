@@ -30,6 +30,7 @@ import SwarmClient = dlsproto.client.DlsClient;
 class DlsClient: SwarmClient.DlsClient
 {
     import swarm.util.ExtensibleClass;
+    import ocean.core.Verify;
 
     import dlsproto.client.legacy.DlsConst;
     import dlsproto.client.legacy.internal.RequestSetup;

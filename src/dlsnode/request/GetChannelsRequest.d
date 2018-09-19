@@ -18,6 +18,7 @@ module dlsnode.request.GetChannelsRequest;
 
 *******************************************************************************/
 
+import ocean.transition;
 import Protocol = dlsproto.node.request.GetChannels;
 
 /*******************************************************************************
