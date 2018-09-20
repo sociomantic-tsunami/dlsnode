@@ -124,7 +124,6 @@ public class DlsNode :
         Options neo_options;
         neo_options.requests = requests;
         neo_options.epoll = epoll;
-        neo_options.no_delay = no_delay;
         neo_options.shared_resources =
             new NeoSharedResources.SharedResources(channels,
                 async_io, file_buffer_size);

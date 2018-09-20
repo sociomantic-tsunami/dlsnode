@@ -489,7 +489,7 @@ public class DlsConnectionHandler
 
         override protected RecordBatch new_decompress_record_batch ( )
         {
-            return new RecordBatch(this.setup.lzo.lzo, DlsConst.PutBatchSize);
+            return new RecordBatch(this.setup.lzo.lzo);
         }
 
         /***********************************************************************
