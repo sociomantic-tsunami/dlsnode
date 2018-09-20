@@ -17,22 +17,9 @@ import ocean.transition;
 import dlsnode.storage.protocol.model.IStorageProtocol;
 import dlsnode.storage.util.Promise;
 import ocean.io.device.File;
-import ocean.util.log.Logger;
 import dlsnode.util.aio.JobNotification;
 import ocean.core.Verify;
 import ocean.core.array.Mutation;
-
-/*******************************************************************************
-
-    Static module logger
-
-*******************************************************************************/
-
-private Logger log;
-static this ( )
-{
-    log = Log.lookup("dlsnode.storage.protocol.StorageProtocolLegacy");
-}
 
 /******************************************************************************
 
