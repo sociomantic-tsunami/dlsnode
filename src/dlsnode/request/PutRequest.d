@@ -59,7 +59,7 @@ public scope class PutRequest : Protocol.Put
     final override protected bool isSizeAllowed ( size_t size )
     {
         // Don't allow records larger than batch size
-        return size <= RecordBatch.DefaultMaxBatchSize;
+        return size <= RecordBatcher.DefaultMaxBatchSize;
     }
 
     /***************************************************************************
