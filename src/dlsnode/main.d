@@ -144,7 +144,7 @@ public class DlsNodeServer : DaemonApp
     import dlsproto.client.legacy.DlsConst;
     import swarm.util.node.log.Stats;
 
-    import ocean.core.ExceptionDefinitions : IOException, OutOfMemoryException;
+    import ocean.core.ExceptionDefinitions : IOException;
     import ocean.sys.ErrnoException;
 
     import core.sys.posix.signal;
@@ -469,7 +469,7 @@ public class DlsNodeServer : DaemonApp
             // thrown by ocean's regular IO methods. This is not something
             // that normally occurs, and we need to log it.
             logger.error("File.IOException caught in eventLoop: '{}' @ {}:{}",
-                getMsg(e), e.file, e.line);
+                e.message(), e.file, e.line);
         }
         else if ( cast(MessageFiber.KilledException)exception ||
              cast(IOWarning)exception ||
@@ -482,7 +482,7 @@ public class DlsNodeServer : DaemonApp
         else
         {
             logger.error("Exception caught in eventLoop: '{}' @ {}:{} on {}:{}",
-                getMsg(exception), exception.file, exception.line,
+                exception.message(), exception.file, exception.line,
                 this.server_config.address(), this.server_config.port());
         }
     }
@@ -618,7 +618,7 @@ public class DlsNodeServer : DaemonApp
         catch (Exception e)
         {
             logger.fatal("FAILED to terminate app: {}@{}:{}",
-                    getMsg(e), e.file, e.line);
+                    e.message(), e.file, e.line);
             throw e;
         }
 
