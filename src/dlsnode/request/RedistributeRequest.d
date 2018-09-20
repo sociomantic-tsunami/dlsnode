@@ -162,12 +162,12 @@ scope class RedistributeRequest: Protocol.Redistribute
             }
             catch ( Exception e )
             {
-                .log.error("Exception thrown while redistributing channel '{}': "
+                .log.error("Exception thrown while redistributing channel '{}': " ~
                         "'{}' @ {}:{}", channel.id, e.msg, e.file, e.line);
             }
         }
 
-        .log.info("Redistribution has been completed. "
+        .log.info("Redistribution has been completed. " ~
                   "Transfered {} records with {} bytes",
                   this.records_redistributed, this.bytes_redistributed);
     }
@@ -223,7 +223,7 @@ scope class RedistributeRequest: Protocol.Redistribute
 
             if ( buckets_iterated % 1_000 == 0 )
             {
-                .log.trace("Progress redistributing channel '{}':  "
+                .log.trace("Progress redistributing channel '{}':  " ~
                            "{} buckets iterated, {} forwarded",
                            channel.id, buckets_iterated, buckets_sent);
             }
@@ -232,7 +232,7 @@ scope class RedistributeRequest: Protocol.Redistribute
             this.resources.loop_ceder.handleCeding();
         }
 
-        .log.trace("Finished redistributing channel '{}':  "
+        .log.trace("Finished redistributing channel '{}':  " ~
                    "{} buckets iterated, {} forwarded",
                    channel.id, buckets_iterated, buckets_sent);
 

@@ -89,7 +89,7 @@ scope class GetRangeRegexRequest : Protocol.GetRangeRegex
                 }
                 catch ( .PCRE.PcreException e )
                 {
-                    .log.error("Exception during PCRE match with `{}` on channel '{}' and "
+                    .log.error("Exception during PCRE match with `{}` on channel '{}' and " ~
                         "key '{}': {} (error code: {}) @ {}:{} (aborting iteration)",
                         *this.pcre_filter, *this.resources.channel_buffer, key,
                         e.msg, e.error, e.file, e.line);
@@ -99,7 +99,7 @@ scope class GetRangeRegexRequest : Protocol.GetRangeRegex
                 }
                 catch ( Exception e )
                 {
-                    .log.error("Exception during PCRE match with `{}` on channel '{}' and "
+                    .log.error("Exception during PCRE match with `{}` on channel '{}' and " ~
                         "key '{}': {} @ {}:{} (aborting iteration)",
                         *this.pcre_filter, *this.resources.channel_buffer,
                         key, e.msg, e.file, e.line);
@@ -154,7 +154,7 @@ scope class GetRangeRegexRequest : Protocol.GetRangeRegex
                 }
                 catch ( .PCRE.PcreException e )
                 {
-                    .log.warn("Exception during PCRE compile of `{}` on channel '{}': "
+                    .log.warn("Exception during PCRE compile of `{}` on channel '{}': " ~
                         "{} (error code: {}) @ {}:{} (aborting iteration)",
                         *this.pcre_filter, *this.resources.channel_buffer,
                         e.msg, e.error, e.file, e.line);
@@ -162,7 +162,7 @@ scope class GetRangeRegexRequest : Protocol.GetRangeRegex
                 }
                 catch ( Exception e )
                 {
-                    .log.warn("Exception during PCRE compile of `{}` on channel '{}': "
+                    .log.warn("Exception during PCRE compile of `{}` on channel '{}': " ~
                         "{} @ {}:{} (aborting iteration)",
                         *this.pcre_filter, *this.resources.channel_buffer,
                         e.msg, e.file, e.line);

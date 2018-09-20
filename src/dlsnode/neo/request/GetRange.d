@@ -231,7 +231,7 @@ scope class GetRangeImpl_v2: GetRangeProtocol_v2
                 }
                 catch ( .PCRE.PcreException e )
                 {
-                    .log.error("Exception during PCRE match with `{}` on channel '{}' and "
+                    .log.error("Exception during PCRE match with `{}` on channel '{}' and " ~
                         "key '{}': {} (error code: {}) @ {}:{} (aborting iteration)",
                         this.filter_string, this.dls_channel.id, key,
                         e.msg, e.error, e.file, e.line);
@@ -239,7 +239,7 @@ scope class GetRangeImpl_v2: GetRangeProtocol_v2
                 }
                 catch ( Exception e )
                 {
-                    .log.error("Exception during PCRE match with `{}` on channel '{}' and "
+                    .log.error("Exception during PCRE match with `{}` on channel '{}' and " ~
                         "key '{}': {} @ {}:{} (aborting iteration)",
                         this.filter_string, this.dls_channel.id,
                         key, e.msg, e.file, e.line);
@@ -339,7 +339,7 @@ scope class GetRangeImpl_v2: GetRangeProtocol_v2
                 }
                 catch ( .PCRE.PcreException e )
                 {
-                    .log.error("Exception during PCRE compile of `{}` on channel '{}': "
+                    .log.error("Exception during PCRE compile of `{}` on channel '{}': " ~
                         "{} (error code: {}) @ {}:{} (aborting iteration)",
                         filter, this.dls_channel.id,
                         e.toString(), e.error, e.file, e.line);
@@ -347,7 +347,7 @@ scope class GetRangeImpl_v2: GetRangeProtocol_v2
                 }
                 catch ( Exception e )
                 {
-                    .log.error("Exception during PCRE compile of `{}` on channel '{}': "
+                    .log.error("Exception during PCRE compile of `{}` on channel '{}': " ~
                         "{} @ {}:{} (aborting iteration)",
                         filter, this.dls_channel.id,
                         e.toString(), e.file, e.line);
