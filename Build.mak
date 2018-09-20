@@ -1,9 +1,7 @@
 override DFLAGS += -w
 override LDFLAGS += -llzo2 -lebtree -lrt -lgcrypt -lgpg-error -lglib-2.0
 
-ifneq ($(DVER),1)
-	DC := dmd-transitional
-else
+ifeq ($(DVER),1)
 override DFLAGS += -v2 -v2=-static-arr-params
 endif
 
