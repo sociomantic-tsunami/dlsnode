@@ -359,7 +359,7 @@ class CheckpointFile
                         }
                         catch (Exception e)
                         {
-                            .log.error("Couldn't process checkpoint entry: {}", getMsg(e));
+                            .log.error("Couldn't process checkpoint entry: {}", e.message());
                         }
 
                     }
@@ -370,7 +370,7 @@ class CheckpointFile
         }
         catch (Exception e)
         {
-            .log.error("Couldn't process checkpoint file: {}", getMsg(e));
+            .log.error("Couldn't process checkpoint file: {}", e.message());
             return false;
         }
     }

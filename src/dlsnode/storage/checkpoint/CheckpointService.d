@@ -691,7 +691,7 @@ class CheckpointService
             }
             catch (Exception e)
             {
-                .log.error("Exception in checkkpoint_delegate: {}", getMsg(e));
+                .log.error("Exception in checkkpoint_delegate: {}", e.message());
             }
         }
     }
