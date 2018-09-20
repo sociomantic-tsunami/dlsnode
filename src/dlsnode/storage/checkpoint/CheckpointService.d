@@ -70,7 +70,7 @@ static this ( )
 class CheckpointService
 {
     import dlsnode.storage.checkpoint.CheckpointFile;
-    import ocean.io.Path;
+    import OceanPath = ocean.io.Path;
     import ocean.io.device.File;
     import ocean.io.FilePath;
     import ocean.io.select.fiber.SelectFiber;
@@ -506,7 +506,7 @@ class CheckpointService
 
         if (file_path.exists)
         {
-            FS.remove(file_path.cString);
+            OceanPath.remove(file_path.cString);
         }
     }
 
@@ -571,7 +571,7 @@ class CheckpointService
             // Remove the tmp file
             if (this.tmp_file_path.exists)
             {
-                FS.remove(this.tmp_file_path.cString);
+                OceanPath.remove(this.tmp_file_path.cString);
             }
         }
 
@@ -589,7 +589,7 @@ class CheckpointService
             {
                 if (this.tmp_file_path.exists)
                 {
-                    FS.remove(this.tmp_file_path.cString);
+                    OceanPath.remove(this.tmp_file_path.cString);
                 }
             }
         }
@@ -705,7 +705,7 @@ class CheckpointService
 
     private void renameCheckpointFile ( )
     {
-        FS.rename(tmp_file_path.cString, file_path.cString);
+        rename(tmp_file_path.cString.ptr, file_path.cString.ptr);
     }
 }
 

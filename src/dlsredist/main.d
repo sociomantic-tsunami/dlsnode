@@ -66,6 +66,8 @@ int main ( istring[] args )
 
 public class DlsRedist: CliApp
 {
+    import ocean.text.Arguments : Arguments;
+
     /**************************************************************************
 
         EpollSelectDispatcher instance.
