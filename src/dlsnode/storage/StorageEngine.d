@@ -29,6 +29,7 @@ import ocean.util.log.Logger;
 import dlsnode.util.aio.JobNotification;
 import dlsnode.util.aio.AsyncIO;
 import core.stdc.time;
+import Hash = swarm.util.Hash;
 
 import ocean.transition;
 
