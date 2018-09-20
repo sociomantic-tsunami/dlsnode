@@ -103,7 +103,7 @@ scope class StorageProtocolV1: IStorageProtocol
         if (header_buf.calcParity() != 0)
         {
             // Record header is corrupted. Report that there are no more records
-            log.warn("Record header parity check failed. Will not read any more "
+            log.warn("Record header parity check failed. Will not read any more " ~
                 "records from this bucket file. File: {}, position: {}",
                 file.file_path, file.file_pos);
 
@@ -179,7 +179,7 @@ scope class StorageProtocolV1: IStorageProtocol
         if (parity != 0)
         {
             // Record header is corrupted. Report that there are no more records
-            log.warn("Record header parity check failed. Will not read any more "
+            log.warn("Record header parity check failed. Will not read any more " ~
                 "records from this bucket file.");
 
             throw .parity_exception;

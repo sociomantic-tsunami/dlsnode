@@ -113,11 +113,11 @@ DLS. The standard use case when adding a new nodes to DLS is as follows:
     public override void setupArgs ( IApplication app, Arguments args )
     {
         args("src").aliased('S').required().params(1).
-            help("File describing DLS -- should contain the address/port of "
+            help("File describing DLS -- should contain the address/port of " ~
                  "all source nodes");
 
         args("dst").aliased('D').required().params(1).
-            help("File describing destination nodes -- should contain the "
+            help("File describing destination nodes -- should contain the " ~
                  "address/port of all destination nodes");
 
         args("fraction").required().aliased('f').params(1).
