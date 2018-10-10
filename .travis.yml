@@ -41,7 +41,7 @@ jobs:
               - beaver dlang install
               - beaver dlang make
               - beaver dlang make pkg
-              - beaver bintray upload -d sociomantic-tsunami/nodes/dhtnode build/production/pkg/*.deb
+              - beaver bintray upload -d sociomantic-tsunami/nodes/dlsnode build/production/pkg/*.deb
 
     include:
         # Test matrix
