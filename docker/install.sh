@@ -8,4 +8,5 @@ apt update
 mkdir -p /srv/dlsnode/etc
 mkdir -p /srv/dlsnode/log
 mkdir -p /srv/dlsnode/data
-apt install -y /packages/dlsnode_*
+apt install -y /packages/dlsnode-d*
+ln -s /usr/sbin/dlsnode-* /usr/sbin/dlsnode
