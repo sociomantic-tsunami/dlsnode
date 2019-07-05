@@ -9,7 +9,7 @@ After=local-fs.target network-online.target
 [Service]
 Type=simple
 User=dlsnode
-Group=core
+Group=rtbdata
 WorkingDirectory=/srv/dlsnode/
 ExecStart=/srv/dlsnode/dlsnode -c etc/config.ini
 ExecReload=/bin/kill -HUP $MAINPID
