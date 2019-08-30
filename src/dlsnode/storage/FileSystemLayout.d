@@ -767,12 +767,12 @@ public struct SlotBucket
 
     ***************************************************************************/
 
-    public typeof ((&this)) fromKey ( hash_t key )
+    public typeof (&this) fromKey ( hash_t key )
     {
-        (&this).bucket = key >> FileSystemLayout.SplitBits.key_bits;
-        (&this).slot = bucket >> FileSystemLayout.SplitBits.bucket_bits;
+        this.bucket = key >> FileSystemLayout.SplitBits.key_bits;
+        this.slot = bucket >> FileSystemLayout.SplitBits.bucket_bits;
 
-        return (&this);
+        return &this;
     }
 
     /***************************************************************************
@@ -794,7 +794,7 @@ public struct SlotBucket
 
     public hash_t toHash ( )
     {
-        return (&this).bucket;
+        return this.bucket;
     }
 
     /**************************************************************************
@@ -808,10 +808,10 @@ public struct SlotBucket
 
     public hash_t firstKey ()
     {
-        return ((&this).slot <<
+        return (this.slot <<
                     (FileSystemLayout.SplitBits.bucket_bits
                      + FileSystemLayout.SplitBits.key_bits))
-            | ((&this).bucket << FileSystemLayout.SplitBits.key_bits);
+            | (this.bucket << FileSystemLayout.SplitBits.key_bits);
     }
 }
 

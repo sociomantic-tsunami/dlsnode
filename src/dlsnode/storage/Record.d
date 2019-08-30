@@ -61,7 +61,7 @@ public align (1) struct RecordHeaderV1
         // this instance are expected to be either integers or structs containing
         // only integer fields. "Integer" includes bool here (which
         // ocean.core.Traits_tango.isIntegralType() excludes).
-        foreach (x; (&this).tupleof)
+        foreach (x; this.tupleof)
         {
             static if (is(typeof(x) == struct))
             {
