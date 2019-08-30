@@ -73,7 +73,7 @@ public class BufferedBucketOutput
 
      **************************************************************************/
 
-    const size_t DefaultBufferSize = 64 * 1024;
+    static immutable size_t DefaultBufferSize = 64 * 1024;
 
     /**************************************************************************
 

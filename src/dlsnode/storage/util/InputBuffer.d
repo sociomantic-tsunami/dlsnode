@@ -94,13 +94,13 @@ struct InputBuffer
     private void consumeFromInternalBuffer (void[] dest)
     in
     {
-        assert (this.buffer.length - this.position_in_chunk >= dest.length);
+        assert ((&this).buffer.length - (&this).position_in_chunk >= dest.length);
     }
     body
     {
         dest[0 .. $] =
-            this.buffer[this.position_in_chunk .. this.position_in_chunk + dest.length];
-        this.position_in_chunk += dest.length;
+            (&this).buffer[(&this).position_in_chunk .. (&this).position_in_chunk + dest.length];
+        (&this).position_in_chunk += dest.length;
     }
 
     /**************************************************************************
@@ -115,13 +115,13 @@ struct InputBuffer
 
     **************************************************************************/
 
-    private void consumeFromInternalBuffer (size_t required, void delegate(in void[] dest) sink)
+    private void consumeFromInternalBuffer (size_t required, scope void delegate(in void[] dest) sink)
     {
-        verify(this.buffer.length - this.position_in_chunk >= required);
+        verify((&this).buffer.length - (&this).position_in_chunk >= required);
 
         sink(
-            this.buffer[this.position_in_chunk .. this.position_in_chunk + required]);
-        this.position_in_chunk += required;
+            (&this).buffer[(&this).position_in_chunk .. (&this).position_in_chunk + required]);
+        (&this).position_in_chunk += required;
     }
 
     /*************************************************************************
@@ -137,8 +137,8 @@ struct InputBuffer
 
     public void reset (void[] buffer)
     {
-        this.reset();
-        this.buffer = buffer;
+        (&this).reset();
+        (&this).buffer = buffer;
     }
 
     /*************************************************************************
@@ -149,9 +149,9 @@ struct InputBuffer
 
     public void reset ()
     {
-        this.position_in_chunk = 0;
-        this.feof_occured = false;
-        this.data_in_chunk = 0;
+        (&this).position_in_chunk = 0;
+        (&this).feof_occured = false;
+        (&this).data_in_chunk = 0;
     }
 
     /**************************************************************************
@@ -173,19 +173,19 @@ struct InputBuffer
     **************************************************************************/
 
     public ssize_t seek (long offset, File.Anchor anchor,
-            ssize_t delegate (long, File.Anchor) seek_input)
+            scope ssize_t delegate (long, File.Anchor) seek_input)
     {
         // Check if we can just seek inside the provided buffer
-        if (this.buffer.length && anchor == File.Anchor.Current &&
-                (offset + this.position_in_chunk < this.data_in_chunk))
+        if ((&this).buffer.length && anchor == File.Anchor.Current &&
+                (offset + (&this).position_in_chunk < (&this).data_in_chunk))
         {
-            this.position_in_chunk += offset;
-            return seek_input(0, File.Anchor.Current) + this.position_in_chunk;
+            (&this).position_in_chunk += offset;
+            return seek_input(0, File.Anchor.Current) + (&this).position_in_chunk;
         }
         else
         {
             auto new_position_in_input = seek_input(offset, anchor);
-            this.reset(this.buffer);
+            (&this).reset((&this).buffer);
             return new_position_in_input;
         }
     }
@@ -201,7 +201,7 @@ struct InputBuffer
 
     public size_t remainingInBuffer ( )
     {
-        return this.data_in_chunk - this.position_in_chunk;
+        return (&this).data_in_chunk - (&this).position_in_chunk;
     }
 
     /***************************************************************************
@@ -223,7 +223,7 @@ struct InputBuffer
     ***************************************************************************/
 
     public void asyncReadData (ref Promise promise,
-            void delegate(void[] dest,
+            scope void delegate(void[] dest,
                           void delegate(ssize_t) asyncReadCompleted) async_read_data)
     {
         // If we don't need to read anything
@@ -234,36 +234,36 @@ struct InputBuffer
         }
 
         // Do we have enough data already in the buffer?
-        if (this.remainingInBuffer() >= promise.dataMissing)
+        if ((&this).remainingInBuffer() >= promise.dataMissing)
         {
-            this.consumeFromInternalBuffer(promise.dataMissing(), &promise.fillResult);
+            (&this).consumeFromInternalBuffer(promise.dataMissing(), &promise.fillResult);
             promise.fulfilled(false);
             return;
         }
-        else if (this.feof_occured)
+        else if ((&this).feof_occured)
         {
             // Copy what we can and return that.
-            auto remaining = this.remainingInBuffer();
-            this.consumeFromInternalBuffer(remaining, &promise.fillResult);
+            auto remaining = (&this).remainingInBuffer();
+            (&this).consumeFromInternalBuffer(remaining, &promise.fillResult);
             promise.fulfilled(true);
             return;
         }
 
         // There's not enough data in the buffer? Let's move the remaining of the
         // data to the front of the buffer, and refill the buffer with the new data
-        auto remaining = this.moveRemainingToFront();
+        auto remaining = (&this).moveRemainingToFront();
 
         // If user is asking for more data than the size of the internal buffer
         // we'll resize the buffer first
-        if (this.buffer.length < promise.dataMissing)
+        if ((&this).buffer.length < promise.dataMissing)
         {
-            this.buffer.length = promise.dataMissing;
-            enableStomping(this.buffer);
+            (&this).buffer.length = promise.dataMissing;
+            enableStomping((&this).buffer);
         }
 
         // Set the final destination buffer to read from
-        this.promise = &promise;
-        async_read_data(this.buffer[remaining..$], &this.asyncReadCompleted);
+        (&this).promise = &promise;
+        async_read_data((&this).buffer[remaining..$], &(&this).asyncReadCompleted);
     }
 
     /**************************************************************************
@@ -283,7 +283,7 @@ struct InputBuffer
     **************************************************************************/
 
     public size_t readData (void[] dest,
-            ssize_t delegate (void[] dest) read_data)
+            scope ssize_t delegate (void[] dest) read_data)
     {
         if (dest.length == 0)
         {
@@ -292,16 +292,16 @@ struct InputBuffer
 
         // If the buffer doesn't exist anyway, we don't need it - just forward
         // the stuff from file
-        if (this.buffer.length == 0)
+        if ((&this).buffer.length == 0)
         {
             // Non buffered read - read directly from the input
             return read_data(dest);
         }
 
         // Do we have enough data already in the buffer?
-        if ((this.data_in_chunk - this.position_in_chunk) >= dest.length)
+        if (((&this).data_in_chunk - (&this).position_in_chunk) >= dest.length)
         {
-            this.consumeFromInternalBuffer(dest[0 .. $]);
+            (&this).consumeFromInternalBuffer(dest[0 .. $]);
             return dest.length;
         }
 
@@ -310,8 +310,8 @@ struct InputBuffer
         // and will read data from the input, filling the destination buffer.
 
         // Copy the remaining data from the buffer to the output
-        auto remaining_in_internal_buffer = this.data_in_chunk - this.position_in_chunk;
-        this.consumeFromInternalBuffer(dest[0 .. remaining_in_internal_buffer]);
+        auto remaining_in_internal_buffer = (&this).data_in_chunk - (&this).position_in_chunk;
+        (&this).consumeFromInternalBuffer(dest[0 .. remaining_in_internal_buffer]);
 
         auto bytes_needed_for_output_buffer = dest.length - remaining_in_internal_buffer;
         auto already_copied_to_output = remaining_in_internal_buffer;
@@ -325,7 +325,7 @@ struct InputBuffer
         // size - read the entire internal buffer's size worth of data, fill
         // the output buffer, and leave the remaining in the internal buffer
 
-        if (bytes_needed_for_output_buffer >= this.buffer.length)
+        if (bytes_needed_for_output_buffer >= (&this).buffer.length)
         {
             auto bytes_read = read_data(dest[already_copied_to_output .. $]);
 
@@ -335,9 +335,9 @@ struct InputBuffer
         else
         {
             // Read the data to the internal buffer
-            auto bytes_read = read_data(this.buffer[0 .. this.buffer.length]);
-            this.data_in_chunk = bytes_read;
-            this.position_in_chunk = 0;
+            auto bytes_read = read_data((&this).buffer[0 .. (&this).buffer.length]);
+            (&this).data_in_chunk = bytes_read;
+            (&this).position_in_chunk = 0;
 
             // We have read `bytes_read`. Fill the output buffer with the
             // data in the internal buffer.
@@ -345,7 +345,7 @@ struct InputBuffer
                 bytes_read : bytes_needed_for_output_buffer;
 
             // Consume the number of needed bytes from the internal buffer
-            this.consumeFromInternalBuffer(
+            (&this).consumeFromInternalBuffer(
                     dest[already_copied_to_output .. already_copied_to_output + to_copy_from_internal]);
 
             return already_copied_to_output + to_copy_from_internal;
@@ -364,14 +364,14 @@ struct InputBuffer
 
     private size_t moveRemainingToFront ()
     {
-        auto remaining = this.remainingInBuffer();
+        auto remaining = (&this).remainingInBuffer();
 
-        void* src = buffer.ptr + this.position_in_chunk;
+        void* src = buffer.ptr + (&this).position_in_chunk;
         void* dst = buffer.ptr;
         memmove(dst, src, remaining);
 
-        this.position_in_chunk = 0;
-        this.data_in_chunk = remaining;
+        (&this).position_in_chunk = 0;
+        (&this).data_in_chunk = remaining;
         return remaining;
     }
 
@@ -390,31 +390,31 @@ struct InputBuffer
     {
         if (bytes_read < 0)
         {
-            this.promise.fulfilled(true);
+            (&this).promise.fulfilled(true);
             return;
         }
 
         if (bytes_read == 0)
         {
-            this.feof_occured = true;
+            (&this).feof_occured = true;
         }
 
-        this.data_in_chunk += bytes_read;
+        (&this).data_in_chunk += bytes_read;
 
         // Now let's fill the consumer's buffer
         // Do we have enough data already in the buffer?
-        if (this.remainingInBuffer() >= this.promise.dataMissing)
+        if ((&this).remainingInBuffer() >= (&this).promise.dataMissing)
         {
-            this.consumeFromInternalBuffer(this.promise.dataMissing,
-                &this.promise.fillResult);
-            this.promise.fulfilled(false);
+            (&this).consumeFromInternalBuffer((&this).promise.dataMissing,
+                &(&this).promise.fillResult);
+            (&this).promise.fulfilled(false);
         }
-        else if (this.feof_occured)
+        else if ((&this).feof_occured)
         {
             // Copy what we can and return that.
-            auto remaining = this.remainingInBuffer();
-            this.consumeFromInternalBuffer(remaining, &this.promise.fillResult);
-            this.promise.fulfilled(true);
+            auto remaining = (&this).remainingInBuffer();
+            (&this).consumeFromInternalBuffer(remaining, &(&this).promise.fillResult);
+            (&this).promise.fulfilled(true);
         }
     }
 }

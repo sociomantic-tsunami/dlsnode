@@ -84,7 +84,7 @@ public class BucketFile: OutputStream
 
     **************************************************************************/
 
-    const ubyte[8] magic = ['D', 'L', 'S', 'B', 'U', 'C', 'K', 'T'];
+    static immutable ubyte[8] magic = ['D', 'L', 'S', 'B', 'U', 'C', 'K', 'T'];
 
     /**************************************************************************
 
@@ -92,7 +92,7 @@ public class BucketFile: OutputStream
 
     **************************************************************************/
 
-    private const ulong current_version = 1;
+    private static immutable ulong current_version = 1;
 
 
     /**************************************************************************
@@ -101,7 +101,7 @@ public class BucketFile: OutputStream
 
     *************************************************************************/
 
-    public const BucketHeaderSize = BucketHeader.sizeof;
+    public static immutable BucketHeaderSize = BucketHeader.sizeof;
 
     /*************************************************************************
 
@@ -109,7 +109,7 @@ public class BucketFile: OutputStream
 
     **************************************************************************/
 
-    private const ulong legacy_version = ulong.max;
+    private static immutable ulong legacy_version = ulong.max;
 
 
     // Make sure we don't overflow with version numbers.
@@ -728,7 +728,7 @@ public class BucketFile: OutputStream
 
     ****************************************************************************/
 
-    public T performFileLayoutStrategy(T) ( T delegate ( IStorageProtocol ) dg )
+    public T performFileLayoutStrategy(T) ( scope T delegate ( IStorageProtocol ) dg )
     {
         static if (is(T == void))
         {

@@ -1,10 +1,6 @@
 override DFLAGS += -w
 override LDFLAGS += -llzo2 -lebtree -lrt -lgcrypt -lgpg-error -lglib-2.0
 
-ifeq ($(DVER),1)
-override DFLAGS += -v2 -v2=-static-arr-params
-endif
-
 $B/dlsnode: override LDFLAGS += -lpcre -lebtree
 $B/dlsnode: src/dlsnode/main.d
 $B/dlsredist: override LDFLAGS += -lpcre -lebtree

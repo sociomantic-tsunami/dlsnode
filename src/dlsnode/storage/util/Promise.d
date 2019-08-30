@@ -91,9 +91,9 @@ public struct Promise
 
     public void reset (size_t num_bytes)
     {
-        this.data_buffer.length = num_bytes;
-        enableStomping(this.data_buffer);
-        this.reset();
+        (&this).data_buffer.length = num_bytes;
+        enableStomping((&this).data_buffer);
+        (&this).reset();
     }
 
 
@@ -105,8 +105,8 @@ public struct Promise
 
     public void reset ()
     {
-        this.state = State.Empty;
-        this.bytes_last_read = 0;
+        (&this).state = State.Empty;
+        (&this).bytes_last_read = 0;
     }
 
 
@@ -125,9 +125,9 @@ public struct Promise
 
         // Since the producer has setup this promise using reset(num_bytes)
         // this should never happen
-        verify (this.bytes_last_read + result.length <= this.data_buffer.length);
-        this.data_buffer[this.bytes_last_read..result.length] = result[];
-        this.bytes_last_read += result.length;
+        verify ((&this).bytes_last_read + result.length <= (&this).data_buffer.length);
+        (&this).data_buffer[(&this).bytes_last_read..result.length] = result[];
+        (&this).bytes_last_read += result.length;
     }
 
 
@@ -143,7 +143,7 @@ public struct Promise
 
     public void fulfilled (bool error)
     {
-        this.state = error? State.Error : State.PromiseFulfilled;
+        (&this).state = error? State.Error : State.PromiseFulfilled;
     }
 
 
@@ -156,7 +156,7 @@ public struct Promise
 
     public size_t dataMissing ()
     {
-        return this.data_buffer.length - this.bytes_last_read;
+        return (&this).data_buffer.length - (&this).bytes_last_read;
     }
 
 
@@ -169,7 +169,7 @@ public struct Promise
 
     public Future!(T) getFuture(T)()
     {
-        return Future!(T)(this);
+        return Future!(T)((&this));
     }
 
 
@@ -184,9 +184,9 @@ public struct Promise
 
     private void[] result ()
     {
-        verify(this.promise_fulfilled());
-        this.state = State.PromiseReaped;
-        return this.data_buffer[0..this.bytes_last_read];
+        verify((&this).promise_fulfilled());
+        (&this).state = State.PromiseReaped;
+        return (&this).data_buffer[0..(&this).bytes_last_read];
     }
 
 
@@ -199,7 +199,7 @@ public struct Promise
 
     private bool promise_fulfilled ()
     {
-        return this.state == State.PromiseFulfilled || this.state == State.Error;
+        return (&this).state == State.PromiseFulfilled || (&this).state == State.Error;
     }
 
 
@@ -211,7 +211,7 @@ public struct Promise
 
     private bool promise_reaped ()
     {
-        return this.state == State.PromiseReaped;
+        return (&this).state == State.PromiseReaped;
     }
 
 
@@ -226,8 +226,8 @@ public struct Promise
 
     private bool error ()
     {
-        verify(this.promise_fulfilled());
-        return this.state == State.Error;
+        verify((&this).promise_fulfilled());
+        return (&this).state == State.Error;
     }
 }
 
@@ -279,21 +279,21 @@ struct Future(T = void[])
 
     public T get ()
     {
-        verify(this.valid());
+        verify((&this).valid());
 
         if (convert_method !is null)
         {
-            return this.convert_method(this.promise.result());
+            return (&this).convert_method((&this).promise.result());
         }
         else
         {
             static if (isDynamicArrayType!(T))
             {
-                return cast(T)this.promise.result();
+                return cast(T)(&this).promise.result();
             }
             else
             {
-                auto result = this.promise.result();
+                auto result = (&this).promise.result();
                 return *(cast(T*)result[0..T.sizeof].ptr);
             }
         }
@@ -310,7 +310,7 @@ struct Future(T = void[])
 
     public bool error ()
     {
-        return this.promise.error();
+        return (&this).promise.error();
     }
 
     /**************************************************************************
@@ -324,10 +324,10 @@ struct Future(T = void[])
 
     **************************************************************************/
 
-    public Future!(U) compose(U)(U delegate(in void[]) convert)
+    public Future!(U) compose(U)(scope U delegate(in void[]) convert)
     {
         Future!(U) future;
-        future.promise = this.promise;
+        future.promise = (&this).promise;
         future.convert_method = convert;
         return future;
     }

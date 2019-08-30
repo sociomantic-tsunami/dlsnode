@@ -41,7 +41,7 @@ scope class PutImpl_v1: PutProtocol_v1
 
     ***************************************************************************/
 
-    const NodeResumeCode = 1;
+    static immutable NodeResumeCode = 1;
 
     /***************************************************************************
 

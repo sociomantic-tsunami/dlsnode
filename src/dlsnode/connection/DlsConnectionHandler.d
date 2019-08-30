@@ -599,7 +599,7 @@ public class DlsConnectionHandler
 
     ***************************************************************************/
 
-    public this ( FinalizeDg finalize_dg, ConnectionSetupParams setup )
+    public this ( scope FinalizeDg finalize_dg, ConnectionSetupParams setup )
     {
         super(finalize_dg, setup);
 

@@ -77,7 +77,7 @@ public class DlsNode :
 
     ***************************************************************************/
 
-    private const PcreComplexityLimit = 10_000;
+    private static immutable PcreComplexityLimit = 10_000;
 
 
     /***************************************************************************
@@ -207,7 +207,7 @@ public class DlsNode :
     **************************************************************************/
 
     override protected void getResourceAcquirer (
-            void delegate ( Object request_resources ) callback )
+            scope void delegate ( Object request_resources ) callback )
     {
         auto node_resources = downcast!(NeoSharedResources.SharedResources)(this.shared_resources);
         scope request_resources = node_resources.new RequestResources;
@@ -264,7 +264,7 @@ version ( UnitTest )
 
 unittest
 {
-    const len = 29;
+    static immutable len = 29;
 
     mstring genString ( )
     {

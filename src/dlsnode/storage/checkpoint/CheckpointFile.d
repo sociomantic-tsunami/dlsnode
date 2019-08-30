@@ -67,7 +67,7 @@ class CheckpointFile
 
     ***************************************************************************/
 
-    public const signals_dontblock = [SIGABRT, SIGSEGV, SIGBUS, SIGILL];
+    public static immutable signals_dontblock = [SIGABRT, SIGSEGV, SIGBUS, SIGILL];
 
     /***************************************************************************
 
@@ -177,7 +177,7 @@ class CheckpointFile
 
     ***************************************************************************/
 
-    public void readLines ( void delegate ( cstring channel_name,
+    public void readLines ( scope void delegate ( cstring channel_name,
                                             size_t bucket_start, size_t bucket_offset,
                                             uint nline ) got_bucket )
     {
@@ -266,7 +266,7 @@ class CheckpointFile
     ***************************************************************************/
 
     public void writeLines (
-            void delegate (
+            scope void delegate (
                 void delegate ( cstring channel_name,
                                 size_t bucket_start,
                                 size_t bucket_offset ) writeln ) iterate )

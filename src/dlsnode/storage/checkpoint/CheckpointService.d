@@ -269,11 +269,11 @@ class CheckpointService
 
         public BucketCheckpoint* findBucket (ulong bucket_start)
         {
-            foreach (i, bucket; this.buckets)
+            foreach (i, bucket; (&this).buckets)
             {
                 if (bucket.bucket_start == bucket_start && bucket.is_valid)
                 {
-                    return &this.buckets[i];
+                    return &(&this).buckets[i];
                 }
             }
 
@@ -302,11 +302,11 @@ class CheckpointService
 
             // Try to search for the existing bucket, or for a slot
             // to be reused
-            foreach (i, bucket; this.buckets)
+            foreach (i, bucket; (&this).buckets)
             {
                 if (bucket.bucket_start == bucket_start && bucket.is_valid)
                 {
-                    return &this.buckets[i];
+                    return &(&this).buckets[i];
                 }
 
                 if (bucket.is_valid == false)
@@ -319,15 +319,15 @@ class CheckpointService
             // If there are no entries, allocate the first one:
             if (!empty_slot_found)
             {
-                this.buckets ~= BucketCheckpoint();
-                empty_slot_index = this.buckets.length - 1;
+                (&this).buckets ~= BucketCheckpoint();
+                empty_slot_index = (&this).buckets.length - 1;
             }
 
-            this.buckets[empty_slot_index].bucket_start = bucket_start;
-            this.buckets[empty_slot_index].is_valid = true;
-            oceanArray.copy(this.buckets[empty_slot_index].channel_name,
+            (&this).buckets[empty_slot_index].bucket_start = bucket_start;
+            (&this).buckets[empty_slot_index].is_valid = true;
+            oceanArray.copy((&this).buckets[empty_slot_index].channel_name,
                     channel_name);
-            return &this.buckets[empty_slot_index];
+            return &(&this).buckets[empty_slot_index];
         }
     }
 
@@ -407,7 +407,7 @@ class CheckpointService
     ***************************************************************************/
 
     public void bucketOpen (cstring channel_name, ulong bucket_start, size_t position,
-            void delegate(JobNotification) bucket_fsync)
+            scope void delegate(JobNotification) bucket_fsync)
     {
         if (!(channel_name in this.channels))
         {

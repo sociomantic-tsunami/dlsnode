@@ -85,9 +85,9 @@ public class DlsRedist: CliApp
 
     public this ( )
     {
-        const name = "dlsredist";
-        const desc = "initiates a redistribution of DLS data";
-        const help =
+        static immutable name = "dlsredist";
+        static immutable desc = "initiates a redistribution of DLS data";
+        static immutable help =
 `Tool to initialte a redistribution of data within a
 DLS. The standard use case when adding a new nodes to DLS is as follows:
     1. Setup a new nodes as required.
