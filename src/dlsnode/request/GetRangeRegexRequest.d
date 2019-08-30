@@ -194,7 +194,7 @@ version ( UnitTest )
 
 unittest
 {
-    const logline = "http://somehost.example.org/flash/katze/param?&doc=hunde&linol=5555555999999955555&tropical=vogel&height=3&myid=445&oop=%YB%7X%22bb%22%3A%1216182355555555542744%22%2C%22fheight%22%3A22%7X%5X";
+    static immutable logline = "http://somehost.example.org/flash/katze/param?&doc=hunde&linol=5555555999999955555&tropical=vogel&height=3&myid=445&oop=%YB%7X%22bb%22%3A%1216182355555555542744%22%2C%22fheight%22%3A22%7X%5X";
     auto pcre = new PCRE;
 
     // Positive match.

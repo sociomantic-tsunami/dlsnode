@@ -470,7 +470,7 @@ public class NeoStorageEngineStepIterator
 
     ***************************************************************************/
 
-    private bool openBucket (bool delegate() find_bucket,
+    private bool openBucket (scope bool delegate() find_bucket,
             JobNotification job_notification,
             out bool wait_for_open)
     {

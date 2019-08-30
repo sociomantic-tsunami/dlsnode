@@ -77,7 +77,7 @@ public class StorageChannels : IStorageChannelsTemplate!(StorageEngine)
 
     ***************************************************************************/
 
-    public const DefaultWriteBufferSize = BufferedBucketOutput.DefaultBufferSize;
+    public static immutable DefaultWriteBufferSize = BufferedBucketOutput.DefaultBufferSize;
 
 
     /***************************************************************************
@@ -145,7 +145,7 @@ public class StorageChannels : IStorageChannelsTemplate!(StorageEngine)
         size_t write_buffer_size = DefaultWriteBufferSize )
     {
         // Don't set size limit on the storage channel
-        const no_size_limit = 0;
+        static immutable no_size_limit = 0;
         super(no_size_limit);
 
         this.checkpointer = checkpointer;

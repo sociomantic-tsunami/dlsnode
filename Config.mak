@@ -1,1 +1,2 @@
+DVER := 2
 PKG_SUFFIX ?= -d$(DVER)

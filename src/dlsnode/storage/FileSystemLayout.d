@@ -143,9 +143,9 @@ public class FileSystemLayout
 
      **************************************************************************/
 
-    public const struct SplitBits
+    public static immutable struct SplitBits
     {
-        static const uint total_digits  = hash_t.sizeof * 2,
+        static enum uint total_digits  = hash_t.sizeof * 2,
                           key_digits    = 3,            // 4095 keys per bucket
                           bucket_digits = 3,            // 4095 buckets per slot
                           slot_digits   = total_digits -
@@ -498,7 +498,7 @@ public class FileSystemLayout
 
             // Work out which buckets within the slot directory count as a
             // match. Generally, all buckets in a slot are valid...
-            const hash_t bucket_mask = (1 << SplitBits.bucket_bits) - 1;
+            static immutable hash_t bucket_mask = (1 << SplitBits.bucket_bits) - 1;
             hash_t min_bucket = hash_t.min;  // 000
             hash_t max_bucket = bucket_mask; // fff
 
@@ -767,12 +767,12 @@ public struct SlotBucket
 
     ***************************************************************************/
 
-    public typeof (this) fromKey ( hash_t key )
+    public typeof ((&this)) fromKey ( hash_t key )
     {
-        this.bucket = key >> FileSystemLayout.SplitBits.key_bits;
-        this.slot = bucket >> FileSystemLayout.SplitBits.bucket_bits;
+        (&this).bucket = key >> FileSystemLayout.SplitBits.key_bits;
+        (&this).slot = bucket >> FileSystemLayout.SplitBits.bucket_bits;
 
-        return this;
+        return (&this);
     }
 
     /***************************************************************************
@@ -794,7 +794,7 @@ public struct SlotBucket
 
     public hash_t toHash ( )
     {
-        return this.bucket;
+        return (&this).bucket;
     }
 
     /**************************************************************************
@@ -808,10 +808,10 @@ public struct SlotBucket
 
     public hash_t firstKey ()
     {
-        return (this.slot <<
+        return ((&this).slot <<
                     (FileSystemLayout.SplitBits.bucket_bits
                      + FileSystemLayout.SplitBits.key_bits))
-            | (this.bucket << FileSystemLayout.SplitBits.key_bits);
+            | ((&this).bucket << FileSystemLayout.SplitBits.key_bits);
     }
 }
 
@@ -864,8 +864,8 @@ version ( UnitTest )
 
         public void addSlot ( hash_t slot_num, SlotBuckets buckets )
         {
-            const max_slot = (1 << FileSystemLayout.SplitBits.slot_digits) -1;
-            const max_bucket = (1 << FileSystemLayout.SplitBits.bucket_digits) -1;
+            static immutable max_slot = (1 << FileSystemLayout.SplitBits.slot_digits) -1;
+            static immutable max_bucket = (1 << FileSystemLayout.SplitBits.bucket_digits) -1;
 
             assert(slot_num <= max_slot);
 
@@ -1015,7 +1015,7 @@ unittest
 
             assert(path[slot_start + slot_digits] == '/', desc ~ ": second slash missing");
 
-            const hash_t bucket_mask = (1 << bucket_bits) - 1;
+            static immutable hash_t bucket_mask = (1 << bucket_bits) - 1;
             auto bucket_start = slot_start + slot_digits + 1;
 
             hash_t path_bucket;

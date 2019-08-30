@@ -242,8 +242,8 @@ public class DlsNodeServer : DaemonApp
     {
         assert (.terminate_event is null);
 
-        const app_name = "dlsnode";
-        const app_desc = "dlsnode: DLS server node.";
+        static immutable app_name = "dlsnode";
+        static immutable app_desc = "dlsnode: DLS server node.";
 
         this.epoll = new EpollSelectDispatcher;
 
@@ -317,7 +317,7 @@ public class DlsNodeServer : DaemonApp
             this.dls_config.write_buffer_size);
 
         // TODO: remove in the next swarm update
-        const no_delay = true;
+        static immutable no_delay = true;
 
         this.node = new DlsNode(this.node_item,
                 this.server_config.neoport(),

@@ -69,8 +69,8 @@ class DlsClient: SwarmClient.DlsClient
         mixin RequestParamsSetup;
     }
 
-    public Redistribute redistribute (  RequestParams.RedistributeDg input,
-            RequestNotification.Callback notifier )
+    public Redistribute redistribute (  scope RequestParams.RedistributeDg input,
+            scope RequestNotification.Callback notifier )
     {
         return *Redistribute(DlsConst.Command.E.Redistribute, notifier).io(input);
     }

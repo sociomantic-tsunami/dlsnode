@@ -245,8 +245,8 @@ class DlsClient: SwarmClient.DlsClient
     **************************************************************************/
 
     public PutBatch putBatch ( cstring channel,
-            RequestParams.PutBatchDg input,
-            RequestNotification.Callback notifier )
+            scope RequestParams.PutBatchDg input,
+            scope RequestNotification.Callback notifier )
     {
         return *PutBatch(DlsConst.Command.E.PutBatch, notifier).channel(channel).
             io(input);

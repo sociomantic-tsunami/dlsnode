@@ -87,7 +87,7 @@ public class StorageEngine : IStorageEngine
 
         ***********************************************************************/
 
-        private const max_files = 3;
+        private static immutable max_files = 3;
 
 
         /***************************************************************************
