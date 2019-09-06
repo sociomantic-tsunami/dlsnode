@@ -92,7 +92,7 @@ public struct Promise
     public void reset (size_t num_bytes)
     {
         this.data_buffer.length = num_bytes;
-        enableStomping(this.data_buffer);
+        assumeSafeAppend(this.data_buffer);
         this.reset();
     }
 

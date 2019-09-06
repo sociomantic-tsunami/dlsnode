@@ -283,7 +283,7 @@ scope class RedistributeRequest: Protocol.Redistribute
         // Rename the file to .tmp, making it inaccessible to the storage engine
         scope original_path = new FilePath(bucket_path);
         tmp_file_path.length = 0;
-        enableStomping(tmp_file_path);
+        assumeSafeAppend(tmp_file_path);
         sformat(tmp_file_path, "{}.tmp", bucket_path);
         original_path.rename(tmp_file_path);
 
