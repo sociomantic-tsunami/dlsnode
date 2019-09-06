@@ -258,7 +258,7 @@ struct InputBuffer
         if (this.buffer.length < promise.dataMissing)
         {
             this.buffer.length = promise.dataMissing;
-            enableStomping(this.buffer);
+            assumeSafeAppend(this.buffer);
         }
 
         // Set the final destination buffer to read from

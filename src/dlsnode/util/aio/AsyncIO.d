@@ -157,7 +157,7 @@ class AsyncIO
                 &unlock_mutex);
 
         job.recv_buffer.length = buf.length;
-        enableStomping(job.recv_buffer);
+        assumeSafeAppend(job.recv_buffer);
         job.fd = fd;
         job.suspended_job = suspended_job;
         job.offset = offset;
@@ -254,7 +254,7 @@ class AsyncIO
                     &unlock_mutex);
 
             job.recv_buffer.length = buf.length;
-            enableStomping(job.recv_buffer);
+            assumeSafeAppend(job.recv_buffer);
 
             job.fd = fd;
             job.offset = offset;
