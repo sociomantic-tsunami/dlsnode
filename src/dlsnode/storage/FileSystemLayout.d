@@ -74,8 +74,6 @@ module dlsnode.storage.FileSystemLayout;
 
 *******************************************************************************/
 
-import ocean.transition;
-
 import Hash = swarm.util.Hash;
 
 import dlsnode.storage.BucketFile;
@@ -95,6 +93,8 @@ import ocean.io.device.File;
 import ocean.io.FilePath;
 
 import ocean.core.ExceptionDefinitions: IOException;
+
+import ocean.meta.types.Qualifiers : cstring, istring, mstring;
 
 import Integer = ocean.text.convert.Integer : toUlong;
 
@@ -125,6 +125,8 @@ static this ( )
 
 public class FileSystemLayout
 {
+    import ocean.core.TypeConvert : assumeUnique;
+
     /**************************************************************************
 
         Private constructor to prevent instantiation. The public interface of

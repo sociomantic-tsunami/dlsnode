@@ -14,11 +14,9 @@
 
 module dlsnode.storage.BucketFile;
 
-import ocean.transition;
 import ocean.core.Verify;
 
 import ocean.io.model.IConduit;
-import ocean.transition;
 import dlsnode.util.aio.AsyncIO;
 import dlsnode.util.aio.JobNotification;
 
@@ -50,6 +48,7 @@ public class BucketFile: OutputStream
     import ocean.core.Enforce;
     import ocean.io.device.File;
     import ocean.io.serialize.SimpleStreamSerializer;
+    import ocean.meta.types.Qualifiers : Const, cstring, istring, mstring;
     import ocean.sys.ErrnoException;
 
     import DlsInputBuffer = dlsnode.storage.util.InputBuffer;

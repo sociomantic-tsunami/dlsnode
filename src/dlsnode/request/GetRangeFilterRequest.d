@@ -19,7 +19,6 @@ module dlsnode.request.GetRangeFilterRequest;
 *******************************************************************************/
 
 import Protocol = dlsproto.node.request.GetRangeFilter;
-import ocean.transition;
 
 /*******************************************************************************
 
@@ -32,6 +31,7 @@ scope class GetRangeFilterRequest : Protocol.GetRangeFilter
     import dlsnode.request.model.IterationMixin;
     import dlsnode.request.model.ConstructorMixin;
 
+    import ocean.meta.types.Qualifiers : Const, cstring;
     import ocean.text.Search;
 
     /***************************************************************************
@@ -52,7 +52,7 @@ scope class GetRangeFilterRequest : Protocol.GetRangeFilter
     mixin RequestConstruction!();
 
     /***************************************************************************
-    
+
         Predicate that accepts records that match the specified range and filter
 
     ***************************************************************************/
@@ -72,7 +72,7 @@ scope class GetRangeFilterRequest : Protocol.GetRangeFilter
     mixin ChannelIteration!(resources, IterationKind.Ranged, filterPredicate);
 
     /***************************************************************************
-        
+
         Initialized regex match based on provided filter string
 
         Params:

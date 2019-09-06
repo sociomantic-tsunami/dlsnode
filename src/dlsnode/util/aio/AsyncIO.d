@@ -27,8 +27,6 @@
 
 module dlsnode.util.aio.AsyncIO;
 
-import ocean.transition;
-
 import core.stdc.errno;
 import core.sys.posix.semaphore;
 import core.sys.posix.pthread;

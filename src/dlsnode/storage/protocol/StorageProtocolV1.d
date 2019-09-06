@@ -13,8 +13,6 @@
 
 module dlsnode.storage.protocol.StorageProtocolV1;
 
-import ocean.transition;
-
 import dlsnode.storage.protocol.model.IStorageProtocol;
 import ocean.io.device.File;
 import ocean.util.log.Logger;
@@ -68,6 +66,7 @@ static this ( )
 
 scope class StorageProtocolV1: IStorageProtocol
 {
+    import ocean.meta.types.Qualifiers : cstring, mstring;
 
     /**************************************************************************
 

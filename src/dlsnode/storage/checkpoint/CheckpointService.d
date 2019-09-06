@@ -19,10 +19,8 @@ module dlsnode.storage.checkpoint.CheckpointService;
 
 import dlsnode.util.aio.JobNotification;
 import ocean.core.Test;
-import ocean.transition;
-
+import ocean.meta.types.Qualifiers : cstring, istring, mstring;
 import ocean.util.log.Logger;
-import ocean.transition;
 
 version (UnitTest)
 {

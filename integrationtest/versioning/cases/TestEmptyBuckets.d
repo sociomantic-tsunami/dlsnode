@@ -11,7 +11,6 @@ module integrationtest.versioning.cases.TestEmptyBuckets;
 import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
-import ocean.transition;
 import ocean.core.Test;
 
 /******************************************************************************

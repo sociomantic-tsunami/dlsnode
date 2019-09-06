@@ -22,9 +22,6 @@
 
 module dlsnode.storage.iterator.NeoStorageEngineStepIterator;
 
-import ocean.transition;
-
-
 import dlsnode.storage.StorageEngine;
 
 import dlsnode.util.aio.AsyncIO;
@@ -47,6 +44,7 @@ public class NeoStorageEngineStepIterator
 
     import ocean.core.Buffer;
     import ocean.io.device.File;
+    import ocean.meta.types.Qualifiers : mstring;
 
     /***************************************************************************
 

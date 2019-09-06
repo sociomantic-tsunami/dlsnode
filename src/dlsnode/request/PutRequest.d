@@ -19,7 +19,6 @@ module dlsnode.request.PutRequest;
 *******************************************************************************/
 
 import Protocol = dlsproto.node.request.Put;
-import ocean.transition;
 
 /*******************************************************************************
 
@@ -33,6 +32,7 @@ public scope class PutRequest : Protocol.Put
     import dlsnode.storage.StorageEngine;
 
     import ocean.core.TypeConvert : downcast;
+    import ocean.meta.types.Qualifiers : cstring;
     import swarm.util.RecordBatcher;
 
     /***************************************************************************

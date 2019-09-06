@@ -25,8 +25,6 @@
 
 module dlsnode.storage.iterator.StorageEngineStepIterator;
 
-import ocean.transition;
-
 
 /*******************************************************************************
 
@@ -55,6 +53,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
 
     import ocean.core.Buffer;
     import ocean.io.device.File;
+    import ocean.meta.types.Qualifiers : cstring, mstring;
 
     import Hash = swarm.util.Hash;
 

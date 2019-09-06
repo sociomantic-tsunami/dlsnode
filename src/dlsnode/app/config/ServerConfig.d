@@ -12,7 +12,6 @@
 
 module dlsnode.app.config.ServerConfig;
 
-import ocean.transition;
 
 
 /*******************************************************************************
@@ -33,6 +32,8 @@ import ConfigReader = ocean.util.config.ConfigFiller;
 
 public class ServerConfig
 {
+    import ocean.meta.types.Qualifiers : mstring;
+
     ConfigReader.Required!(mstring) address;
 
     ConfigReader.Required!(ushort) port;

@@ -13,8 +13,6 @@
 
 module dlsnode.connection.neo.SharedResources;
 
-import ocean.transition;
-
 /*******************************************************************************
 
     Resources owned by the node which are needed by the request handlers.

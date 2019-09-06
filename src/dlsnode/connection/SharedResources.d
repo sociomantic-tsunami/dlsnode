@@ -30,8 +30,6 @@ module dlsnode.connection.SharedResources;
 
 import swarm.common.connection.ISharedResources;
 
-import ocean.transition;
-
 public import ocean.io.select.client.FiberSelectEvent;
 
 public import dlsnode.util.aio.EventFDJobNotification;
@@ -70,6 +68,8 @@ public alias PCRE.CompiledRegex CompiledRegex;
 
 public struct ConnectionResources
 {
+    import ocean.meta.types.Qualifiers : cstring, mstring;
+
     mstring channel_buffer;
     mstring key_buffer;
     mstring key2_buffer;

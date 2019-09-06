@@ -13,8 +13,8 @@
 
 module dlsnode.util.PosixFile;
 
+import ocean.meta.types.Qualifiers : cstring, istring;
 import ocean.sys.ErrnoException;
-import ocean.transition;
 
 class PosixFile
 {
@@ -27,7 +27,6 @@ class PosixFile
     import core.stdc.errno: EINTR, errno;
 
     import ocean.io.FilePath;
-
     import ocean.util.log.Logger;
 
     /***************************************************************************

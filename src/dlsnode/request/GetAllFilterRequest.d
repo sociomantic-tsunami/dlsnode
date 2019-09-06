@@ -19,7 +19,6 @@ module dlsnode.request.GetAllFilterRequest;
 *******************************************************************************/
 
 import Protocol = dlsproto.node.request.GetAllFilter;
-import ocean.transition;
 
 /*******************************************************************************
 
@@ -32,6 +31,7 @@ scope class GetAllFilterRequest : Protocol.GetAllFilter
     import dlsnode.request.model.IterationMixin;
     import dlsnode.request.model.ConstructorMixin;
 
+    import ocean.meta.types.Qualifiers : Const, cstring;
     import ocean.text.Search;
 
     /***************************************************************************

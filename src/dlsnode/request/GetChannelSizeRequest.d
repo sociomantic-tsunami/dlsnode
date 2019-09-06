@@ -19,7 +19,6 @@ module dlsnode.request.GetChannelSizeRequest;
 *******************************************************************************/
 
 import Protocol = dlsproto.node.request.GetChannelSize;
-import ocean.transition;
 
 /*******************************************************************************
 
