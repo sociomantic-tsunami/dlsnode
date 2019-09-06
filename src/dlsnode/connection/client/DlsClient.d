@@ -23,6 +23,7 @@ module dlsnode.connection.client.DlsClient;
 
 import ocean.io.compress.lzo.LzoChunkCompressor;
 import ocean.core.Verify;
+import ocean.meta.types.Qualifiers : cstring, mstring;
 
 import SwarmClient = dlsproto.client.DlsClient;
 
