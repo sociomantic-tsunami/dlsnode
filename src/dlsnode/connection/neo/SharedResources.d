@@ -23,7 +23,7 @@ public final class SharedResources
 {
     import ocean.io.compress.Lzo;
     import ocean.util.container.pool.FreeList;
-    import swarm.neo.util.AcquiredResources;
+    import ocean.util.container.pool.AcquiredResources;
     import swarm.util.RecordBatcher;
     import dlsnode.storage.StorageChannels;
     import dlsproto.node.neo.request.core.IRequestResources;

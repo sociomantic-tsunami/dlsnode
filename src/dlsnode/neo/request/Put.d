@@ -33,7 +33,21 @@ scope class PutImpl_v1: PutProtocol_v1
     import dlsnode.storage.StorageChannels;
     import dlsnode.storage.StorageEngine;
     import core.stdc.time;
-    import ocean.meta.types.Qualifiers : cstring, mstring;
+    import ocean.meta.types.Qualifiers : cstring, istring, mstring;
+
+    /// Request code/version (required by ConnectionHandler)
+    static immutable Command command = Command(RequestCode.Put, 1);
+
+    /// Request name for stats tracking (required by ConnectionHandler)
+    static immutable istring name = "Put";
+
+    /// Flag indicating whether timing stats should be gathered for requests
+    /// of this type
+    static immutable bool timing = true;
+
+    /// Flag indicating whether this request type is scheduled for removal
+    /// (if `true`, clients will be warned)
+    static immutable bool scheduled_for_removal = false;
 
     /***************************************************************************
 

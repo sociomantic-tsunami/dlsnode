@@ -34,8 +34,6 @@ import dlsnode.request.model.RequestResources;
 
 import dlsnode.request.GetVersionRequest;
 import dlsnode.request.GetChannelsRequest;
-import dlsnode.request.GetSizeRequest;
-import dlsnode.request.GetChannelSizeRequest;
 import dlsnode.request.GetAllRequest;
 import dlsnode.request.GetAllFilterRequest;
 import dlsnode.request.RemoveChannelRequest;
@@ -654,30 +652,6 @@ public class DlsConnectionHandler
     override protected void handleGetChannels ( )
     {
         this.handleCommand!(GetChannelsRequest);
-    }
-
-
-    /***************************************************************************
-
-        Command code 'GetSize' handler.
-
-    ***************************************************************************/
-
-    override protected void handleGetSize ( )
-    {
-        this.handleCommand!(GetSizeRequest);
-    }
-
-
-    /***************************************************************************
-
-        Command code 'GetChannelSize' handler.
-
-    ***************************************************************************/
-
-    override protected void handleGetChannelSize ( )
-    {
-        this.handleCommand!(GetChannelSizeRequest);
     }
 
 

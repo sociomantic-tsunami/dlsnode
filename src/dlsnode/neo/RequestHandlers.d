@@ -31,6 +31,6 @@ public ConnectionHandler.RequestMap requests;
 
 static this ( )
 {
-    requests.add(Command(RequestCode.GetRange, 2), "GetRange", GetRangeImpl_v2.classinfo);
-    requests.add(Command(RequestCode.Put, 1), "Put", PutImpl_v1.classinfo);
+    requests.addHandler!(GetRangeImpl_v2);
+    requests.addHandler!(PutImpl_v1);
 }

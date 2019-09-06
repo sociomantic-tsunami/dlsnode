@@ -40,7 +40,7 @@ scope class GetRangeFilterRequest : Protocol.GetRangeFilter
 
     ***************************************************************************/
 
-    private SearchFruct!(Const!(char)) match;
+    private SearchFruct match;
 
     /***************************************************************************
 

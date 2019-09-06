@@ -52,7 +52,21 @@ scope class GetRangeImpl_v2: GetRangeProtocol_v2
     import dlsnode.storage.StorageEngine;
     import dlsnode.storage.iterator.NeoStorageEngineStepIterator;
     import core.stdc.time;
-    import ocean.meta.types.Qualifiers : Const, cstring, mstring;
+    import ocean.meta.types.Qualifiers : Const, cstring, istring, mstring;
+
+    /// Request code/version (required by ConnectionHandler)
+    static immutable Command command = Command(RequestCode.GetRange, 2);
+
+    /// Request name for stats tracking (required by ConnectionHandler)
+    static immutable istring name = "GetRange";
+
+    /// Flag indicating whether timing stats should be gathered for requests
+    /// of this type
+    static immutable bool timing = true;
+
+    /// Flag indicating whether this request type is scheduled for removal
+    /// (if `true`, clients will be warned)
+    static immutable bool scheduled_for_removal = false;
 
     /***************************************************************************
 
@@ -101,7 +115,7 @@ scope class GetRangeImpl_v2: GetRangeProtocol_v2
 
     ***************************************************************************/
 
-    private SearchFruct!(Const!(char)) match;
+    private SearchFruct match;
 
     /***************************************************************************
 

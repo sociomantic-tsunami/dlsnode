@@ -24,7 +24,7 @@ import dlsnode.storage.protocol.model.IStorageProtocol;
 import dlsnode.storage.protocol.StorageProtocolLegacy;
 import dlsnode.storage.protocol.StorageProtocolV1;
 
-import ocean.util.serialize.contiguous.package_;
+import ocean.util.serialize.contiguous;
 import dlsnode.storage.util.Promise;
 
 /*******************************************************************************
