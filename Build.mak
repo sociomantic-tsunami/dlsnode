@@ -1,4 +1,17 @@
-override DFLAGS += -w
+# check whether to build with position-independent code
+# (may be required to build on newer distro releases)
+ifeq ($(USE_PIC),1)
+	override DFLAGS += -fPIC
+endif
+
+# some D compilers are more picky than others, so tolerating
+# warnings may be necessary in order to build with them
+ifeq ($(ALLOW_WARNINGS), 1)
+	override DFLAGS += -wi
+else
+	override DFLAGS += -w
+endif
+
 override LDFLAGS += -llzo2 -lebtree -lrt -lgcrypt -lgpg-error -lglib-2.0
 
 $B/dlsnode: override LDFLAGS += -lpcre -lebtree
