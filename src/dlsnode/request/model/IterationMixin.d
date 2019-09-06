@@ -12,8 +12,6 @@
 
 module dlsnode.request.model.IterationMixin;
 
-import ocean.transition;
-
 /*******************************************************************************
 
     Indicates whether to mixin code for iterating over the complete channel or
@@ -43,10 +41,10 @@ enum IterationKind
 public template ChannelIteration ( alias resources, IterationKind kind,
     alias predicate = alwaysTrue )
 {
-    import ocean.transition;
     import dlsnode.storage.StorageChannels;
     import dlsnode.storage.StorageEngine;
     import dlsnode.storage.iterator.StorageEngineStepIterator;
+    import ocean.meta.types.Qualifiers : cstring;
 
     /***************************************************************************
 

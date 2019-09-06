@@ -24,8 +24,6 @@ module dlsnode.storage.BufferedBucketOutput;
 
  ******************************************************************************/
 
-import ocean.transition;
-
 import dlsnode.storage.BucketFile;
 import dlsnode.storage.FileSystemLayout;
 import dlsnode.storage.Record;
@@ -66,6 +64,7 @@ public class BufferedBucketOutput
 {
     import dlsnode.storage.checkpoint.CheckpointService;
     import ocean.core.Buffer;
+    import ocean.meta.types.Qualifiers : cstring, mstring;
 
     /**************************************************************************
 

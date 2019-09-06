@@ -21,7 +21,6 @@ module dlsnode.request.PutBatchRequest;
 import Protocol = dlsproto.node.request.PutBatch;
 
 import ocean.util.log.Logger;
-import ocean.transition;
 
 /*******************************************************************************
 
@@ -47,6 +46,7 @@ public scope class PutBatchRequest : Protocol.PutBatch
     import dlsnode.request.model.ConstructorMixin;
 
     import ocean.core.TypeConvert : downcast;
+    import ocean.meta.types.Qualifiers : cstring;
 
     /***************************************************************************
 

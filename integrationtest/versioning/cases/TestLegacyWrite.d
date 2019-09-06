@@ -11,7 +11,6 @@ module integrationtest.versioning.cases.TestLegacyWrite;
 import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
-import ocean.transition;
 import ocean.core.Test;
 
 /******************************************************************************
@@ -37,6 +36,8 @@ class GetAllLegacy: DlsVersioningCase
 
     public override void run ( )
     {
+        import ocean.meta.types.Qualifiers : cstring;
+
         // A single bucket file in the legacy format is copied into the test DLS
         // node's data folder (see DlsVersioningRunner.copyFiles()). We can then
         // perform tests to check that the DLS can write and read it properly.
@@ -50,7 +51,7 @@ class GetAllLegacy: DlsVersioningCase
             0x0000000057275810: ["Oh, yes indeed."]
         ];
 
-        cstring[][hash_t] new_records = 
+        cstring[][hash_t] new_records =
         [
             0x0000000057275813: ["test1"],
             0x0000000057275814: ["test2"],
@@ -78,7 +79,7 @@ class GetAllLegacy: DlsVersioningCase
                 this.dls.put(this.test_channel, k, rec);
             }
         }
-        
+
         // Do a GetAll to retrieve them all
         auto fetched = this.dls.getAll(this.test_channel);
 

@@ -13,8 +13,6 @@
 
 module dlsnode.storage.iterator.StorageEngineFileIterator;
 
-import ocean.transition;
-
 
 /*******************************************************************************
 
@@ -26,6 +24,7 @@ public class StorageEngineFileIterator
 {
     import dlsnode.storage.FileSystemLayout : FileSystemLayout;
     import dlsnode.storage.StorageEngine;
+    import ocean.meta.types.Qualifiers : cstring, mstring;
 
     /***************************************************************************
 

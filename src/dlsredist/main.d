@@ -23,13 +23,12 @@ module dlsredist.main;
 
 import Version;
 
-import ocean.transition;
-
 import dlsredist.client.DlsClient;
 
 import ocean.core.Enforce: enforce;
 import ocean.io.Stdout;
 import ocean.io.select.EpollSelectDispatcher;
+import ocean.meta.types.Qualifiers : cstring, istring, mstring;
 import ocean.util.app.CliApp;
 
 import swarm.Const;

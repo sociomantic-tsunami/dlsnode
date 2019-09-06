@@ -15,8 +15,6 @@ module integrationtest.versioning.main;
 
 *******************************************************************************/
 
-import ocean.transition;
-
 import turtle.runner.Runner;
 
 import integrationtest.versioning.cases.TestEmptyBuckets;
@@ -25,6 +23,8 @@ import integrationtest.versioning.cases.TestLegacyWrite;
 import integrationtest.versioning.cases.TestVersionOneWrite;
 import integrationtest.versioning.cases.TestParityFine;
 import integrationtest.versioning.cases.TestParityBroken;
+
+import ocean.meta.types.Qualifiers : istring;
 
 
 /*******************************************************************************

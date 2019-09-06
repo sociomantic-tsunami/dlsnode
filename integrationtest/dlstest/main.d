@@ -16,8 +16,8 @@ module integrationtest.dlstest.main;
 
 *******************************************************************************/
 
-import ocean.transition;
 import dlstest.TestRunner;
+import ocean.meta.types.Qualifiers : istring;
 import turtle.runner.Runner;
 
 /*******************************************************************************

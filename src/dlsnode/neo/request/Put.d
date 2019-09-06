@@ -19,7 +19,6 @@ import swarm.neo.request.Command;
 import dlsproto.common.RequestCodes;
 import dlsnode.connection.neo.SharedResources;
 
-import ocean.transition;
 import ocean.core.TypeConvert: downcast;
 
 /*******************************************************************************
@@ -34,6 +33,7 @@ scope class PutImpl_v1: PutProtocol_v1
     import dlsnode.storage.StorageChannels;
     import dlsnode.storage.StorageEngine;
     import core.stdc.time;
+    import ocean.meta.types.Qualifiers : cstring, mstring;
 
     /***************************************************************************
 

@@ -22,7 +22,6 @@ import Protocol = dlsproto.node.request.GetRangeRegex;
 import ocean.text.regex.PCRE;
 
 import ocean.util.log.Logger;
-import ocean.transition;
 
 /*******************************************************************************
 
@@ -49,6 +48,7 @@ scope class GetRangeRegexRequest : Protocol.GetRangeRegex
 
     import dlsproto.client.legacy.DlsConst;
 
+    import ocean.meta.types.Qualifiers : Const, cstring;
     import ocean.text.Search;
 
     /***************************************************************************

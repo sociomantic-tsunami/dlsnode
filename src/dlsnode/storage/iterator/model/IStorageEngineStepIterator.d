@@ -26,10 +26,10 @@
 module dlsnode.storage.iterator.model.IStorageEngineStepIterator;
 import dlsnode.util.aio.JobNotification;
 
-import ocean.transition;
-
 interface IStorageEngineStepIterator
 {
+    import ocean.meta.types.Qualifiers : cstring;
+
     /***************************************************************************
 
         Initialises the iterator to iterate over all records in the

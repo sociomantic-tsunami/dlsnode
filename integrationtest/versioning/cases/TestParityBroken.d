@@ -11,7 +11,6 @@ module integrationtest.versioning.cases.TestParityBroken;
 import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
-import ocean.transition;
 import ocean.core.Test;
 
 /******************************************************************************
@@ -38,6 +37,8 @@ class GetAllParityBroken: DlsVersioningCase
 
     public override void run ( )
     {
+        import ocean.meta.types.Qualifiers : cstring;
+
         // A single bucket file in the v1 format, with partity errors, is copied
         // into the test DLS node's data folder (see
         // DlsVersioningRunner.copyFiles()). We can then perform tests to check

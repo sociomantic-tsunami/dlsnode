@@ -19,7 +19,6 @@ module dlsnode.request.RemoveChannelRequest;
 *******************************************************************************/
 
 import Protocol = dlsproto.node.request.RemoveChannel;
-import ocean.transition;
 
 /*******************************************************************************
 
@@ -30,6 +29,7 @@ import ocean.transition;
 public scope class RemoveChannelRequest : Protocol.RemoveChannel
 {
     import dlsnode.request.model.ConstructorMixin;
+    import ocean.meta.types.Qualifiers : cstring;
 
     /***************************************************************************
 

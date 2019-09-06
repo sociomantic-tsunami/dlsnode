@@ -18,7 +18,6 @@ module dlsnode.request.GetChannelsRequest;
 
 *******************************************************************************/
 
-import ocean.transition;
 import Protocol = dlsproto.node.request.GetChannels;
 
 /*******************************************************************************
@@ -30,6 +29,7 @@ import Protocol = dlsproto.node.request.GetChannels;
 public scope class GetChannelsRequest : Protocol.GetChannels
 {
     import dlsnode.request.model.ConstructorMixin;
+    import ocean.meta.types.Qualifiers : cstring;
 
     /***************************************************************************
 

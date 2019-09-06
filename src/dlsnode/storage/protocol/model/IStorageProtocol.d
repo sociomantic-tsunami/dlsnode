@@ -13,8 +13,6 @@
 
 module dlsnode.storage.protocol.model.IStorageProtocol;
 
-import ocean.transition;
-
 public import dlsnode.storage.Record;
 public import dlsnode.storage.BucketFile;
 public import ocean.io.stream.Buffered;
@@ -25,6 +23,8 @@ import dlsnode.storage.util.Promise;
 
 interface IStorageProtocol
 {
+    import ocean.meta.types.Qualifiers : cstring, mstring;
+
     /**************************************************************************
 
         Reads next record header from the file, if any.

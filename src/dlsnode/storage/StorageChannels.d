@@ -28,8 +28,6 @@ import ocean.util.log.Logger;
 
 import ocean.io.select.client.FiberSelectEvent;
 
-import ocean.transition;
-
 /*******************************************************************************
 
     Static module logger
@@ -65,7 +63,7 @@ public class StorageChannels : IStorageChannelsTemplate!(StorageEngine)
     import ocean.io.select.client.FiberSelectEvent;
 
     import ocean.io.FilePath;
-
+    import ocean.meta.types.Qualifiers : cstring;
     import ocean.sys.Environment;
 
     debug import ocean.io.Stdout : Stderr;

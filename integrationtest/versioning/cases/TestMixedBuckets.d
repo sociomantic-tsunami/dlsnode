@@ -11,7 +11,6 @@ module integrationtest.versioning.cases.TestMixedBuckets;
 import integrationtest.versioning.DlsVersioningCase;
 
 import ocean.core.array.Search;
-import ocean.transition;
 import ocean.core.Test;
 
 /******************************************************************************
@@ -38,6 +37,8 @@ class GetAllMixedBuckets: DlsVersioningCase
 
     public override void run ( )
     {
+        import ocean.meta.types.Qualifiers : cstring;
+
         // One bucket file in the legacy format and one in the v1 format are
         // copied into the test DLS node's data folder as a single channel
         // (see DlsVersioningRunner.copyFiles()). We can then perform tests to

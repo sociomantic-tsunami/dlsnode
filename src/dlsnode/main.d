@@ -20,9 +20,8 @@ module dlsnode.main;
 
 *******************************************************************************/
 
-import ocean.transition;
-
 import ocean.io.select.client.SelectEvent;
+import ocean.meta.types.Qualifiers : istring;
 import ocean.util.app.DaemonApp;
 
 // FIXME: this import is static in order to resolve conflict with
@@ -39,9 +38,7 @@ import core.stdc.string;
 import core.sys.posix.unistd;
 import core.sys.posix.sys.stat;
 import core.sys.posix.fcntl;
-import ocean.transition;
 
-import ocean.transition;
 
 /*******************************************************************************
 

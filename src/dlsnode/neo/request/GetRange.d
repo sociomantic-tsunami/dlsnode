@@ -22,7 +22,6 @@ import ocean.text.regex.PCRE;
 import ocean.text.Search;
 
 import ocean.core.Array;
-import ocean.transition;
 import ocean.core.TypeConvert: downcast;
 
 import dlsnode.util.aio.DelegateJobNotification;
@@ -53,6 +52,7 @@ scope class GetRangeImpl_v2: GetRangeProtocol_v2
     import dlsnode.storage.StorageEngine;
     import dlsnode.storage.iterator.NeoStorageEngineStepIterator;
     import core.stdc.time;
+    import ocean.meta.types.Qualifiers : Const, cstring, mstring;
 
     /***************************************************************************
 

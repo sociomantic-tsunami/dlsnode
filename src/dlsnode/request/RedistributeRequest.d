@@ -21,8 +21,6 @@ module dlsnode.request.RedistributeRequest;
 
 import Protocol = dlsproto.node.request.Redistribute;
 
-import ocean.transition;
-
 import ocean.util.log.Logger;
 
 /******************************************************************************
@@ -61,7 +59,7 @@ scope class RedistributeRequest: Protocol.Redistribute
     import ocean.core.Array: copy;
     import ocean.core.Buffer;
     import ocean.core.TypeConvert : downcast;
-
+    import ocean.meta.types.Qualifiers : cstring, mstring;
     import ocean.text.convert.Formatter;
     import ocean.io.FilePath;
     import ocean.io.device.File;

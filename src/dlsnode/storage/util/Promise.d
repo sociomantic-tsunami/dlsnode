@@ -21,7 +21,6 @@
 
 module dlsnode.storage.util.Promise;
 
-import ocean.transition;
 import ocean.core.Verify;
 import ocean.core.Traits;
 import core.sys.posix.sys.types;

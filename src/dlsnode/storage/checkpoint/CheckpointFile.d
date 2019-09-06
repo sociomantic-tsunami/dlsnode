@@ -29,7 +29,6 @@
 module dlsnode.storage.checkpoint.CheckpointFile;
 
 import ocean.util.log.Logger;
-import ocean.transition;
 
 /******************************************************************************
 
@@ -56,6 +55,7 @@ class CheckpointFile
     import ocean.sys.ErrnoException;
     import ocean.core.Array;
     import ocean.io.device.File;
+    import ocean.meta.types.Qualifiers : cstring, istring, mstring;
 
     import dlsnode.util.PosixFile;
     import dlsnode.storage.FileSystemLayout;

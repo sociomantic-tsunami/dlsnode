@@ -22,8 +22,8 @@ module dlsnode.node.DlsNode;
 
 import swarm.node.model.NeoChannelsNode : ChannelsNodeBase;
 
-import ocean.transition;
 import ocean.core.TypeConvert;
+import ocean.meta.types.Qualifiers : istring, mstring;
 
 import dlsnode.node.IDlsNodeInfo;
 

@@ -12,8 +12,6 @@
 
 module dlsnode.storage.protocol.StorageProtocolLegacy;
 
-import ocean.transition;
-
 import dlsnode.storage.protocol.model.IStorageProtocol;
 import dlsnode.storage.util.Promise;
 import ocean.io.device.File;
@@ -38,6 +36,7 @@ import ocean.core.array.Mutation;
 
 scope class StorageProtocolLegacy: IStorageProtocol
 {
+    import ocean.meta.types.Qualifiers : cstring, mstring;
 
     /**************************************************************************
 

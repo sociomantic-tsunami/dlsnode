@@ -12,8 +12,6 @@
 
 module dlsnode.util.aio.internal.JobQueue;
 
-import ocean.transition;
-
 import core.stdc.errno;
 import core.stdc.stdint;
 import core.sys.posix.unistd;

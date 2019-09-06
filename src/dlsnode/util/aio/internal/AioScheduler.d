@@ -34,7 +34,6 @@
 
 module dlsnode.util.aio.internal.AioScheduler;
 
-import ocean.transition;
 import ocean.io.select.client.SelectEvent;
 
 /// Ditto

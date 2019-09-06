@@ -14,8 +14,6 @@
 
 module dlsnode.storage.util.InputBuffer;
 
-import ocean.transition;
-
 import core.sys.posix.sys.types;
 import ocean.core.Buffer;
 import ocean.core.Verify;
