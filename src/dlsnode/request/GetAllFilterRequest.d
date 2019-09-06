@@ -40,7 +40,7 @@ scope class GetAllFilterRequest : Protocol.GetAllFilter
 
     ***************************************************************************/
 
-    private SearchFruct!(Const!(char)) match;
+    private SearchFruct match;
 
     /***************************************************************************
 
