@@ -23,7 +23,7 @@ import ocean.core.TypeConvert: downcast;
 
 /*******************************************************************************
 
-    Node implementation of the PutProtocol_v0.
+    Node implementation of the PutProtocol_v1.
 
 *******************************************************************************/
 
