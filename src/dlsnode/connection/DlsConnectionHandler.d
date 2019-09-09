@@ -126,6 +126,8 @@ public class DlsConnectionSetupParams : ConnectionSetupParams
 public class DlsConnectionHandler
     : ConnectionHandlerTemplate!(DlsConst.Command)
 {
+    import ocean.meta.types.Qualifiers : cstring, mstring;
+
     /***************************************************************************
 
         Helper class to acquire and relinquish resources required by a request
