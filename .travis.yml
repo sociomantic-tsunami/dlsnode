@@ -49,6 +49,10 @@ jobs:
           env: DMD=2.078.* F=production COV=1
         - <<: *test-matrix
           env: DMD=2.078.* F=devel COV=1
+        - <<: *test-matrix
+          env: DMD=2.088.* F=production COV=1
+        - <<: *test-matrix
+          env: DMD=2.088.* F=devel COV=1
 
         # Test deployment docker image generation
         - stage: Test
