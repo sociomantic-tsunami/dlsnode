@@ -24,8 +24,8 @@ import ocean.util.log.Logger;
 
 version (UnitTest)
 {
-    import ocean.stdc.posix.stdlib: mkdtemp;
     import ocean.text.util.StringC;
+    import core.sys.posix.stdlib : mkdtemp;
 }
 
 /******************************************************************************

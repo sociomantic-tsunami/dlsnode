@@ -22,7 +22,7 @@
 module dlsnode.storage.util.Promise;
 
 import ocean.core.Verify;
-import ocean.core.Traits;
+import ocean.meta.traits.Basic;
 import core.sys.posix.sys.types;
 
 /***************************************************************************
@@ -286,7 +286,7 @@ struct Future(T = void[])
         }
         else
         {
-            static if (isDynamicArrayType!(T))
+            static if (isArrayType!(T) == ArrayKind.Dynamic)
             {
                 return cast(T)this.promise.result();
             }
