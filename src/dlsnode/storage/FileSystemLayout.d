@@ -100,7 +100,7 @@ import Integer = ocean.text.convert.Integer : toUlong;
 
 import ocean.util.log.Logger;
 
-import ocean.stdc.posix.sys.stat;
+import core.sys.posix.sys.stat;
 
 debug ( FileSystemLayout ) import ocean.io.Stdout;
 
@@ -769,7 +769,7 @@ public struct SlotBucket
 
     ***************************************************************************/
 
-    public typeof (&this) fromKey ( hash_t key )
+    public typeof (&this) fromKey ( hash_t key ) return
     {
         this.bucket = key >> FileSystemLayout.SplitBits.key_bits;
         this.slot = bucket >> FileSystemLayout.SplitBits.bucket_bits;

@@ -277,7 +277,7 @@ class CheckpointFile
             iterate((cstring name, size_t bucket_start, size_t bucket_offset)
             {
                 int n = fprintf(this.stream, "%.*s %lu %lu\n".ptr,
-                                name.length, name.ptr,
+                                cast(int) name.length, name.ptr,
                                 bucket_start, bucket_offset);
 
                 this.exception.enforce(n >= 0, "error writing checkpoint",

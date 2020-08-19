@@ -12,7 +12,7 @@
 
 module dlsnode.storage.Record;
 
-import ocean.core.Traits;
+import ocean.meta.traits.Basic;
 
 /*******************************************************************************
 
