@@ -49,7 +49,7 @@ import ocean.util.Convert;
 
 ******************************************************************************/
 
-version (UnitTest) {} else
+version (unittest) {} else
 int main ( istring[] args )
 {
     auto app = new DlsRedist;

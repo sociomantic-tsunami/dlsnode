@@ -216,7 +216,7 @@ public class DlsNode :
 }
 
 
-version ( UnitTest )
+version (unittest)
 {
     import ocean.core.Test;
     import ocean.text.regex.PCRE;

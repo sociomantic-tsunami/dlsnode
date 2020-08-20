@@ -104,7 +104,7 @@ import core.sys.posix.sys.stat;
 
 debug ( FileSystemLayout ) import ocean.io.Stdout;
 
-version (UnitTest)
+version (unittest)
 {
     import ocean.core.Test;
 }
@@ -818,7 +818,7 @@ public struct SlotBucket
 }
 
 
-version ( UnitTest )
+version (unittest)
 {
     /***************************************************************************
 
