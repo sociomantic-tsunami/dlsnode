@@ -179,7 +179,7 @@ scope class GetRangeRegexRequest : Protocol.GetRangeRegex
 }
 
 
-version ( UnitTest )
+version (unittest)
 {
     import ocean.core.Test;
     import ocean.text.regex.PCRE;

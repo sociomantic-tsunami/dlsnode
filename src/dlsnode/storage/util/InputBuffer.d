@@ -23,7 +23,7 @@ import ocean.core.array.Mutation;
 
 import dlsnode.storage.util.Promise;
 
-version (UnitTest)
+version (unittest)
 {
     import ocean.core.Test;
 }

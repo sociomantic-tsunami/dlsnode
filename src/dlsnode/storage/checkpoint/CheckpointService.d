@@ -22,7 +22,7 @@ import ocean.core.Test;
 import ocean.meta.types.Qualifiers : cstring, istring, mstring;
 import ocean.util.log.Logger;
 
-version (UnitTest)
+version (unittest)
 {
     import ocean.text.util.StringC;
     import core.sys.posix.stdlib : mkdtemp;

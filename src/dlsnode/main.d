@@ -89,7 +89,7 @@ private extern(C) void signalHandler (int signum)
 
 *******************************************************************************/
 
-version (UnitTest) {} else
+version (unittest) {} else
 private int main ( istring[] cl_args )
 {
     auto app = new DlsNodeServer;
