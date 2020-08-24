@@ -22,7 +22,7 @@ Installing
 ----------
 
 DLS node is deployed via Debian packages located on APT server, so the
-installation is as simple as ``sudo apt-get install dlsnode-d1=version``. The
+installation is as simple as ``sudo apt-get install dlsnode=version``. The
 install process doesn't restart already running service, so use ``sudo service
 dls restart`` to restart it.
 
@@ -37,8 +37,7 @@ Processes
 
 A single instance of the DLS node runs on each assigned server.
 DLS' runs in ``/srv/dlsnode`` directory, and upstart script runs
-``/srv/dlsnode/dlsnode`` which should be a symlink normally resolving to
-``/usr/sbin/dlsnode-d1``.
+``/srv/dlsnode/dlsnode`` .
 
 Upstart
 -------
