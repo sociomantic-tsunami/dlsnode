@@ -17,7 +17,8 @@ before_install: git submodule update --init
 # Global environment variables
 env:
     global:
-        - DIST=xenial
+        - DIST=bionic
+        - COV=0
         # Default beaver image names. May be overriden in specific stages
         - BEAVER_DOCKER_IMG=builder
         - BEAVER_DOCKER_CONTEXT=docker/builder
@@ -46,20 +47,20 @@ jobs:
     include:
         # Test matrix
         - <<: *test-matrix
-          env: DMD=2.078.* F=production COV=1
+          env: DMD=2.092.* F=production
         - <<: *test-matrix
-          env: DMD=2.078.* F=devel COV=1
+          env: DMD=2.092.* F=devel
         - <<: *test-matrix
-          env: DMD=2.088.* F=production COV=1
+          env: DMD=2.093.* F=production COV=1
         - <<: *test-matrix
-          env: DMD=2.088.* F=devel COV=1
+          env: DMD=2.093.* F=devel COV=1
 
         # Test deployment docker image generation
         - stage: Test
           script:
-              - docker build --build-arg DMD=2.078.* --build-arg DIST=xenial
+              - docker build --build-arg DMD=2.093.* --build-arg DIST=${DIST}
                 -t dlsnode -f docker/Dockerfile.dlsnode .
 
         # Package matrix
         - <<: *package-matrix
-          env: DMD=2.078.* F=production COV=0
+          env: DMD=2.093.* F=production
