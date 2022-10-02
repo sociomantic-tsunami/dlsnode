@@ -19,7 +19,7 @@ module dlsnode.storage.checkpoint.CheckpointService;
 
 import dlsnode.util.aio.JobNotification;
 import ocean.core.Test;
-import ocean.meta.types.Qualifiers : cstring, istring, mstring;
+import ocean.meta.types.Qualifiers : cstring, mstring;
 import ocean.util.log.Logger;
 
 version (unittest)
@@ -711,7 +711,7 @@ class CheckpointService
 unittest
 {
     auto dir = StringC.toDString(mkdtemp("/tmp/Dserviceunittest-XXXXXX\0".dup.ptr));
-    istring[3] channel_names = ["test1", "test2", "test3"];
+    string[3] channel_names = ["test1", "test2", "test3"];
     CheckpointService service = new CheckpointService (dir, "checkpoint.dat");
 
     // Dummy method for fsyncing the bucket

@@ -13,7 +13,7 @@
 
 module dlsnode.util.PosixFile;
 
-import ocean.meta.types.Qualifiers : cstring, istring;
+import ocean.meta.types.Qualifiers : cstring;
 import ocean.sys.ErrnoException;
 
 class PosixFile
@@ -35,7 +35,7 @@ class PosixFile
 
     ***************************************************************************/
 
-    public istring name;
+    public string name;
 
     /***************************************************************************
 
@@ -148,12 +148,12 @@ class PosixFile
 
     ***************************************************************************/
 
-    public ulong seek ( off_t offset, int whence, istring errmsg, istring file = __FILE__, long line = __LINE__ )
+    public ulong seek ( off_t offset, int whence, string errmsg, string file = __FILE__, long line = __LINE__ )
     out (pos)
     {
         assert(pos <= off_t.max);
     }
-    body
+    do
     {
         offset = lseek(this.fd_, offset, whence);
 
@@ -235,7 +235,7 @@ class PosixFile
 
     ***************************************************************************/
 
-    public void enforce ( T ) ( T ok, istring msg, istring file = __FILE__, long line = __LINE__ )
+    public void enforce ( T ) ( T ok, string msg, string file = __FILE__, long line = __LINE__ )
     {
         if (!ok)
         {
@@ -295,13 +295,13 @@ class PosixFile
 
     ***************************************************************************/
 
-    public size_t transmit ( void[] data, ref off_t pos, typeof(&pwrite) op, istring errmsg,
-                             istring file = __FILE__, long line = __LINE__ )
+    public size_t transmit ( void[] data, ref off_t pos, typeof(&pwrite) op, string errmsg,
+                             string file = __FILE__, long line = __LINE__ )
     out (n)
     {
         assert(n <= data.length);
     }
-    body
+    do
     {
         for (void[] left = data; left.length;)
         {
@@ -349,13 +349,13 @@ class PosixFile
 
     ***************************************************************************/
 
-    public size_t transmit ( void[] data, typeof(&write) op, istring errmsg,
-                             istring file = __FILE__, long line = __LINE__ )
+    public size_t transmit ( void[] data, typeof(&write) op, string errmsg,
+                             string file = __FILE__, long line = __LINE__ )
     out (n)
     {
         assert(n <= data.length);
     }
-    body
+    do
     {
         for (void[] left = data; left.length;)
         {
@@ -422,8 +422,6 @@ class PosixFile
 
 class FileException: ErrnoException
 {
-    import ocean.stdc.string: memmove;
-
     /***************************************************************************
 
         The name of the file where a failed operation resulted in throwing this
@@ -431,7 +429,7 @@ class FileException: ErrnoException
 
     ***************************************************************************/
 
-    public istring filename;
+    public string filename;
 
     /***************************************************************************
 
@@ -443,7 +441,7 @@ class FileException: ErrnoException
 
     ***************************************************************************/
 
-    public this ( istring filename )
+    public this ( string filename )
     {
         this.filename = filename;
     }
@@ -462,8 +460,8 @@ class FileException: ErrnoException
 
      **************************************************************************/
 
-    override public typeof(this) set ( int err_num, istring name,
-                                       istring file = __FILE__, int line = __LINE__ )
+    override public typeof(this) set ( int err_num, string name,
+                                       string file = __FILE__, int line = __LINE__ )
     {
         super.set(err_num, name, file, line);
 
@@ -474,5 +472,4 @@ class FileException: ErrnoException
 
         return this;
     }
-
 }

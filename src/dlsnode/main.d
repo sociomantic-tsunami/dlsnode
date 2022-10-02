@@ -12,16 +12,7 @@
 
 module dlsnode.main;
 
-
-
-/*******************************************************************************
-
-    Imports
-
-*******************************************************************************/
-
 import ocean.io.select.client.SelectEvent;
-import ocean.meta.types.Qualifiers : istring;
 import ocean.util.app.DaemonApp;
 
 // FIXME: this import is static in order to resolve conflict with
@@ -90,7 +81,7 @@ private extern(C) void signalHandler (int signum)
 *******************************************************************************/
 
 version (unittest) {} else
-private int main ( istring[] cl_args )
+private int main ( string[] cl_args )
 {
     auto app = new DlsNodeServer;
     return app.main(cl_args);
@@ -398,7 +389,7 @@ public class DlsNodeServer : DaemonApp
 
     ***************************************************************************/
 
-    private istring[] per_request_stats ( )
+    private string[] per_request_stats ( )
     out ( rqs )
     {
         foreach ( rq; rqs )
@@ -407,7 +398,7 @@ public class DlsNodeServer : DaemonApp
                 "Cannot track stats for unknown request " ~ rq);
         }
     }
-    body
+    do
     {
         return ["Put", "GetRange", "GetAll", "GetAllFilter",
                 "GetRangeFilter", "Redistribute", "PutBatch",

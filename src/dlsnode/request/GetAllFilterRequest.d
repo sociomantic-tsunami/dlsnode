@@ -31,7 +31,7 @@ scope class GetAllFilterRequest : Protocol.GetAllFilter
     import dlsnode.request.model.IterationMixin;
     import dlsnode.request.model.ConstructorMixin;
 
-    import ocean.meta.types.Qualifiers : Const, cstring;
+    import ocean.meta.types.Qualifiers : cstring;
     import ocean.text.Search;
 
     /***************************************************************************

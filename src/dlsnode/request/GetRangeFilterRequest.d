@@ -31,7 +31,7 @@ scope class GetRangeFilterRequest : Protocol.GetRangeFilter
     import dlsnode.request.model.IterationMixin;
     import dlsnode.request.model.ConstructorMixin;
 
-    import ocean.meta.types.Qualifiers : Const, cstring;
+    import ocean.meta.types.Qualifiers : cstring;
     import ocean.text.Search;
 
     /***************************************************************************
@@ -85,4 +85,3 @@ scope class GetRangeFilterRequest : Protocol.GetRangeFilter
         this.match = search(filter);
     }
 }
-

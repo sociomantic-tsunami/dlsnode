@@ -94,7 +94,7 @@ struct InputBuffer
     {
         assert (this.buffer.length - this.position_in_chunk >= dest.length);
     }
-    body
+    do
     {
         dest[0 .. $] =
             this.buffer[this.position_in_chunk .. this.position_in_chunk + dest.length];
@@ -207,7 +207,7 @@ struct InputBuffer
         Tries to read data in non-blocking manner. If the requested data is
         available in the internal buffer, this method would return immediately,
         filling the buffer with the requested data. Otherwise, provided method
-        async_read_data will be called, expecting to fill the internal buffer 
+        async_read_data will be called, expecting to fill the internal buffer
         and call asyncReadCompleted to let InputBuffer update it's state with the data
         actually read from the file. Either way, this method will return
         *immediately* and user should check if the read has completed inspecting
@@ -654,7 +654,7 @@ unittest
 
     // read next 100
     test!("==")(buffer.readData(tmp, &read_data), tmp.length);
-    
+
     // confirm contents
     for (auto i = 0; i < tmp.length; i++)
     {
@@ -677,7 +677,7 @@ unittest
     // read next 150
     tmp.length = 150;
     test!("==")(buffer.readData(tmp, &read_data), tmp.length);
-    
+
     // confirm contents
     for (auto i = 0; i < tmp.length; i++)
     {
@@ -700,7 +700,7 @@ unittest
     // read next 1
     tmp.length = 1;
     test!("==")(buffer.readData(tmp, &read_data), tmp.length);
-    
+
     // confirm contents
     for (auto i = 0; i < tmp.length; i++)
     {
@@ -710,7 +710,7 @@ unittest
     // read next 100
     tmp.length = 100;
     test!("==")(buffer.readData(tmp, &read_data), tmp.length);
-    
+
     // confirm contents
     for (auto i = 0; i < tmp.length; i++)
     {
@@ -720,7 +720,7 @@ unittest
     // read next 100
     tmp.length = 100;
     test!("==")(buffer.readData(tmp, &read_data), tmp.length);
-    
+
     // confirm contents
     for (auto i = 0; i < tmp.length; i++)
     {

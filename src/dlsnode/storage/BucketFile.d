@@ -48,7 +48,7 @@ public class BucketFile: OutputStream
     import ocean.core.Enforce;
     import ocean.io.device.File;
     import ocean.io.serialize.SimpleStreamSerializer;
-    import ocean.meta.types.Qualifiers : Const, cstring, istring, mstring;
+    import ocean.meta.types.Qualifiers : cstring, mstring;
     import ocean.sys.ErrnoException;
 
     import DlsInputBuffer = dlsnode.storage.util.InputBuffer;
@@ -248,7 +248,7 @@ public class BucketFile: OutputStream
 
     **************************************************************************/
 
-    public istring file_path ()
+    public string file_path ()
     {
         return this.file.toString();
     }
@@ -315,7 +315,7 @@ public class BucketFile: OutputStream
         assert(style == File.ReadExisting || style == File.ReadWriteAppending,
                 "Currently BucketFile only supports ReadExisting or ReadWriteAppending");
     }
-    body
+    do
     {
         this.promise.reset();
         this.buffered_input.reset(file_buffer);
@@ -366,7 +366,7 @@ public class BucketFile: OutputStream
         assert(style == File.ReadExisting || style == File.ReadWriteAppending,
                 "Currently BucketFile only supports ReadExisting or ReadWriteAppending");
     }
-    body
+    do
     {
         if (!this.is_open_)
         {
@@ -919,7 +919,7 @@ public class BucketFile: OutputStream
 
     ***********************************************************************/
 
-    public size_t write (Const!(void)[] src)
+    public size_t write (const(void)[] src)
     {
         return this.file.write(src);
     }

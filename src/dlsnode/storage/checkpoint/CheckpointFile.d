@@ -55,7 +55,7 @@ class CheckpointFile
     import ocean.sys.ErrnoException;
     import ocean.core.Array;
     import ocean.io.device.File;
-    import ocean.meta.types.Qualifiers : cstring, istring, mstring;
+    import ocean.meta.types.Qualifiers : cstring, mstring;
 
     import dlsnode.util.PosixFile;
     import dlsnode.storage.FileSystemLayout;
@@ -233,7 +233,7 @@ class CheckpointFile
                 default:
                     this.exception.enforce(!feof(this.stream), "Unexpected end of file",
                             "fscanf");
-                    istring[] errmsg =
+                    string[] errmsg =
                     [
                         "Invalid channel name"[],
                         "Invalid bucket start",
@@ -267,7 +267,7 @@ class CheckpointFile
 
     public void writeLines (
             scope void delegate (
-                void delegate ( cstring channel_name,
+                scope void delegate ( cstring channel_name,
                                 size_t bucket_start,
                                 size_t bucket_offset ) writeln ) iterate )
     {

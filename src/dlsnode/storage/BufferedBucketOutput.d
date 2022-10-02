@@ -397,7 +397,7 @@ public class BufferedBucketOutput
     {
         assert (this.file_open, typeof (this).stringof ~ ".closeFile: file not open");
     }
-    body
+    do
     {
         // NOTE: it is very important that none of the following calls
         // could cause fiber yield. Because this file is reused inside LRU
@@ -419,4 +419,3 @@ public class BufferedBucketOutput
         this.need_checkpoint = false;
     }
 }
-
