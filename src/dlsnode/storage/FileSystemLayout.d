@@ -94,7 +94,7 @@ import ocean.io.FilePath;
 
 import ocean.core.ExceptionDefinitions: IOException;
 
-import ocean.meta.types.Qualifiers : cstring, istring, mstring;
+import ocean.meta.types.Qualifiers : cstring, mstring;
 
 import Integer = ocean.text.convert.Integer : toUlong;
 
@@ -993,9 +993,9 @@ unittest
         assert(fs !is null);
         assert(start <= end);
     }
-    body
+    do
     {
-        static istring base_dir = "base";
+        static string base_dir = "base";
         mstring path;
         hash_t found_bucket_slot;
 

@@ -24,8 +24,6 @@ import integrationtest.versioning.cases.TestVersionOneWrite;
 import integrationtest.versioning.cases.TestParityFine;
 import integrationtest.versioning.cases.TestParityBroken;
 
-import ocean.meta.types.Qualifiers : istring;
-
 
 /*******************************************************************************
 
@@ -43,7 +41,7 @@ private class DlsVersioningRunner : TurtleRunnerTask!(TestedAppKind.Daemon)
     ***************************************************************************/
 
     override protected void configureTestedApplication ( out double delay,
-        out istring[] args, out istring[istring] env )
+        out string[] args, out string[string] env )
     {
         delay = 1.0;
         args  = null;
@@ -112,7 +110,7 @@ private class DlsVersioningRunner : TurtleRunnerTask!(TestedAppKind.Daemon)
 *******************************************************************************/
 
 version (UnitTest) {} else
-int main ( istring[] args )
+int main ( string[] args )
 {
     auto runner =
         new TurtleRunner!(DlsVersioningRunner)("dlsnode", "integrationtest.versioning.cases");

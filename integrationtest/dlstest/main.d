@@ -17,7 +17,6 @@ module integrationtest.dlstest.main;
 *******************************************************************************/
 
 import dlstest.TestRunner;
-import ocean.meta.types.Qualifiers : istring;
 import turtle.runner.Runner;
 
 /*******************************************************************************
@@ -55,7 +54,7 @@ private class RealDlsTestRunner : DlsTestRunner
 
     ***************************************************************************/
 
-    override istring[] disabledTestCases ( )
+    override string[] disabledTestCases ( )
     {
         return [ "dlstest.cases.UnorderedMultiplePut.UnorderedMultiPutTest",
                  "dlstest.cases.UnorderedPut.UnorderedPutTest",
@@ -73,7 +72,7 @@ private class RealDlsTestRunner : DlsTestRunner
 *******************************************************************************/
 
 version (UnitTest) {} else
-int main ( istring[] args )
+int main ( string[] args )
 {
     auto runner =
         new TurtleRunner!(RealDlsTestRunner)("dlsnode", "dlstest.cases");

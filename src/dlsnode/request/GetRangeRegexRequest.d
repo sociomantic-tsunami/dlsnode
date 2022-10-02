@@ -48,7 +48,7 @@ scope class GetRangeRegexRequest : Protocol.GetRangeRegex
 
     import dlsproto.client.legacy.DlsConst;
 
-    import ocean.meta.types.Qualifiers : Const, cstring;
+    import ocean.meta.types.Qualifiers : cstring;
     import ocean.text.Search;
 
     /***************************************************************************

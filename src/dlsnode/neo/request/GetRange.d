@@ -52,13 +52,13 @@ scope class GetRangeImpl_v2: GetRangeProtocol_v2
     import dlsnode.storage.StorageEngine;
     import dlsnode.storage.iterator.NeoStorageEngineStepIterator;
     import core.stdc.time;
-    import ocean.meta.types.Qualifiers : Const, cstring, istring, mstring;
+    import ocean.meta.types.Qualifiers : cstring, mstring;
 
     /// Request code/version (required by ConnectionHandler)
     static immutable Command command = Command(RequestCode.GetRange, 2);
 
     /// Request name for stats tracking (required by ConnectionHandler)
-    static immutable istring name = "GetRange";
+    static immutable string name = "GetRange";
 
     /// Flag indicating whether timing stats should be gathered for requests
     /// of this type

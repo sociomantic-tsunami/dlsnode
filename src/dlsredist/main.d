@@ -14,13 +14,6 @@
 
 module dlsredist.main;
 
-
-/******************************************************************************
-
-    Imports.
-
-******************************************************************************/
-
 import Version;
 
 import dlsredist.client.DlsClient;
@@ -28,7 +21,7 @@ import dlsredist.client.DlsClient;
 import ocean.core.Enforce: enforce;
 import ocean.io.Stdout;
 import ocean.io.select.EpollSelectDispatcher;
-import ocean.meta.types.Qualifiers : cstring, istring, mstring;
+import ocean.meta.types.Qualifiers : cstring, mstring;
 import ocean.util.app.CliApp;
 
 import swarm.Const;
@@ -50,7 +43,7 @@ import ocean.util.Convert;
 ******************************************************************************/
 
 version (unittest) {} else
-int main ( istring[] args )
+int main ( string[] args )
 {
     auto app = new DlsRedist;
     return app.main(args);

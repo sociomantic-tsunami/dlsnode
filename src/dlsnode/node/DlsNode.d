@@ -12,27 +12,15 @@
 
 module dlsnode.node.DlsNode;
 
-
-
-/*******************************************************************************
-
-    Imports
-
-*******************************************************************************/
-
 import swarm.node.model.NeoChannelsNode : ChannelsNodeBase;
 
 import ocean.core.TypeConvert;
-import ocean.meta.types.Qualifiers : istring, mstring;
+import ocean.meta.types.Qualifiers : mstring;
 
 import dlsnode.node.IDlsNodeInfo;
-
 import dlsnode.storage.StorageChannels;
 import dlsnode.storage.StorageEngine;
-
 import dlsnode.connection.DlsConnectionHandler;
-
-
 import dlsnode.util.aio.AsyncIO;
 
 
@@ -103,10 +91,10 @@ public class DlsNode :
         ushort neo_port,
         StorageChannels channels,
         EpollSelectDispatcher epoll,
-        int backlog, istring[] per_request_stats,
+        int backlog, string[] per_request_stats,
         bool no_delay,
-        istring unix_socket_path,
-        istring credentials_path,
+        string unix_socket_path,
+        string credentials_path,
         AsyncIO async_io,
         size_t file_buffer_size )
     {
@@ -177,7 +165,7 @@ public class DlsNode :
 
     ***************************************************************************/
 
-    override protected istring id ( )
+    override protected string id ( )
     {
         return typeof(this).stringof;
     }
@@ -191,7 +179,7 @@ public class DlsNode :
 
     ***************************************************************************/
 
-    override protected istring[] record_action_counter_ids ( )
+    override protected string[] record_action_counter_ids ( )
     {
         return ["handled", "redistributed"];
     }

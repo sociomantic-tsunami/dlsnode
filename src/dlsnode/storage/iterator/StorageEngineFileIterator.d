@@ -119,7 +119,7 @@ public class StorageEngineFileIterator
     {
         assert(this.storage, typeof(this).stringof ~ ".next: storage not set");
     }
-    body
+    do
     {
         if ( !this.started )
         {
@@ -175,7 +175,7 @@ public class StorageEngineFileIterator
     {
         assert(this.storage, typeof(this).stringof ~ " - storage not set");
     }
-    body
+    do
     {
         this.started = false;
 

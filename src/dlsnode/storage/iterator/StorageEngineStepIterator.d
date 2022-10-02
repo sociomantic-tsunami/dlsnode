@@ -244,7 +244,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
     {
         assert(this.storage, typeof(this).stringof ~ ".getAll: storage not set");
     }
-    body
+    do
     {
         this.reset(suspended_job, hash_t.min, hash_t.max);
     }
@@ -271,7 +271,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
     {
         assert(this.storage, typeof(this).stringof ~ ".getRange: storage not set");
     }
-    body
+    do
     {
         this.reset(suspended_job,
                 Hash.straightToHash(min), Hash.straightToHash(max));
@@ -354,7 +354,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
     {
         assert(this.storage, typeof(this).stringof ~ ".next: storage not set");
     }
-    body
+    do
     {
         if ( !this.started )
         {
@@ -529,7 +529,7 @@ public class StorageEngineStepIterator: IStorageEngineStepIterator
     {
         assert(this.storage, typeof(this).stringof ~ ".getAll - storage not set");
     }
-    body
+    do
     {
         this.started = false;
         this.aborted = false;
